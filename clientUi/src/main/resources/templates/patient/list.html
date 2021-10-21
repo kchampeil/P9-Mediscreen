@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <title>Patient list</title>
+    <link rel="stylesheet" href="webjars/bootstrap/5.0.1/css/bootstrap.min.css">
+</head>
+
+<body>
+<div class="container">
+
+    <div class="row align-items-center">
+        <div class="col-4"><h3>Patient List</h3></div>
+        <!--TODO
+        <div class="col-7">
+            <span th:if="${errorMessage!=null}" th:text="${errorMessage}"
+                  class="text-danger text-start"> error Message</span>
+            <span th:if="${infoMessage!=null}" th:text="${infoMessage}"
+                  class="text-success text-start"> info Message</span>
+        </div>
+        -->
+    </div>
+
+    <div class="row">
+        <!--TODO <a href="/bidList/add" class="btn btn-primary btn-sm">Add New</a> -->
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Lastname</th>
+                <th>Firstname</th>
+                <th>Birthdate</th>
+                <th>Gender</th>
+                <th>Address</th>
+                <th>Phone</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="patient : ${patientDtoList}">
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.id}"> Id</span></td>
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.lastname}"> Lastname</span></td>
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.firstname}"> Firstname</span></td>
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.birthDate}"> Birthdate</span></td>
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.gender}"> Gender</span></td>
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.address}"> Address</span></td>
+                <td style="text-align: center; vertical-align: middle">
+                    <span th:text="${patient.phone}"> Phone</span></td>
+                <!--TODO <td style="width: 15%" class="text-center">
+                    <a th:href="@{/bidList/update/{id}(id=${patient.bidListId})}">Edit</a>&nbsp;|&nbsp;
+                    <a th:href="@{/bidList/delete/{id}(id=${patient.bidListId})}">Delete</a>
+                </td>
+                -->
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+
+</html>
