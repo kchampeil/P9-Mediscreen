@@ -19,6 +19,8 @@
     <java.version>1.8</java.version>
     <jacoco.version>0.8.7</jacoco.version>
     <junit-jupiter-api.version>5.7.2</junit-jupiter-api.version>
+    <swagger.version>2.8.0</swagger.version>
+    <modelmapper.version>2.4.4</modelmapper.version>
   </properties>
 
   <dependencies>
@@ -48,6 +50,23 @@
     </dependency>
 
     <dependency>
+      <groupId>org.modelmapper</groupId>
+      <artifactId>modelmapper</artifactId>
+      <version>${modelmapper.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger2</artifactId>
+      <version>${swagger.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${swagger.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
@@ -72,6 +91,7 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${project.parent.version}</version>
         <configuration>
           <excludes>
             <exclude>

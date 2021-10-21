@@ -1,12 +1,16 @@
 --
--- Creation of patientprod DB
+-- Creation of patienttest DB
 --
 CREATE
-    DATABASE IF NOT EXISTS `patientprod`;
+    DATABASE IF NOT EXISTS patienttest;
 
 USE
-    patientprod;
+    patienttest;
 
+--
+-- Remove previous versions of tables
+--
+DROP TABLE IF EXISTS patients;
 
 --
 -- Create table patients if not exists
