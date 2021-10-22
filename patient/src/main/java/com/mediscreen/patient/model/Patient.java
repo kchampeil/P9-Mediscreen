@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * The Patient class contains details of the patient
+ * The Patient class contains details about the patient
  */
 @Getter
 @Setter

@@ -26,7 +26,7 @@ public class PatientController {
         this.patientService = patientService;
     }
 
-    @ApiOperation(value = "Get all registered patients in DB")
+    @ApiOperation(value = "Get all registered patients")
     @GetMapping(value = "list")
     public List<PatientDTO> getAllPatients() {
         log.debug(LogConstants.GET_ALL_PATIENTS_REQUEST_RECEIVED);

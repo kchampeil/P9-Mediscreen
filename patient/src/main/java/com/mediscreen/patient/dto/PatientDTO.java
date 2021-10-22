@@ -23,6 +23,7 @@ public class PatientDTO {
     @Size(max = 64, message = "{patient.lastname.size}")
     private String lastname;
 
+    @NotBlank(message = "{patient.birthDate.notBlank}")
     @Past(message = "{patient.birthDate.past}")
     private LocalDate birthDate;
 

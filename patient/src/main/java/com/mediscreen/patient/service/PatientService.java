@@ -26,6 +26,10 @@ public class PatientService implements IPatientService {
         this.patientRepository = patientRepository;
     }
 
+    /**
+     * get all registered patients (DTO)
+     * @return list of patientDTO
+     */
     @Override
     public List<PatientDTO> getAllPatients() {
         log.debug(LogConstants.GET_ALL_PATIENTS_SERVICE_CALL);

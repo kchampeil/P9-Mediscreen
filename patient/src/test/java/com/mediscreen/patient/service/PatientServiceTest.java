@@ -58,7 +58,7 @@ class PatientServiceTest {
             when(patientRepositoryMock.findAll()).thenReturn(patientList);
 
             List<PatientDTO> patientDTOList = patientService.getAllPatients();
-            assertEquals(1, patientDTOList.size());
+            assertEquals(patientList.size(), patientDTOList.size());
             assertEquals(patientInDb.getId(), patientDTOList.get(0).getId());
 
             verify(patientRepositoryMock, Mockito.times(1)).findAll();
