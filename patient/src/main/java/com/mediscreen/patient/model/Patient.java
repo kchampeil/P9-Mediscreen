@@ -1,4 +1,4 @@
-package com.mesdiscreen.patient.model;
+package com.mediscreen.patient.model;
 
 import java.time.LocalDate;
 import javax.persistence.Column;

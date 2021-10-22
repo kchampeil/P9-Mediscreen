@@ -1,4 +1,4 @@
-package com.mesdiscreen.patient.service;
+package com.mediscreen.patient.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mesdiscreen.patient.constants.TestConstants;
-import com.mesdiscreen.patient.dto.PatientDTO;
-import com.mesdiscreen.patient.model.Patient;
-import com.mesdiscreen.patient.repository.PatientRepository;
-import com.mesdiscreen.patient.service.contracts.IPatientService;
+import com.mediscreen.patient.constants.TestConstants;
+import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.model.Patient;
+import com.mediscreen.patient.repository.PatientRepository;
+import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

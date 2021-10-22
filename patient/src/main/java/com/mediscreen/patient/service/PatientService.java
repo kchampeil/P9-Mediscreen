@@ -1,13 +1,13 @@
-package com.mesdiscreen.patient.service;
+package com.mediscreen.patient.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mesdiscreen.patient.constants.LogConstants;
-import com.mesdiscreen.patient.dto.PatientDTO;
-import com.mesdiscreen.patient.model.Patient;
-import com.mesdiscreen.patient.repository.PatientRepository;
-import com.mesdiscreen.patient.service.contracts.IPatientService;
+import com.mediscreen.patient.constants.LogConstants;
+import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.model.Patient;
+import com.mediscreen.patient.repository.PatientRepository;
+import com.mediscreen.patient.service.contracts.IPatientService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

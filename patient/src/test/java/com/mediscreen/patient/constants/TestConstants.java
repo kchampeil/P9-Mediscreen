@@ -1,4 +1,4 @@
-package com.mesdiscreen.patient.constants;
+package com.mediscreen.patient.constants;
 
 import java.time.LocalDate;
 

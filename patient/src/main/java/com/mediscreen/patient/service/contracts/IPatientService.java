@@ -1,8 +1,8 @@
-package com.mesdiscreen.patient.service.contracts;
+package com.mediscreen.patient.service.contracts;
 
 import java.util.List;
 
-import com.mesdiscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.dto.PatientDTO;
 
 public interface IPatientService {
     List<PatientDTO> getAllPatients();

@@ -1,10 +1,10 @@
-package com.mesdiscreen.patient.controller;
+package com.mediscreen.patient.controller;
 
 import java.util.List;
 
-import com.mesdiscreen.patient.constants.LogConstants;
-import com.mesdiscreen.patient.dto.PatientDTO;
-import com.mesdiscreen.patient.service.contracts.IPatientService;
+import com.mediscreen.patient.constants.LogConstants;
+import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.service.contracts.IPatientService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

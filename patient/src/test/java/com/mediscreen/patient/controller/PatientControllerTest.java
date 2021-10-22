@@ -1,4 +1,4 @@
-package com.mesdiscreen.patient.controller;
+package com.mediscreen.patient.controller;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,9 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mesdiscreen.patient.constants.TestConstants;
-import com.mesdiscreen.patient.dto.PatientDTO;
-import com.mesdiscreen.patient.service.contracts.IPatientService;
+import com.mediscreen.patient.constants.TestConstants;
+import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

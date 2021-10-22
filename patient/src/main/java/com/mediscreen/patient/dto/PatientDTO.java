@@ -1,4 +1,4 @@
-package com.mesdiscreen.patient.dto;
+package com.mediscreen.patient.dto;
 
 import java.time.LocalDate;
 import javax.persistence.Column;

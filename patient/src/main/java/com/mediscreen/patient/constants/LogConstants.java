@@ -1,4 +1,4 @@
-package com.mesdiscreen.patient.constants;
+package com.mediscreen.patient.constants;
 
 public class LogConstants {
     public static final String GET_ALL_PATIENTS_REQUEST_RECEIVED = "GET /patient/list request received on ms-patient" ;

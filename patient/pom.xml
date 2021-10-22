@@ -9,7 +9,7 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
-  <groupId>com.mesdiscreen</groupId>
+  <groupId>com.mediscreen</groupId>
   <artifactId>patient</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>patient</name>
@@ -21,6 +21,7 @@
     <junit-jupiter-api.version>5.7.2</junit-jupiter-api.version>
     <swagger.version>2.8.0</swagger.version>
     <modelmapper.version>2.4.4</modelmapper.version>
+    <springfox.version>3.0.0</springfox.version>
   </properties>
 
   <dependencies>
@@ -55,6 +56,7 @@
       <version>${modelmapper.version}</version>
     </dependency>
 
+    <!-- TODEL ?
     <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger2</artifactId>
@@ -64,6 +66,11 @@
       <groupId>io.springfox</groupId>
       <artifactId>springfox-swagger-ui</artifactId>
       <version>${swagger.version}</version>
+    </dependency> -->
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-boot-starter</artifactId>
+      <version>${springfox.version}</version>
     </dependency>
 
     <dependency>

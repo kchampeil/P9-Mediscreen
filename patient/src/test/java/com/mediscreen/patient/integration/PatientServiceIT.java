@@ -1,12 +1,12 @@
-package com.mesdiscreen.patient.integration;
+package com.mediscreen.patient.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import com.mesdiscreen.patient.constants.TestConstants;
-import com.mesdiscreen.patient.dto.PatientDTO;
-import com.mesdiscreen.patient.service.contracts.IPatientService;
+import com.mediscreen.patient.constants.TestConstants;
+import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
