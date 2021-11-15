@@ -1,18 +1,21 @@
 package com.mediscreen.patient.controller;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.TestConstants;
 import com.mediscreen.patient.dto.PatientDTO;
@@ -37,6 +40,8 @@ class PatientControllerTest {
 
     @MockBean
     private IPatientService patientServiceMock;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static PatientDTO patientDTO;
 
@@ -95,12 +100,57 @@ class PatientControllerTest {
 
             mockMvc.perform(get("/patient/get")
                                 .param("patientId", TestConstants.UNKNOWN_PATIENT_ID.toString()))
-                   .andExpect(status().isNotFound())
-                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
-                                                               .contains(
-                                                                   ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+                   .andExpect(status().isNotFound());
 
             verify(patientServiceMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+    }
+
+    @Nested
+    @DisplayName("updatePatient tests")
+    class UpdatePatient {
+        @Test
+        void updatePatient_ForExistingPatient_returnsUpdatedPatientAndStatusOk() throws Exception {
+
+            PatientDTO updatedPatientDto = new PatientDTO();
+            updatedPatientDto.setId(TestConstants.PATIENT1_ID);
+            updatedPatientDto.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
+            updatedPatientDto.setLastname(TestConstants.PATIENT1_LASTNAME);
+            updatedPatientDto.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
+            updatedPatientDto.setGender(TestConstants.PATIENT1_GENDER);
+            updatedPatientDto.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
+            updatedPatientDto.setPhone(TestConstants.PATIENT1_PHONE);
+
+            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.of(updatedPatientDto));
+
+            mockMvc.perform(put("/patient/update")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$").isNotEmpty())
+                   .andExpect(jsonPath("$.address", is(TestConstants.PATIENT1_ADDRESS_UPDATED)));
+
+            verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void updatePatient_ForUnknownPatient_returnsStatusBadRequest() throws Exception {
+
+            when(patientServiceMock.updatePatient(any(PatientDTO.class)))
+                .thenThrow(new RuntimeException(
+                    ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+
+            mockMvc.perform(put("/patient/update")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isBadRequest())
+                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
+                                                    .contains(
+                                                        ExceptionConstants.PATIENT_NOT_FOUND + TestConstants
+                                                        .UNKNOWN_PATIENT_ID));
+
+            verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
         }
     }
 }

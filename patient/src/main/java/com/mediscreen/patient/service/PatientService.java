@@ -66,4 +66,9 @@ public class PatientService implements IPatientService {
         }
 
     }
+
+    @Override
+    public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) {
+        return Optional.empty();
+    }
 }
