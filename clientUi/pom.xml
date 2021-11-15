@@ -11,8 +11,8 @@
 
   <groupId>com.mesdiscreen</groupId>
   <artifactId>clientUi</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>front</name>
+  <version>0.0.2-SNAPSHOT</version>
+  <name>clientUi</name>
   <description>User Interface for Mediscreen app</description>
 
   <properties>

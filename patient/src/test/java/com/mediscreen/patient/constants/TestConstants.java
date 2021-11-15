@@ -2,6 +2,8 @@ package com.mediscreen.patient.constants;
 
 import java.time.LocalDate;
 
+import ch.qos.logback.classic.Level;
+
 public class TestConstants {
 
     public static final Integer PATIENT1_ID = 1;
@@ -11,4 +13,6 @@ public class TestConstants {
     public static final String PATIENT1_GENDER = "F";
     public static final String PATIENT1_ADDRESS = "1 Rue du Paradis 75000 PARIS";
     public static final String PATIENT1_PHONE = "0101010101";
+
+    public static final Integer UNKNOWN_PATIENT_ID = 666;
 }
