@@ -31,7 +31,6 @@ public class PatientDTO { //TODO voir comment ne pas dupliquer cette déclaratio
     @NotNull(message = "{patient.birthDate.notNull}")
     @Past(message = "{patient.birthDate.past}")
     @DateTimeFormat(pattern="yyyy-MM-dd")
-    //TODEL @DateTimeFormat(pattern="MM/dd/yyyy")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate birthDate;
@@ -48,17 +47,4 @@ public class PatientDTO { //TODO voir comment ne pas dupliquer cette déclaratio
     @Size(max = 15, message = "{patient.phone.size}")
     private String phone;
 
-    //TODEL
-    @Override
-    public String toString() {
-        return "PatientDTO{" +
-               "id=" + id +
-               ", firstname='" + firstname + '\'' +
-               ", lastname='" + lastname + '\'' +
-               ", birthDate=" + birthDate +
-               ", gender='" + gender + '\'' +
-               ", address='" + address + '\'' +
-               ", phone='" + phone + '\'' +
-               '}';
-    }
 }

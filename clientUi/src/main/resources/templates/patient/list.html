@@ -5,7 +5,8 @@
 <head>
     <title>Patient list</title>
     <link rel="icon" type="image/png" href="/static/img/favicon.png"/>
-    <link rel="stylesheet" href="webjars/bootstrap/5.0.1/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 
 <body>
@@ -13,28 +14,29 @@
 
     <div class="row mt-5">
         <div class="col-4"><h3>Patient List</h3></div>
-        <!--TODO
-        <div class="col-7">
+        <div class="col-7 align-middle">
             <span th:if="${errorMessage!=null}" th:text="${errorMessage}"
                   class="text-danger text-start"> error Message</span>
             <span th:if="${infoMessage!=null}" th:text="${infoMessage}"
                   class="text-success text-start"> info Message</span>
         </div>
-        -->
+        <div class="col-1">
+            <a href="/patient/add" class="btn btn-primary btn-sm">Add New</a>
+        </div>
     </div>
 
-    <div class="row mt-5">
-        <!--TODO <a href="/bidList/add" class="btn btn-primary btn-sm">Add New</a> -->
+    <div class="row mt-2">
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>Id</th>
-                <th>Lastname</th>
-                <th>Firstname</th>
-                <th>Birthdate</th>
-                <th>Gender</th>
-                <th>Address</th>
-                <th>Phone</th>
+                <th style="text-align: center; vertical-align: middle">Id</th>
+                <th style="text-align: center; vertical-align: middle">Lastname</th>
+                <th style="text-align: center; vertical-align: middle">Firstname</th>
+                <th style="text-align: center; vertical-align: middle">Birth date</th>
+                <th style="text-align: center; vertical-align: middle">Gender</th>
+                <th style="text-align: center; vertical-align: middle">Address</th>
+                <th style="text-align: center; vertical-align: middle">Phone</th>
+                <th style="text-align: center; vertical-align: middle">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -53,11 +55,10 @@
                     <span th:text="${patient.address}"> Address</span></td>
                 <td style="text-align: center; vertical-align: middle">
                     <span th:text="${patient.phone}"> Phone</span></td>
-                <!--TODO <td style="width: 15%" class="text-center">
-                    <a th:href="@{/bidList/update/{id}(id=${patient.bidListId})}">Edit</a>&nbsp;|&nbsp;
-                    <a th:href="@{/bidList/delete/{id}(id=${patient.bidListId})}">Delete</a>
+                <td style="width: 15%" class="text-center">
+                    <a th:href="@{/patient/update/{id}(id=${patient.id})}">Edit</a>  |
+                    <a th:href="@{/patient/delete/{id}(id=${patient.id})}">Delete</a>
                 </td>
-                -->
             </tr>
             </tbody>
         </table>

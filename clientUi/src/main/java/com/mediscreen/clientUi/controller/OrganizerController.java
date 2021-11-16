@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -76,15 +75,15 @@ public class OrganizerController {
 
     }
 
-    @PutMapping("patient/update/{id}")
+    @PostMapping("patient/update/{id}")
     public String updatePatient(@PathVariable("id") Integer patientId,
                                 @ModelAttribute("patient") @Valid PatientDTO patientDTO,
                                 BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         log.info(LogConstants.UPDATE_PATIENT_RECEIVED, patientId);
 
         if (result.hasErrors()) {
-            log.error(LogConstants.UPDATE_PATIENT_REQUEST_NOT_VALID + "\n");
-            return ViewNameConstants.UPDATE_PATIENT; // TODO à revoir ?
+            log.error(LogConstants.UPDATE_PATIENT_REQUEST_NOT_VALID + patientId + "\n");
+            return ViewNameConstants.UPDATE_PATIENT;
         }
 
         try {
@@ -99,7 +98,8 @@ public class OrganizerController {
         } catch (Exception exception) {
             log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, exception.getMessage());
             model.addAttribute("errorMessage",
-                               formatOutputMessage("patient.update.ko", patientId.toString() + ": " + exception.getMessage()));
+                               formatOutputMessage("patient.update.ko",
+                                                   patientId.toString() + ": " + exception.getMessage()));
             return ViewNameConstants.UPDATE_PATIENT;
         }
     }
