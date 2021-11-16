@@ -5,6 +5,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +26,10 @@ public class PatientDTO { //TODO voir comment ne pas dupliquer cette déclaratio
     @Size(max = 64, message = "{patient.lastname.size}")
     private String lastname;
 
+    @NotBlank(message = "{patient.birthDate.notBlank}")
     @Past(message = "{patient.birthDate.past}")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate birthDate;
 
     @NotBlank(message = "{patient.gender.notBlank}")
