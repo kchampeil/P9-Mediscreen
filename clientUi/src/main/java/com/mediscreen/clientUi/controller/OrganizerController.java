@@ -2,6 +2,8 @@ package com.mediscreen.clientUi.controller;
 
 import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
 
+import javax.validation.Valid;
+
 import com.mediscreen.clientUi.constants.LogConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.model.PatientDTO;
@@ -12,8 +14,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
@@ -52,9 +58,9 @@ public class OrganizerController {
         } else {
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("patient.not.found", patientId.toString()));
-            return "redirect:patient/list"; //TODO ? "redirect:"+ViewNameConstants.SHOW_ALL_PATIENTS
+            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
         }
-        /*TOASK
+        /*TODO
         try {
             model.addAttribute("patient", patientProxy.getPatientById(patientId));
             return ViewNameConstants.UPDATE_PATIENT;
@@ -62,11 +68,40 @@ public class OrganizerController {
         } catch (IllegalArgumentException illegalArgumentException) {
             log.error(illegalArgumentException.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
-                                                 formatOutputMessage("patient.is.not.valid", patientId.toString()));
-            return "redirect:patient/list"; //TODO ? "redirect:"+ViewNameConstants.SHOW_ALL_PATIENTS
+                                                 formatOutputMessage("patient.not.found", patientId.toString()));
+            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
         }
 
          */
 
     }
+
+    @PutMapping("patient/update/{id}")
+    public String updatePatient(@PathVariable("id") Integer patientId,
+                                @ModelAttribute("patient") @Valid PatientDTO patientDTO,
+                                BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+        log.info(LogConstants.UPDATE_PATIENT_RECEIVED, patientId);
+
+        if (result.hasErrors()) {
+            log.error(LogConstants.UPDATE_PATIENT_REQUEST_NOT_VALID + "\n");
+            return ViewNameConstants.UPDATE_PATIENT; // TODO à revoir ?
+        }
+
+        try {
+            patientProxy.updatePatient(patientDTO);
+
+            log.info(LogConstants.UPDATE_PATIENT_REQUEST_OK, patientId);
+
+            redirectAttributes.addFlashAttribute("infoMessage",
+                                                 formatOutputMessage("patient.update.ok", patientId.toString()));
+            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+
+        } catch (Exception exception) {
+            log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, exception.getMessage());
+            model.addAttribute("errorMessage",
+                               formatOutputMessage("patient.update.ko", patientId.toString() + ": " + exception.getMessage()));
+            return ViewNameConstants.UPDATE_PATIENT;
+        }
+    }
+
 }

@@ -13,4 +13,8 @@ public class TestConstants {
     public static final String PATIENT1_PHONE = "0101010101";
 
     public static final Integer UNKNOWN_PATIENT_ID = 666;
+
+    public static final LocalDate PATIENT1_BIRTHDATE_IN_FUTURE = LocalDate.of(2088, 11, 6);
+    public static final String PATIENT1_GENDER_TOO_LONG = "Female";
+
 }
