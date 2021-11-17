@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
-import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.TestConstants;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;

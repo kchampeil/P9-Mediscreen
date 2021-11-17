@@ -3,6 +3,7 @@ package com.mediscreen.patient.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
@@ -10,6 +11,8 @@ import com.mediscreen.patient.constants.LogConstants;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +47,10 @@ public class PatientController {
     }
 
     @ApiOperation(value = "Get patient by id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Patient found"),
+        @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
+    })
     @GetMapping(value = "get")
     public ResponseEntity<PatientDTO> getPatientById(@RequestParam Integer patientId) {
 
@@ -57,11 +64,17 @@ public class PatientController {
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + " \n");
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage(),
+                                              patientDoesNotExistException);
         }
     }
 
     @ApiOperation(value = "Update patient")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Patient updated"),
+        @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND),
+        @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
+    })
     @PutMapping(value = "update")
     public ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDtoToUpdate) {
 

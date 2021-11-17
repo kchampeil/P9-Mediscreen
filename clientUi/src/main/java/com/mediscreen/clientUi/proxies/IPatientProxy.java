@@ -3,6 +3,8 @@ package com.mediscreen.clientUi.proxies;
 import java.util.List;
 
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +19,9 @@ public interface IPatientProxy {
     List<PatientDTO> getAllPatients();
 
     @GetMapping(value = "/patient/get")
-    ResponseEntity<PatientDTO> getPatientById(@RequestParam Integer patientId);
+    PatientDTO getPatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 
     @PutMapping(value = "/patient/update")
-    ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO oldPatientDtoToUpdate);
+    PatientDTO updatePatient(@RequestBody PatientDTO oldPatientDtoToUpdate)
+        throws PatientDoesNotExistException, PatientAlreadyExistException;
 }

@@ -14,7 +14,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-//@Import(BeanValidatorPluginsConfiguration.class) //TODEL ? à vérifier après POST
 public class SwaggerConfig {
 
     @Bean

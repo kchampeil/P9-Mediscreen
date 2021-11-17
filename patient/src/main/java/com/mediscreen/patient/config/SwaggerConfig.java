@@ -4,8 +4,6 @@ import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -16,7 +14,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-@Import(BeanValidatorPluginsConfiguration.class) //TODEL ? à vérifier après POST
 public class SwaggerConfig {
 
     @Bean
@@ -26,16 +23,17 @@ public class SwaggerConfig {
             .apis(RequestHandlerSelectors.basePackage("com.mediscreen.patient"))
             .paths(PathSelectors.any())
             .build()
-            .apiInfo(apiInfo());
+            .apiInfo(apiInfo())
+            .useDefaultResponseMessages(false);
     }
 
-    private ApiInfo apiInfo(){
+    private ApiInfo apiInfo() {
         return new ApiInfo(
             "Patient API",
             "API for CRUD operations on patients",
             "0.0.2-SNAPSHOT",
             "",
-            new Contact("Karine C.", "www.mediscreen.com","karinec@mediscreen.com"),
+            new Contact("Karine C.", "www.mediscreen.com", "karinec@mediscreen.com"),
             "",
             "",
             Collections.emptyList()

@@ -8,12 +8,12 @@ import com.mediscreen.clientUi.constants.LogConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -53,31 +53,16 @@ public class OrganizerController {
 
         log.info(LogConstants.SHOW_UPDATE_FORM_RECEIVED, patientId);
 
-        ResponseEntity<PatientDTO> patientDTOResponseEntity = patientProxy.getPatientById(patientId);
-
-        if (patientDTOResponseEntity.getStatusCode() == HttpStatus.OK) {
-            model.addAttribute("patient", patientDTOResponseEntity.getBody());
-            return ViewNameConstants.UPDATE_PATIENT;
-
-        } else {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                                                 formatOutputMessage("patient.not.found", patientId.toString()));
-            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
-        }
-        /*TODO
         try {
             model.addAttribute("patient", patientProxy.getPatientById(patientId));
             return ViewNameConstants.UPDATE_PATIENT;
 
-        } catch (IllegalArgumentException illegalArgumentException) {
-            log.error(illegalArgumentException.getMessage());
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+            log.error(patientDoesNotExistException.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("patient.not.found", patientId.toString()));
             return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
         }
-
-         */
-
     }
 
     @ApiOperation(value = "Update patient's information with data modified in the update form")
@@ -101,11 +86,18 @@ public class OrganizerController {
                                                  formatOutputMessage("patient.update.ok", patientId.toString()));
             return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
 
+        } catch (PatientDoesNotExistException | PatientAlreadyExistException patientException) {
+            log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, patientException.getMessage());
+            model.addAttribute("errorMessage",
+                               formatOutputMessage("patient.update.ko",
+                                                   patientId.toString()) + patientException.getMessage());
+            return ViewNameConstants.UPDATE_PATIENT;
+
         } catch (Exception exception) {
             log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, exception.getMessage());
             model.addAttribute("errorMessage",
                                formatOutputMessage("patient.update.ko",
-                                                   patientId.toString() + ": " + exception.getMessage()));
+                                                   patientId.toString()) + exception.getMessage());
             return ViewNameConstants.UPDATE_PATIENT;
         }
     }

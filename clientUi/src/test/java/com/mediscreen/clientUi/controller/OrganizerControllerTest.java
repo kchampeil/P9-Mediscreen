@@ -17,7 +17,9 @@ import java.util.List;
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,8 +28,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = OrganizerController.class)
@@ -77,8 +77,7 @@ class OrganizerControllerTest {
         @Test
         void showUpdateForm_forExistingUser_returnsPatientUpdateFormInitialized() throws Exception {
 
-            ResponseEntity<PatientDTO> patientDTOResponseEntity = new ResponseEntity<>(patientDTO, HttpStatus.OK);
-            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTOResponseEntity);
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
             mockMvc.perform(get("/patient/update/{id}", TestConstants.PATIENT1_ID))
                    .andExpect(status().isOk())
@@ -92,10 +91,8 @@ class OrganizerControllerTest {
         @Test
         void showUpdateForm_forUnknownUser_returnsPatientListView() throws Exception {
 
-            ResponseEntity<PatientDTO> patientDTOResponseEntity = new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-
-            when(patientProxyMock.getPatientById(TestConstants.UNKNOWN_PATIENT_ID))
-                .thenReturn(patientDTOResponseEntity);
+            when(patientProxyMock.getPatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
+                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
             mockMvc.perform(get("/patient/update/{id}", TestConstants.UNKNOWN_PATIENT_ID))
                    .andExpect(status().isFound())
@@ -112,8 +109,7 @@ class OrganizerControllerTest {
         @Test
         void updatePatient_withSuccess_returnsPatientListView() throws Exception {
 
-            ResponseEntity<PatientDTO> patientDTOResponseEntity = new ResponseEntity<>(patientDTO, HttpStatus.OK);
-            when(patientProxyMock.updatePatient(any(PatientDTO.class))).thenReturn(patientDTOResponseEntity);
+            when(patientProxyMock.updatePatient(any(PatientDTO.class))).thenReturn(patientDTO);
 
             mockMvc.perform(post("/patient/update/{id}", TestConstants.PATIENT1_ID)
                                 .param("firstname", TestConstants.PATIENT1_FIRSTNAME)
@@ -173,8 +169,8 @@ class OrganizerControllerTest {
 
         @Test
         void updatePatient_withException_returnsUpdatePatientViewWithErrorMessage() throws Exception {
-            when(patientProxyMock.updatePatient(any(PatientDTO.class))).thenThrow(
-                new RuntimeException()); //TODO : mettre plutôt PatientNotFoundException ?
+            when(patientProxyMock.updatePatient(any(PatientDTO.class))).thenThrow(new PatientDoesNotExistException(
+                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
             mockMvc.perform(post("/patient/update/{id}", TestConstants.UNKNOWN_PATIENT_ID)
                                 .param("firstname", TestConstants.PATIENT1_FIRSTNAME)
