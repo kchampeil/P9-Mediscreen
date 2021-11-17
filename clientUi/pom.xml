@@ -20,6 +20,7 @@
     <jacoco.version>0.8.7</jacoco.version>
     <junit-jupiter-api.version>5.7.2</junit-jupiter-api.version>
     <openfeign.version>3.0.3</openfeign.version>
+    <springfox.version>3.0.0</springfox.version>
   </properties>
 
   <dependencies>
@@ -51,6 +52,17 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-boot-starter</artifactId>
+      <version>${springfox.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-swagger-ui</artifactId>
+      <version>${springfox.version}</version>
     </dependency>
 
     <dependency>

@@ -49,6 +49,12 @@ public class PatientService implements IPatientService {
         return patientDTOList;
     }
 
+    /**
+     * get all patient's information  from his id
+     * @param patientId id of the patient
+     * @return patient information (DTO)
+     * @throws PatientDoesNotExistException if no patient found for the id
+     */
     @Override
     public PatientDTO getPatientById(Integer patientId) throws PatientDoesNotExistException {
         log.debug(LogConstants.GET_PATIENT_BY_ID_SERVICE_CALL);
@@ -67,6 +73,12 @@ public class PatientService implements IPatientService {
 
     }
 
+    /**
+     * update a patient
+     * @param patientDtoToUpdate new information for the patient
+     * @return updated patient (DTO)
+     * @throws PatientDoesNotExistException if no patient found to update
+     */
     @Override
     public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) throws PatientDoesNotExistException {
         log.debug(LogConstants.UPDATE_PATIENT_SERVICE_CALL);

@@ -8,6 +8,8 @@ import com.mediscreen.clientUi.constants.LogConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.model.PatientDTO;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
+@Api(value = "Actions for organizer profile")
 public class OrganizerController {
 
     private final IPatientProxy patientProxy;
@@ -32,6 +35,7 @@ public class OrganizerController {
         this.patientProxy = patientProxy;
     }
 
+    @ApiOperation(value = "Show all registered patients")
     @GetMapping("/patient/list")
     public String showAllPatients(Model model) {
 
@@ -42,6 +46,7 @@ public class OrganizerController {
         return ViewNameConstants.SHOW_ALL_PATIENTS;
     }
 
+    @ApiOperation(value = "Retrieve patient's information in an update form")
     @GetMapping("patient/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer patientId, Model model,
                                  RedirectAttributes redirectAttributes) {
@@ -75,6 +80,7 @@ public class OrganizerController {
 
     }
 
+    @ApiOperation(value = "Update patient's information with data modified in the update form")
     @PostMapping("patient/update/{id}")
     public String updatePatient(@PathVariable("id") Integer patientId,
                                 @ModelAttribute("patient") @Valid PatientDTO patientDTO,
