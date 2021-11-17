@@ -11,7 +11,7 @@
 
   <groupId>com.mesdiscreen</groupId>
   <artifactId>clientUi</artifactId>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <name>clientUi</name>
   <description>User Interface for Mediscreen app</description>
 
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>com.mediscreen</groupId>
       <artifactId>commons</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>0.0.3-SNAPSHOT</version>
     </dependency>
 
   </dependencies>

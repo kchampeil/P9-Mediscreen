@@ -16,8 +16,10 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,7 +77,8 @@ public class PatientController {
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND),
         @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
     })
-    @PutMapping(value = "update")
+    @PutMapping(value = "update", consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDtoToUpdate) {
 
         log.debug(LogConstants.UPDATE_PATIENT_REQUEST_RECEIVED, patientDtoToUpdate.getId());
@@ -106,4 +109,33 @@ public class PatientController {
 
     }
 
+    @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatientDTO> addPatient(@RequestBody PatientDTO patientDtoToAdd) {
+
+        log.debug(LogConstants.ADD_PATIENT_REQUEST_RECEIVED,
+                  patientDtoToAdd.getFirstname() + " " + patientDtoToAdd.getLastname());
+
+        try {
+            Optional<PatientDTO> addedPatient = patientService.addPatient(patientDtoToAdd);
+
+            if (addedPatient.isPresent()) {
+                log.info(LogConstants.ADD_PATIENT_REQUEST_OK, addedPatient.get().getId());
+                return new ResponseEntity<>(addedPatient.get(), HttpStatus.CREATED);
+            } else {
+                log.error("new patient " + patientDtoToAdd + " has not been added\n");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+        } catch (PatientAlreadyExistException patientAlreadyExistException) { //TODO à revoir
+            log.error(patientAlreadyExistException.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());
+
+
+        } catch (Exception e) {
+            log.error(e.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
+    }
 }

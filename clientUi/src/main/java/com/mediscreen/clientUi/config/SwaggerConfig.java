@@ -30,7 +30,7 @@ public class SwaggerConfig {
         return new ApiInfo(
             "Client UI",
             "Client UI of Mediscreen",
-            "0.0.2-SNAPSHOT",
+            "0.0.3-SNAPSHOT",
             "",
             new Contact("Karine C.", "www.mediscreen.com", "karinec@mediscreen.com"),
             "",

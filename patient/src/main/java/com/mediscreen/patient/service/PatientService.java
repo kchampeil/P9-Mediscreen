@@ -120,4 +120,9 @@ public class PatientService implements IPatientService {
             throw oldPatientDoesNotExistException;
         }
     }
+
+    @Override
+    public Optional<PatientDTO> addPatient(PatientDTO patientDtoToAdd) throws PatientAlreadyExistException {
+        return Optional.empty();
+    }
 }
