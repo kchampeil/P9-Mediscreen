@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.LogConstants;
 import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
 import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;
@@ -51,6 +52,7 @@ public class PatientService implements IPatientService {
 
     /**
      * get all patient's information  from his id
+     *
      * @param patientId id of the patient
      * @return patient information (DTO)
      * @throws PatientDoesNotExistException if no patient found for the id
@@ -75,28 +77,47 @@ public class PatientService implements IPatientService {
 
     /**
      * update a patient
+     *
      * @param patientDtoToUpdate new information for the patient
      * @return updated patient (DTO)
      * @throws PatientDoesNotExistException if no patient found to update
+     * @throws PatientAlreadyExistException if one patient already exists with the same firstname, lastname and
+     *                                      birthdate
      */
     @Override
-    public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) throws PatientDoesNotExistException {
+    public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate)
+        throws PatientDoesNotExistException, PatientAlreadyExistException {
         log.debug(LogConstants.UPDATE_PATIENT_SERVICE_CALL);
 
         try {
+            /* check if patient exists for the id */
             this.getPatientById(patientDtoToUpdate.getId());
 
-            //map DTO to DAO, save in repository and map back to PatientDTO for return
-            ModelMapper modelMapper = new ModelMapper();
-            Patient patientToUpdate = modelMapper.map(patientDtoToUpdate, Patient.class);
+            /* check if a patient with same firstname+lastname+birthdate already exists with another patient id */
+            Optional<Patient> existingPatient =
+                patientRepository.findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(
+                    patientDtoToUpdate.getFirstname(), patientDtoToUpdate.getLastname(),
+                    patientDtoToUpdate.getBirthDate());
 
-            Patient updatedPatient = patientRepository.save(patientToUpdate);
+            if (existingPatient.isPresent() && !patientDtoToUpdate.getId().equals(existingPatient.get().getId())) {
+                log.error(LogConstants.UPDATE_PATIENT_SERVICE_ALREADY_EXISTS);
+                throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);
 
-            return Optional.ofNullable(modelMapper.map(updatedPatient, PatientDTO.class));
+            } else {
+
+                /* map DTO to DAO, save in repository and map back to PatientDTO for return */
+                ModelMapper modelMapper = new ModelMapper();
+                Patient patientToUpdate = modelMapper.map(patientDtoToUpdate, Patient.class);
+
+                Patient updatedPatient = patientRepository.save(patientToUpdate);
+
+                log.debug(LogConstants.UPDATE_PATIENT_SERVICE_OK, patientToUpdate.getId());
+                return Optional.ofNullable(modelMapper.map(updatedPatient, PatientDTO.class));
+            }
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(LogConstants.UPDATE_PATIENT_SERVICE_NOT_FOUND, patientDtoToUpdate.getId());
-            throw new PatientDoesNotExistException(patientDoesNotExistException.getMessage());
+            throw patientDoesNotExistException;
         }
     }
 }

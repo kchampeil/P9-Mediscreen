@@ -3,11 +3,14 @@ package com.mediscreen.patient.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +18,7 @@ import java.util.Optional;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.TestConstants;
 import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
 import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;
@@ -38,6 +42,7 @@ class PatientServiceTest {
     private IPatientService patientService;
 
     private static Patient patientInDb;
+    private static PatientDTO patientDTOToUpdate;
 
     @BeforeAll
     static void setUp() {
@@ -51,6 +56,14 @@ class PatientServiceTest {
         patientInDb.setAddress(TestConstants.PATIENT1_ADDRESS);
         patientInDb.setPhone(TestConstants.PATIENT1_PHONE);
 
+        patientDTOToUpdate = new PatientDTO();
+        patientDTOToUpdate.setId(patientInDb.getId());
+        patientDTOToUpdate.setFirstname(patientInDb.getFirstname());
+        patientDTOToUpdate.setLastname(patientInDb.getLastname());
+        patientDTOToUpdate.setBirthDate(patientInDb.getBirthDate());
+        patientDTOToUpdate.setGender(patientInDb.getGender());
+        patientDTOToUpdate.setAddress(patientInDb.getAddress());
+        patientDTOToUpdate.setPhone(patientInDb.getPhone());
     }
 
     @Nested
@@ -99,7 +112,7 @@ class PatientServiceTest {
         }
 
         @Test
-        void getPatientById_ForUnknownPatient_throwsPatientNotFoundException() throws PatientDoesNotExistException {
+        void getPatientById_ForUnknownPatient_throwsPatientNotFoundException() {
 
             when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
 
@@ -116,20 +129,14 @@ class PatientServiceTest {
     @DisplayName("updatePatient tests")
     class UpdatePatientTests {
         @Test
-        void updatePatient_ForExistingPatient_returnsUpdatedPatient() throws PatientDoesNotExistException {
-            PatientDTO patientDTOToUpdate = new PatientDTO();
-            patientDTOToUpdate.setId(patientInDb.getId());
-            patientDTOToUpdate.setFirstname(patientInDb.getFirstname());
-            patientDTOToUpdate.setLastname(patientInDb.getLastname());
-            patientDTOToUpdate.setBirthDate(patientInDb.getBirthDate());
-            patientDTOToUpdate.setGender(patientInDb.getGender());
-            patientDTOToUpdate.setAddress(patientInDb.getAddress());
-            patientDTOToUpdate.setPhone(patientInDb.getPhone());
+        void updatePatient_ForExistingPatient_returnsUpdatedPatient()
+            throws PatientDoesNotExistException, PatientAlreadyExistException {
 
             when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(patientInDb));
             when(patientRepositoryMock.save(any(Patient.class))).thenReturn(patientInDb);
 
             Optional<PatientDTO> updatedPatientDTO = patientService.updatePatient(patientDTOToUpdate);
+            assertTrue(updatedPatientDTO.isPresent());
             assertEquals(TestConstants.PATIENT1_ID, updatedPatientDTO.get().getId());
             assertEquals(patientInDb.toString(), updatedPatientDTO.get().toString());
 
@@ -140,23 +147,39 @@ class PatientServiceTest {
         @Test
         void updatePatient_ForUnknownPatient_throwsPatientNotFoundException() {
 
-            PatientDTO patientDTOToUpdate = new PatientDTO();
-            patientDTOToUpdate.setId(TestConstants.UNKNOWN_PATIENT_ID);
-            patientDTOToUpdate.setFirstname(patientInDb.getFirstname());
-            patientDTOToUpdate.setLastname(patientInDb.getLastname());
-            patientDTOToUpdate.setBirthDate(patientInDb.getBirthDate());
-            patientDTOToUpdate.setGender(patientInDb.getGender());
-            patientDTOToUpdate.setAddress(patientInDb.getAddress());
-            patientDTOToUpdate.setPhone(patientInDb.getPhone());
-
             when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
 
             Exception exception = assertThrows(PatientDoesNotExistException.class,
                                                () -> patientService.updatePatient(patientDTOToUpdate));
-            assertEquals(ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID,
+            assertEquals(ExceptionConstants.PATIENT_NOT_FOUND + patientDTOToUpdate.getId(),
                          exception.getMessage());
 
             verify(patientRepositoryMock, Mockito.times(1)).findById(anyInt());
+            verify(patientRepositoryMock, Mockito.times(0)).save(any(Patient.class));
+        }
+
+        @Test
+        void updatePatient_ForAlreadyExistingPatient_throwsPatientAlreadyExistsException() {
+
+            Patient existingPatient = new Patient();
+            existingPatient.setId(TestConstants.PATIENT2_ID);
+            existingPatient.setFirstname(TestConstants.PATIENT2_FIRSTNAME);
+            existingPatient.setLastname(TestConstants.PATIENT2_LASTNAME);
+            existingPatient.setBirthDate(TestConstants.PATIENT2_BIRTHDATE);
+
+            when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(patientInDb));
+            when(patientRepositoryMock
+                     .findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(anyString(), anyString(), any(
+                         LocalDate.class))).thenReturn(Optional.ofNullable(existingPatient));
+
+            Exception exception = assertThrows(PatientAlreadyExistException.class,
+                                               () -> patientService.updatePatient(patientDTOToUpdate));
+            assertEquals(ExceptionConstants.PATIENT_ALREADY_EXISTS, exception.getMessage());
+
+            verify(patientRepositoryMock, Mockito.times(1)).findById(anyInt());
+            verify(patientRepositoryMock, Mockito.times(1))
+                .findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(anyString(), anyString(),
+                                                                            any(LocalDate.class));
             verify(patientRepositoryMock, Mockito.times(0)).save(any(Patient.class));
         }
     }

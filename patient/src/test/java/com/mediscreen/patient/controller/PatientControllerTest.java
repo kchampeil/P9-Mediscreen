@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.TestConstants;
 import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
 import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.BeforeAll;
@@ -148,7 +149,23 @@ class PatientControllerTest {
                    .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
                                                     .contains(
                                                         ExceptionConstants.PATIENT_NOT_FOUND + TestConstants
-                                                        .UNKNOWN_PATIENT_ID));
+                                                            .UNKNOWN_PATIENT_ID));
+
+            verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void updatePatient_ForExistingPatientWithSameFirstnameLastnameAndBirthDate_returnsStatusConflict() throws Exception {
+
+            when(patientServiceMock.updatePatient(any(PatientDTO.class)))
+                .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));
+
+            mockMvc.perform(put("/patient/update")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isConflict())
+                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
+                                                    .contains(ExceptionConstants.PATIENT_ALREADY_EXISTS));
 
             verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
         }

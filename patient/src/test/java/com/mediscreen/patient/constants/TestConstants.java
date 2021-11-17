@@ -16,4 +16,12 @@ public class TestConstants {
     public static final String PATIENT1_PHONE = "0101010101";
 
     public static final Integer UNKNOWN_PATIENT_ID = 666;
+
+    public static final Integer PATIENT2_ID = 2;
+    public static final String PATIENT2_FIRSTNAME = "Elliot";
+    public static final String PATIENT2_LASTNAME = "Page";
+    public static final LocalDate PATIENT2_BIRTHDATE = LocalDate.of(1987, 02, 21);
+    public static final String PATIENT2_GENDER = "F";
+    public static final String PATIENT2_ADDRESS = "2 rue de Bretagne 75000 PARIS";
+    public static final String PATIENT2_PHONE = "0202020202";
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
 import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 
 public interface IPatientService {
@@ -11,5 +12,6 @@ public interface IPatientService {
 
     PatientDTO getPatientById(Integer patientId) throws PatientDoesNotExistException;
 
-    Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) throws PatientDoesNotExistException;
+    Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) throws PatientDoesNotExistException,
+        PatientAlreadyExistException;
 }

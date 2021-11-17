@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.mediscreen.patient.constants.LogConstants;
 import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
 import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import io.swagger.annotations.Api;
@@ -56,8 +57,7 @@ public class PatientController {
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + " \n");
-            //throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage());
         }
     }
 
@@ -81,6 +81,11 @@ public class PatientController {
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage());
+
+        } catch (PatientAlreadyExistException patientAlreadyExistException) {
+            log.error(patientAlreadyExistException.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());
+
         } catch (Exception e) {
             log.error(e.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());

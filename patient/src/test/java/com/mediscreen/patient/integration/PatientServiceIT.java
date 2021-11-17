@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.mediscreen.patient.constants.TestConstants;
 import com.mediscreen.patient.dto.PatientDTO;
+import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
 import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,8 @@ public class PatientServiceIT {
     }
 
     @Test
-    public void updatePatient_ForExistingPatient_returnsUpdatedPatient() throws PatientDoesNotExistException {
+    public void updatePatient_ForExistingPatient_returnsUpdatedPatient()
+        throws PatientDoesNotExistException, PatientAlreadyExistException {
 
         PatientDTO patientDtoToUpdate = new PatientDTO();
         patientDtoToUpdate.setId(TestConstants.PATIENT1_ID);

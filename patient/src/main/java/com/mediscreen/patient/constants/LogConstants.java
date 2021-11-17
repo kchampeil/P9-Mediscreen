@@ -20,4 +20,5 @@ public class LogConstants {
                                                              "ms-patient";
     public static final String UPDATE_PATIENT_SERVICE_OK = "Patient {} updated \n";
     public static final String UPDATE_PATIENT_SERVICE_NOT_FOUND = "Patient {} not found \n";
+    public static final String UPDATE_PATIENT_SERVICE_ALREADY_EXISTS = "Patient already exists (same firstname, lastname and birth date)";
 }
