@@ -152,5 +152,18 @@ class PatientControllerTest {
 
             verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
         }
+
+        @Test
+        void updatePatient_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
+
+            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.empty());
+
+            mockMvc.perform(put("/patient/update")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isBadRequest());
+
+            verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
+        }
     }
 }

@@ -69,7 +69,6 @@ public class PatientController {
 
         try {
             Optional<PatientDTO> updatedPatientDto = patientService.updatePatient(patientDtoToUpdate);
-            System.out.println(updatedPatientDto.toString());
 
             if (updatedPatientDto.isPresent()) {
                 log.info(LogConstants.UPDATE_PATIENT_REQUEST_OK, patientDtoToUpdate.getId());
