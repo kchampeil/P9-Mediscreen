@@ -16,8 +16,8 @@ import java.util.List;
 
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
-import com.mediscreen.clientUi.model.PatientDTO;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.commons.dto.PatientDTO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

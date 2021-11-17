@@ -1,4 +1,4 @@
-package com.mediscreen.clientUi.model;
+package com.mediscreen.commons.dto;
 
 import java.time.LocalDate;
 import javax.validation.constraints.NotBlank;
@@ -16,7 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
-public class PatientDTO { //TODO voir comment ne pas dupliquer cette déclaration
+public class PatientDTO {
 
     private Integer id;
 
@@ -47,4 +47,16 @@ public class PatientDTO { //TODO voir comment ne pas dupliquer cette déclaratio
     @Size(max = 15, message = "{patient.phone.size}")
     private String phone;
 
+    @Override
+    public String toString() {
+        return "{" +
+               "id=" + id +
+               ", firstname='" + firstname + '\'' +
+               ", lastname='" + lastname + '\'' +
+               ", birthDate=" + birthDate +
+               ", gender='" + gender + '\'' +
+               ", address='" + address + '\'' +
+               ", phone='" + phone + '\'' +
+               '}';
+    }
 }

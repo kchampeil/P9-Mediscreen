@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.TestConstants;
-import com.mediscreen.patient.dto.PatientDTO;
-import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
-import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -36,15 +36,12 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = PatientController.class)
 class PatientControllerTest {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static PatientDTO patientDTO;
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private IPatientService patientServiceMock;
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static PatientDTO patientDTO;
 
     @BeforeAll
     static void setUp() {
@@ -113,16 +110,17 @@ class PatientControllerTest {
         @Test
         void updatePatient_ForExistingPatient_returnsUpdatedPatientAndStatusOk() throws Exception {
 
-            PatientDTO updatedPatientDto = new PatientDTO();
-            updatedPatientDto.setId(TestConstants.PATIENT1_ID);
-            updatedPatientDto.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
-            updatedPatientDto.setLastname(TestConstants.PATIENT1_LASTNAME);
-            updatedPatientDto.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
-            updatedPatientDto.setGender(TestConstants.PATIENT1_GENDER);
-            updatedPatientDto.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
-            updatedPatientDto.setPhone(TestConstants.PATIENT1_PHONE);
+            PatientDTO updatedOldPatientDto = new PatientDTO();
+            updatedOldPatientDto.setId(TestConstants.PATIENT1_ID);
+            updatedOldPatientDto.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
+            updatedOldPatientDto.setLastname(TestConstants.PATIENT1_LASTNAME);
+            updatedOldPatientDto.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
+            updatedOldPatientDto.setGender(TestConstants.PATIENT1_GENDER);
+            updatedOldPatientDto.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
+            updatedOldPatientDto.setPhone(TestConstants.PATIENT1_PHONE);
 
-            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.of(updatedPatientDto));
+            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.of(
+                updatedOldPatientDto));
 
             mockMvc.perform(put("/patient/update")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -155,7 +153,8 @@ class PatientControllerTest {
         }
 
         @Test
-        void updatePatient_ForExistingPatientWithSameFirstnameLastnameAndBirthDate_returnsStatusConflict() throws Exception {
+        void updatePatient_ForExistingPatientWithSameFirstnameLastnameAndBirthDate_returnsStatusConflict()
+            throws Exception {
 
             when(patientServiceMock.updatePatient(any(PatientDTO.class)))
                 .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));

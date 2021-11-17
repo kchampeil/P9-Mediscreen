@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Optional;
 
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.constants.TestConstants;
-import com.mediscreen.patient.dto.PatientDTO;
-import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
-import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +50,15 @@ public class PatientServiceIT {
     public void updatePatient_ForExistingPatient_returnsUpdatedPatient()
         throws PatientDoesNotExistException, PatientAlreadyExistException {
 
-        PatientDTO patientDtoToUpdate = new PatientDTO();
-        patientDtoToUpdate.setId(TestConstants.PATIENT1_ID);
-        patientDtoToUpdate.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
-        patientDtoToUpdate.setLastname(TestConstants.PATIENT1_LASTNAME);
-        patientDtoToUpdate.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
-        patientDtoToUpdate.setGender(TestConstants.PATIENT1_GENDER);
-        patientDtoToUpdate.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
-        patientDtoToUpdate.setPhone(TestConstants.PATIENT1_PHONE);
-        Optional<PatientDTO> patientDTO = patientService.updatePatient(patientDtoToUpdate);
+        PatientDTO oldPatientDtoToUpdate = new PatientDTO();
+        oldPatientDtoToUpdate.setId(TestConstants.PATIENT1_ID);
+        oldPatientDtoToUpdate.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
+        oldPatientDtoToUpdate.setLastname(TestConstants.PATIENT1_LASTNAME);
+        oldPatientDtoToUpdate.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
+        oldPatientDtoToUpdate.setGender(TestConstants.PATIENT1_GENDER);
+        oldPatientDtoToUpdate.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
+        oldPatientDtoToUpdate.setPhone(TestConstants.PATIENT1_PHONE);
+        Optional<PatientDTO> patientDTO = patientService.updatePatient(oldPatientDtoToUpdate);
 
         assertTrue(patientDTO.isPresent());
         assertEquals(TestConstants.PATIENT1_ID, patientDTO.get().getId());

@@ -83,6 +83,12 @@
       <version>${junit-jupiter-api.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.mediscreen</groupId>
+      <artifactId>commons</artifactId>
+      <version>0.0.2-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
 
   </dependencies>
 

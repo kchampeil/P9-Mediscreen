@@ -2,7 +2,7 @@ package com.mediscreen.clientUi.proxies;
 
 import java.util.List;
 
-import com.mediscreen.clientUi.model.PatientDTO;
+import com.mediscreen.commons.dto.PatientDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,5 +20,5 @@ public interface IPatientProxy {
     ResponseEntity<PatientDTO> getPatientById(@RequestParam Integer patientId);
 
     @PutMapping(value = "/patient/update")
-    ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDtoToUpdate);
+    ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO oldPatientDtoToUpdate);
 }

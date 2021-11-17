@@ -1,4 +1,4 @@
-package com.mediscreen.patient.exceptions;
+package com.mediscreen.commons.exceptions;
 
 public class PatientDoesNotExistException extends Exception {
     public PatientDoesNotExistException(String message) {

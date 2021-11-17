@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.TestConstants;
-import com.mediscreen.patient.dto.PatientDTO;
-import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
-import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;
 import com.mediscreen.patient.service.contracts.IPatientService;
@@ -35,14 +35,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @SpringBootTest
 class PatientServiceTest {
 
-    @MockBean
-    private PatientRepository patientRepositoryMock;
-
-    @Autowired
-    private IPatientService patientService;
-
     private static Patient patientInDb;
     private static PatientDTO patientDTOToUpdate;
+    @MockBean
+    private PatientRepository patientRepositoryMock;
+    @Autowired
+    private IPatientService patientService;
 
     @BeforeAll
     static void setUp() {

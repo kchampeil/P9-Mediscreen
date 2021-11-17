@@ -3,10 +3,10 @@ package com.mediscreen.patient.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.constants.LogConstants;
-import com.mediscreen.patient.dto.PatientDTO;
-import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
-import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

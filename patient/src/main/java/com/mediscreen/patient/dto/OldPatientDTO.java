@@ -1,7 +1,6 @@
 package com.mediscreen.patient.dto;
 
 import java.time.LocalDate;
-import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
@@ -15,7 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PatientDTO {
+public class OldPatientDTO {
 
     private Integer id;
 

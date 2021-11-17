@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.constants.ExceptionConstants;
 import com.mediscreen.patient.constants.LogConstants;
-import com.mediscreen.patient.dto.PatientDTO;
-import com.mediscreen.patient.exceptions.PatientAlreadyExistException;
-import com.mediscreen.patient.exceptions.PatientDoesNotExistException;
 import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;
 import com.mediscreen.patient.service.contracts.IPatientService;
@@ -115,9 +115,9 @@ public class PatientService implements IPatientService {
                 return Optional.ofNullable(modelMapper.map(updatedPatient, PatientDTO.class));
             }
 
-        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+        } catch (PatientDoesNotExistException oldPatientDoesNotExistException) {
             log.error(LogConstants.UPDATE_PATIENT_SERVICE_NOT_FOUND, patientDtoToUpdate.getId());
-            throw patientDoesNotExistException;
+            throw oldPatientDoesNotExistException;
         }
     }
 }

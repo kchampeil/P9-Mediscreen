@@ -6,8 +6,8 @@ import javax.validation.Valid;
 
 import com.mediscreen.clientUi.constants.LogConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
-import com.mediscreen.clientUi.model.PatientDTO;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.commons.dto.PatientDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

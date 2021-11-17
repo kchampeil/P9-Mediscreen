@@ -2,8 +2,6 @@ package com.mediscreen.patient.constants;
 
 import java.time.LocalDate;
 
-import ch.qos.logback.classic.Level;
-
 public class TestConstants {
 
     public static final Integer PATIENT1_ID = 1;
