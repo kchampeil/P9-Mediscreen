@@ -62,13 +62,29 @@ public class PatientService implements IPatientService {
 
         } else {
             log.error(LogConstants.GET_PATIENT_BY_ID_SERVICE_NOT_FOUND, patientId);
-            throw new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId.toString());
+            throw new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId);
         }
 
     }
 
     @Override
-    public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) {
-        return Optional.empty();
+    public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) throws PatientDoesNotExistException {
+        log.debug(LogConstants.UPDATE_PATIENT_SERVICE_CALL);
+
+        try {
+            this.getPatientById(patientDtoToUpdate.getId());
+
+            //map DTO to DAO, save in repository and map back to PatientDTO for return
+            ModelMapper modelMapper = new ModelMapper();
+            Patient patientToUpdate = modelMapper.map(patientDtoToUpdate, Patient.class);
+
+            Patient updatedPatient = patientRepository.save(patientToUpdate);
+
+            return Optional.ofNullable(modelMapper.map(updatedPatient, PatientDTO.class));
+
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+            log.error(LogConstants.UPDATE_PATIENT_SERVICE_NOT_FOUND, patientDtoToUpdate.getId());
+            throw new PatientDoesNotExistException(patientDoesNotExistException.getMessage());
+        }
     }
 }

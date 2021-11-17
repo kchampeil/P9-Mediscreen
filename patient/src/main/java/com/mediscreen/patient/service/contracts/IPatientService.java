@@ -11,5 +11,5 @@ public interface IPatientService {
 
     PatientDTO getPatientById(Integer patientId) throws PatientDoesNotExistException;
 
-    Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate);
+    Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate) throws PatientDoesNotExistException;
 }

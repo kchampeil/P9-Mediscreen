@@ -44,4 +44,17 @@ public class PatientDTO {
     @NotBlank(message = "{patient.phone.notBlank}")
     @Size(max = 15, message = "{patient.phone.size}")
     private String phone;
+
+    @Override
+    public String toString() {
+        return "{" +
+               "id=" + id +
+               ", firstname='" + firstname + '\'' +
+               ", lastname='" + lastname + '\'' +
+               ", birthDate=" + birthDate +
+               ", gender='" + gender + '\'' +
+               ", address='" + address + '\'' +
+               ", phone='" + phone + '\'' +
+               '}';
+    }
 }

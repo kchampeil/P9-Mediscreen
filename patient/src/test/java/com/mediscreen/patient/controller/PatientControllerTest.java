@@ -75,7 +75,7 @@ class PatientControllerTest {
 
     @Nested
     @DisplayName("getPatientById tests")
-    class GetPatientById {
+    class GetPatientByIdTests {
         @Test
         void getPatientById_WithExistingPatientId_returnsExistingPatient_And_StatusOk() throws Exception {
 
@@ -108,7 +108,7 @@ class PatientControllerTest {
 
     @Nested
     @DisplayName("updatePatient tests")
-    class UpdatePatient {
+    class UpdatePatientTests {
         @Test
         void updatePatient_ForExistingPatient_returnsUpdatedPatientAndStatusOk() throws Exception {
 
@@ -135,16 +135,16 @@ class PatientControllerTest {
         }
 
         @Test
-        void updatePatient_ForUnknownPatient_returnsStatusBadRequest() throws Exception {
+        void updatePatient_ForUnknownPatient_returnsStatusNotFound() throws Exception {
 
             when(patientServiceMock.updatePatient(any(PatientDTO.class)))
-                .thenThrow(new RuntimeException(
+                .thenThrow(new PatientDoesNotExistException(
                     ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
             mockMvc.perform(put("/patient/update")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
-                   .andExpect(status().isBadRequest())
+                   .andExpect(status().isNotFound())
                    .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
                                                     .contains(
                                                         ExceptionConstants.PATIENT_NOT_FOUND + TestConstants

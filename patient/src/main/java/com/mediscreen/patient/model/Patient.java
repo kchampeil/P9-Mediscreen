@@ -32,7 +32,7 @@ public class Patient {
     @Column(name = "lastname", nullable = false, length = 64)
     private String lastname;
 
-    @JsonFormat(pattern = "MM/dd/yyyy")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "birthdate", nullable = false)
     private LocalDate birthDate;
 
@@ -44,4 +44,17 @@ public class Patient {
 
     @Column(name = "phone", nullable = false, length = 15)
     private String phone;
+
+    @Override
+    public String toString() {
+        return "{" +
+               "id=" + id +
+               ", firstname='" + firstname + '\'' +
+               ", lastname='" + lastname + '\'' +
+               ", birthDate=" + birthDate +
+               ", gender='" + gender + '\'' +
+               ", address='" + address + '\'' +
+               ", phone='" + phone + '\'' +
+               '}';
+    }
 }
