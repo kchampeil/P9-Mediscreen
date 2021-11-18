@@ -9,7 +9,7 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
-  <groupId>com.mesdiscreen</groupId>
+  <groupId>com.mediscreen</groupId>
   <artifactId>clientUi</artifactId>
   <version>0.0.3-SNAPSHOT</version>
   <name>clientUi</name>
@@ -52,17 +52,6 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-boot-starter</artifactId>
-      <version>${springfox.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <version>${springfox.version}</version>
     </dependency>
 
     <dependency>

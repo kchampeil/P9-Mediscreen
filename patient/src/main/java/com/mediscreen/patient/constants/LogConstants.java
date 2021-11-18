@@ -20,9 +20,14 @@ public class LogConstants {
                                                              "ms-patient";
     public static final String UPDATE_PATIENT_SERVICE_OK = "Patient {} updated \n";
     public static final String UPDATE_PATIENT_SERVICE_NOT_FOUND = "Patient {} not found \n";
-    public static final String UPDATE_PATIENT_SERVICE_ALREADY_EXISTS = "Patient already exists (same firstname, lastname and birth date)";
+    public static final String UPDATE_PATIENT_SERVICE_ALREADY_EXISTS = "Patient already exists (same firstname, " +
+                                                                       "lastname and birth date)";
 
     public static final String ADD_PATIENT_REQUEST_RECEIVED = "POST /patient/{} request received on ms-patient";
     public static final String ADD_PATIENT_REQUEST_OK = "Patient {} added \n";
     public static final String ADD_PATIENT_REQUEST_KO = "Error when creating patient, patient has not been added \n";
+    public static final String ADD_PATIENT_SERVICE_CALL = "PatientService.addPatient request received on ms-patient";
+    public static final String ADD_PATIENT_SERVICE_ALREADY_EXISTS = "Patient already exists (same firstname, " +
+                                                                    "lastname and birth date)"; //TODO à mutualiser avec update ?
+    public static final String ADD_PATIENT_SERVICE_OK = "Patient {} added \n";
 }

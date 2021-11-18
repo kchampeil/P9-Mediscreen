@@ -190,6 +190,16 @@ class OrganizerControllerTest {
         }
     }
 
+    @Test
+    void showAddForm_WithSuccess() throws Exception {
+
+        mockMvc.perform(get("/patient/add"))
+               .andExpect(status().isOk())
+               .andExpect(model().attributeExists("patient"))
+               .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
+
+    }
+
     @Nested
     @DisplayName("addPatient tests")
     class AddPatientTest {

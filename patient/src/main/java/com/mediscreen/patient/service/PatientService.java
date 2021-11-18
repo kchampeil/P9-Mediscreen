@@ -87,6 +87,7 @@ public class PatientService implements IPatientService {
     @Override
     public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate)
         throws PatientDoesNotExistException, PatientAlreadyExistException {
+
         log.debug(LogConstants.UPDATE_PATIENT_SERVICE_CALL);
 
         try {
@@ -115,14 +116,36 @@ public class PatientService implements IPatientService {
                 return Optional.ofNullable(modelMapper.map(updatedPatient, PatientDTO.class));
             }
 
-        } catch (PatientDoesNotExistException oldPatientDoesNotExistException) {
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(LogConstants.UPDATE_PATIENT_SERVICE_NOT_FOUND, patientDtoToUpdate.getId());
-            throw oldPatientDoesNotExistException;
+            throw patientDoesNotExistException;
         }
     }
 
     @Override
     public Optional<PatientDTO> addPatient(PatientDTO patientDtoToAdd) throws PatientAlreadyExistException {
-        return Optional.empty();
+
+        log.debug(LogConstants.ADD_PATIENT_SERVICE_CALL);
+
+        /* check if a patient with same firstname+lastname+birthdate already exists */
+        Optional<Patient> existingPatient =
+            patientRepository.findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(
+                patientDtoToAdd.getFirstname(), patientDtoToAdd.getLastname(),
+                patientDtoToAdd.getBirthDate());
+
+        if (existingPatient.isPresent()) {
+            log.error(LogConstants.ADD_PATIENT_SERVICE_ALREADY_EXISTS);
+            throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);
+
+        } else {
+            /* map DTO to DAO, save in repository and map back to PatientDTO for return */
+            ModelMapper modelMapper = new ModelMapper();
+            Patient patientToAdd = modelMapper.map(patientDtoToAdd, Patient.class);
+
+            Patient addedPatient = patientRepository.save(patientToAdd);
+
+            log.debug(LogConstants.ADD_PATIENT_SERVICE_OK, patientToAdd.getId());
+            return Optional.ofNullable(modelMapper.map(addedPatient, PatientDTO.class));
+        }
     }
 }

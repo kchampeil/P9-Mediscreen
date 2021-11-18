@@ -17,4 +17,11 @@ public class TestConstants {
     public static final LocalDate PATIENT1_BIRTHDATE_IN_FUTURE = LocalDate.of(2088, 11, 6);
     public static final String PATIENT1_GENDER_TOO_LONG = "Female";
 
+    public static final String NEW_PATIENT_FIRSTNAME = "Firstname new";
+    public static final String NEW_PATIENT_LASTNAME = "Lastname new";
+    public static final LocalDate NEW_PATIENT_BIRTHDATE = LocalDate.of(1980, 12, 31);
+    public static final String NEW_PATIENT_GENDER = "F";
+    public static final String NEW_PATIENT_ADDRESS = "Address new";
+    public static final String NEW_PATIENT_PHONE = "0909090909";
+
 }

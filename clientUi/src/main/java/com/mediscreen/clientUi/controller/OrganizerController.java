@@ -10,8 +10,6 @@ import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
-@Api(value = "Actions for organizer profile")
 public class OrganizerController {
 
     private final IPatientProxy patientProxy;
@@ -35,7 +32,6 @@ public class OrganizerController {
         this.patientProxy = patientProxy;
     }
 
-    @ApiOperation(value = "Show all registered patients")
     @GetMapping("/patient/list")
     public String showAllPatients(Model model) {
 
@@ -46,7 +42,6 @@ public class OrganizerController {
         return ViewNameConstants.SHOW_ALL_PATIENTS;
     }
 
-    @ApiOperation(value = "Retrieve patient's information in an update form")
     @GetMapping("patient/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer patientId, Model model,
                                  RedirectAttributes redirectAttributes) {
@@ -65,7 +60,6 @@ public class OrganizerController {
         }
     }
 
-    @ApiOperation(value = "Update patient's information with data modified in the update form")
     @PostMapping("patient/update/{id}")
     public String updatePatient(@PathVariable("id") Integer patientId,
                                 @ModelAttribute("patient") @Valid PatientDTO patientDTO,
@@ -93,16 +87,9 @@ public class OrganizerController {
                                                    patientId.toString()) + patientException.getMessage());
             return ViewNameConstants.UPDATE_PATIENT;
 
-        } catch (Exception exception) {
-            log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, exception.getMessage());
-            model.addAttribute("errorMessage",
-                               formatOutputMessage("patient.update.ko",
-                                                   patientId.toString()) + exception.getMessage());
-            return ViewNameConstants.UPDATE_PATIENT;
         }
     }
 
-    @ApiOperation(value = "Show empty form to add a patient")
     @GetMapping("patient/add")
     public String showAddForm(Model model) {
 
@@ -112,7 +99,6 @@ public class OrganizerController {
         return ViewNameConstants.ADD_PATIENT;
     }
 
-    @ApiOperation(value = "Add patient with data input of add form")
     @PostMapping("patient/add")
     public String addPatient(@ModelAttribute("patient") @Valid PatientDTO patientDTO,
                              BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -134,13 +120,9 @@ public class OrganizerController {
 
         } catch (PatientAlreadyExistException patientException) {
             log.error(LogConstants.ADD_PATIENT_REQUEST_KO, patientException.getMessage());
-            model.addAttribute("errorMessage", "patient.add.ko" + patientException.getMessage()); //TODO
+            model.addAttribute("errorMessage", "patient.add.ko" + patientException.getMessage());
             return ViewNameConstants.ADD_PATIENT;
 
-        } catch (Exception exception) {
-            log.error(LogConstants.ADD_PATIENT_REQUEST_KO, exception.getMessage());
-            model.addAttribute("errorMessage", "patient.add.ko" + exception.getMessage());
-            return ViewNameConstants.ADD_PATIENT;
         }
     }
 }

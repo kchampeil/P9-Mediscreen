@@ -22,4 +22,11 @@ public class TestConstants {
     public static final String PATIENT2_GENDER = "F";
     public static final String PATIENT2_ADDRESS = "2 rue de Bretagne 75000 PARIS";
     public static final String PATIENT2_PHONE = "0202020202";
+
+    public static final String NEW_PATIENT_FIRSTNAME = "Firstname new";
+    public static final String NEW_PATIENT_LASTNAME = "Lastname new";
+    public static final LocalDate NEW_PATIENT_BIRTHDATE = LocalDate.of(1980, 12, 31);
+    public static final String NEW_PATIENT_GENDER = "F";
+    public static final String NEW_PATIENT_ADDRESS = "Address new";
+    public static final String NEW_PATIENT_PHONE = "0909090909";
 }

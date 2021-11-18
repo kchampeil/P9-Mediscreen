@@ -22,9 +22,9 @@ public interface IPatientProxy {
     PatientDTO getPatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 
     @PutMapping(value = "/patient/update")
-    PatientDTO updatePatient(@RequestBody PatientDTO oldPatientDtoToUpdate)
+    PatientDTO updatePatient(@RequestBody PatientDTO patientDtoToUpdate)
         throws PatientDoesNotExistException, PatientAlreadyExistException;
 
-    @PostMapping(value = "/add")
+    @PostMapping(value = "/patient/add")
     PatientDTO addPatient(@RequestBody PatientDTO patientDtoToAdd) throws PatientAlreadyExistException;
 }

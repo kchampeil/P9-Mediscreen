@@ -111,17 +111,17 @@ class PatientControllerTest {
         @Test
         void updatePatient_ForExistingPatient_returnsUpdatedPatientAndStatusOk() throws Exception {
 
-            PatientDTO updatedOldPatientDto = new PatientDTO();
-            updatedOldPatientDto.setId(TestConstants.PATIENT1_ID);
-            updatedOldPatientDto.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
-            updatedOldPatientDto.setLastname(TestConstants.PATIENT1_LASTNAME);
-            updatedOldPatientDto.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
-            updatedOldPatientDto.setGender(TestConstants.PATIENT1_GENDER);
-            updatedOldPatientDto.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
-            updatedOldPatientDto.setPhone(TestConstants.PATIENT1_PHONE);
+            PatientDTO updatedPatientDto = new PatientDTO();
+            updatedPatientDto.setId(TestConstants.PATIENT1_ID);
+            updatedPatientDto.setFirstname(TestConstants.PATIENT1_FIRSTNAME);
+            updatedPatientDto.setLastname(TestConstants.PATIENT1_LASTNAME);
+            updatedPatientDto.setBirthDate(TestConstants.PATIENT1_BIRTHDATE);
+            updatedPatientDto.setGender(TestConstants.PATIENT1_GENDER);
+            updatedPatientDto.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
+            updatedPatientDto.setPhone(TestConstants.PATIENT1_PHONE);
 
             when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.of(
-                updatedOldPatientDto));
+                updatedPatientDto));
 
             mockMvc.perform(put("/patient/update")
                                 .contentType(MediaType.APPLICATION_JSON)

@@ -1,5 +1,8 @@
 package com.mediscreen.clientUi.integration;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -9,7 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.commons.dto.PatientDTO;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,6 +59,21 @@ public class OrganizerControllerIT {
                             .param("gender", TestConstants.PATIENT1_GENDER)
                             .param("address", TestConstants.PATIENT1_ADDRESS)
                             .param("phone", TestConstants.PATIENT1_PHONE))
+               .andExpect(model().hasNoErrors())
+               .andExpect(status().isFound())
+               .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+    }
+
+    @Test
+    void addPatient_withSuccess_returnsPatientListView() throws Exception {
+
+        mockMvc.perform(post("/patient/add")
+                            .param("firstname", TestConstants.NEW_PATIENT_FIRSTNAME)
+                            .param("lastname", TestConstants.NEW_PATIENT_LASTNAME)
+                            .param("birthDate", TestConstants.NEW_PATIENT_BIRTHDATE.toString())
+                            .param("gender", TestConstants.NEW_PATIENT_GENDER)
+                            .param("address", TestConstants.NEW_PATIENT_ADDRESS)
+                            .param("phone", TestConstants.NEW_PATIENT_PHONE))
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
                .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
