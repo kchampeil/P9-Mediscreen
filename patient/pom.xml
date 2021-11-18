@@ -11,7 +11,7 @@
 
   <groupId>com.mediscreen</groupId>
   <artifactId>patient</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <name>patient</name>
   <description>Microservice managing patient personal data</description>
 
@@ -113,6 +113,12 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco.version}</version>
+        <configuration>
+          <excludes>
+            <exclude>com/mediscreen/patient/constants/**/*</exclude>
+            <exclude>com/mediscreen/patient/config/**/*</exclude>
+          </excludes>
+        </configuration>
 				<executions>
 					<execution>
 						<id>pre-UT</id>

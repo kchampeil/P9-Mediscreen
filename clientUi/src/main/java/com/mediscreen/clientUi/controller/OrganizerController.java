@@ -125,4 +125,24 @@ public class OrganizerController {
 
         }
     }
+
+    @GetMapping("patient/delete/{id}")
+    public String deletePatient(@PathVariable("id") Integer patientId, RedirectAttributes redirectAttributes) {
+
+        log.debug(LogConstants.DELETE_REQUEST_RECEIVED, patientId);
+
+        try {
+            patientProxy.deletePatientById(patientId);
+            log.info(LogConstants.DELETE_PATIENT_REQUEST_OK, patientId);
+            redirectAttributes.addFlashAttribute("infoMessage",
+                                                 formatOutputMessage("patient.delete.ok", patientId.toString()));
+
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+            log.error(patientDoesNotExistException.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                                                 formatOutputMessage("patient.not.found", patientId.toString()));
+        }
+
+        return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+    }
 }

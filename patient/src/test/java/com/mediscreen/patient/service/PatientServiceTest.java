@@ -239,4 +239,33 @@ class PatientServiceTest {
             verify(patientRepositoryMock, Mockito.times(0)).save(any(Patient.class));
         }
     }
+
+    @Nested
+    @DisplayName("deletePatient tests")
+    class deletePatientTests {
+        @Test
+        void deletePatient_ForExistingPatient_returnsNothing() throws PatientDoesNotExistException {
+
+            when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.ofNullable(patientInDb));
+
+            patientService.deletePatientById(patientInDb.getId());
+
+            verify(patientRepositoryMock, Mockito.times(1)).findById(anyInt());
+            verify(patientRepositoryMock, Mockito.times(1)).deleteById(anyInt());
+        }
+
+        @Test
+        void deletePatient_ForUnknownPatient_throwsPatientNotFoundException() {
+
+            when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(PatientDoesNotExistException.class,
+                                               () -> patientService.deletePatientById(TestConstants.UNKNOWN_PATIENT_ID));
+            assertEquals(ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID,
+                         exception.getMessage());
+
+            verify(patientRepositoryMock, Mockito.times(1)).findById(anyInt());
+            verify(patientRepositoryMock, Mockito.times(0)).deleteById(anyInt());
+        }
+    }
 }

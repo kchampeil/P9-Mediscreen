@@ -19,4 +19,7 @@ public class LogConstants {
     public static final String ADD_PATIENT_REQUEST_NOT_VALID = "Patient information not valid \n";
     public static final String ADD_PATIENT_REQUEST_OK = "Patient id {} has been created\n";
     public static final String ADD_PATIENT_REQUEST_KO ="Patient has not been created : {} \n";
+
+    public static final String DELETE_REQUEST_RECEIVED = "GET request /patient/delete/{} received on clientUI";
+    public static final String DELETE_PATIENT_REQUEST_OK = "Patient id {} has been deleted\n";
 }

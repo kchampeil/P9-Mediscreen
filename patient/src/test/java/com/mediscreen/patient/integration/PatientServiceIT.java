@@ -1,14 +1,10 @@
 package com.mediscreen.patient.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +16,6 @@ import com.mediscreen.patient.model.Patient;
 import com.mediscreen.patient.repository.PatientRepository;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -96,8 +91,17 @@ public class PatientServiceIT {
         assertNotNull(addedPatientDTO.get().getId());
         patientDtoToAdd.setId(addedPatientDTO.get().getId());
         assertEquals(patientDtoToAdd.toString(), addedPatientDTO.get().toString());
+    }
 
-        //clean DB at the end of the test by deleting the patient created in test
-        patientRepository.deleteById(addedPatientDTO.get().getId());
+    @Test
+    public void deletePatientById_ForExistingPatient_returnsNothingButPatientNoLongerExists() throws PatientDoesNotExistException {
+
+        Optional<Patient> patientToDelete = patientRepository.findById(TestConstants.PATIENT1_ID);
+        assertTrue(patientToDelete.isPresent());
+
+        patientService.deletePatientById(TestConstants.PATIENT1_ID);
+        Optional<Patient> patientDeleted = patientRepository.findById(TestConstants.PATIENT1_ID);
+
+        assertFalse(patientDeleted.isPresent());
     }
 }

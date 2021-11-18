@@ -6,6 +6,7 @@ import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,4 +28,7 @@ public interface IPatientProxy {
 
     @PostMapping(value = "/patient/add")
     PatientDTO addPatient(@RequestBody PatientDTO patientDtoToAdd) throws PatientAlreadyExistException;
+
+    @DeleteMapping(value = "/patient/delete")
+    Integer deletePatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 }

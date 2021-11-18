@@ -11,7 +11,7 @@
 
   <groupId>com.mediscreen</groupId>
   <artifactId>clientUi</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <name>clientUi</name>
   <description>User Interface for Mediscreen app</description>
 
@@ -101,6 +101,11 @@
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.version}</version>
+        <configuration>
+          <excludes>
+            <exclude>com/mediscreen/clientUi/constants/**/*</exclude>
+          </excludes>
+        </configuration>
         <executions>
           <execution>
             <id>pre-UT</id>

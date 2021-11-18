@@ -122,6 +122,14 @@ public class PatientService implements IPatientService {
         }
     }
 
+    /**
+     * add a patient
+     *
+     * @param patientDtoToAdd information for the patient to add
+     * @return added patient (DTO)
+     * @throws PatientAlreadyExistException if one patient already exists with the same firstname, lastname and
+     *                                      birthdate
+     */
     @Override
     public Optional<PatientDTO> addPatient(PatientDTO patientDtoToAdd) throws PatientAlreadyExistException {
 
@@ -147,5 +155,25 @@ public class PatientService implements IPatientService {
             log.debug(LogConstants.ADD_PATIENT_SERVICE_OK, patientToAdd.getId());
             return Optional.ofNullable(modelMapper.map(addedPatient, PatientDTO.class));
         }
+    }
+
+    /**
+     * delete a patient
+     *
+     * @param patientId of the patient to delete
+     * @throws PatientDoesNotExistException if no patient found to delete
+     */
+    @Override
+    public void deletePatientById(Integer patientId) throws PatientDoesNotExistException {
+
+        log.debug(LogConstants.DELETE_PATIENT_BY_ID_SERVICE_CALL);
+
+        patientRepository.findById(patientId)
+                         .orElseThrow(() -> {
+                             log.error(LogConstants.DELETE_PATIENT_BY_ID_SERVICE_NOT_FOUND, patientId);
+                             return new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId);
+                         });
+
+        patientRepository.deleteById(patientId);
     }
 }

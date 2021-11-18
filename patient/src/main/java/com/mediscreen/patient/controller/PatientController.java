@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -101,12 +102,7 @@ public class PatientController {
         } catch (PatientAlreadyExistException patientAlreadyExistException) {
             log.error(patientAlreadyExistException.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());
-
-        } catch (Exception e) {
-            log.error(e.getMessage() + " \n");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-
     }
 
     @ApiOperation(value = "Add patient")
@@ -135,11 +131,29 @@ public class PatientController {
         } catch (PatientAlreadyExistException patientAlreadyExistException) {
             log.error(patientAlreadyExistException.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());
+        }
+    }
 
+    @ApiOperation(value = "Delete patient")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Patient deleted"),
+        @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
+    })
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<Integer> deletePatientById(@RequestParam Integer patientId) {
 
-        } catch (Exception e) {
-            log.error(e.getMessage() + " \n");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        log.debug(LogConstants.DELETE_PATIENT_BY_ID_REQUEST_RECEIVED, patientId);
+
+        try {
+            patientService.deletePatientById(patientId);
+
+            log.debug(LogConstants.DELETE_PATIENT_BY_ID_REQUEST_OK, patientId);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+            log.error(patientDoesNotExistException.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage(),
+                                              patientDoesNotExistException);
         }
     }
 }

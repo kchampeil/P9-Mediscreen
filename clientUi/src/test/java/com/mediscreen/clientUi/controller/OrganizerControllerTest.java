@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +30,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = OrganizerController.class)
@@ -67,8 +69,7 @@ class OrganizerControllerTest {
                .andExpect(model().attributeExists("patientDtoList"))
                .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS));
 
-        verify(patientProxyMock, Mockito.times(1))
-            .getAllPatients();
+        verify(patientProxyMock, Mockito.times(1)).getAllPatients();
     }
 
     @Nested
@@ -85,8 +86,7 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeExists("patient"))
                    .andExpect(view().name(ViewNameConstants.UPDATE_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(1))
-                .getPatientById(anyInt());
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         }
 
         @Test
@@ -99,8 +99,7 @@ class OrganizerControllerTest {
                    .andExpect(status().isFound())
                    .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
 
-            verify(patientProxyMock, Mockito.times(1))
-                .getPatientById(anyInt());
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         }
     }
 
@@ -123,8 +122,7 @@ class OrganizerControllerTest {
                    .andExpect(status().isFound())
                    .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
 
-            verify(patientProxyMock, Mockito.times(1))
-                .updatePatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
         }
 
         @Test
@@ -143,8 +141,7 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeHasFieldErrorCode("patient", "firstname", "NotBlank"))
                    .andExpect(view().name(ViewNameConstants.UPDATE_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(0))
-                .updatePatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(0)).updatePatient(any(PatientDTO.class));
         }
 
         @Test
@@ -164,8 +161,7 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeHasFieldErrorCode("patient", "gender", "Size"))
                    .andExpect(view().name(ViewNameConstants.UPDATE_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(0))
-                .updatePatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(0)).updatePatient(any(PatientDTO.class));
         }
 
         @Test
@@ -185,8 +181,7 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeExists("errorMessage"))
                    .andExpect(view().name(ViewNameConstants.UPDATE_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(1))
-                .updatePatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
         }
     }
 
@@ -219,8 +214,7 @@ class OrganizerControllerTest {
                    .andExpect(status().isFound())
                    .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
 
-            verify(patientProxyMock, Mockito.times(1))
-                .addPatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
         }
 
         @Test
@@ -239,8 +233,7 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeHasFieldErrorCode("patient", "firstname", "NotBlank"))
                    .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(0))
-                .addPatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(0)).addPatient(any(PatientDTO.class));
         }
 
         @Test
@@ -260,8 +253,7 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeHasFieldErrorCode("patient", "gender", "Size"))
                    .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(0))
-                .addPatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(0)).addPatient(any(PatientDTO.class));
         }
 
         @Test
@@ -281,8 +273,39 @@ class OrganizerControllerTest {
                    .andExpect(model().attributeExists("errorMessage"))
                    .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
 
-            verify(patientProxyMock, Mockito.times(1))
-                .addPatient(any(PatientDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("deletePatient tests")
+    class DeletePatientTest {
+
+        @Test
+        void deletePatient_forExistingUser_returnsPatientListViewWithInfoMessage() throws Exception {
+
+            when(patientProxyMock.deletePatientById(anyInt())).thenReturn(HttpStatus.OK.value());
+
+            mockMvc.perform(get("/patient/delete/{id}", TestConstants.PATIENT1_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("infoMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+
+            verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
+        }
+
+        @Test
+        void deletePatient_forUnknownUser_returnsPatientListViewWithErrorMessage() throws Exception {
+
+            when(patientProxyMock.deletePatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
+                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+
+            mockMvc.perform(get("/patient/delete/{id}", TestConstants.UNKNOWN_PATIENT_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("errorMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+
+            verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
         }
     }
 }

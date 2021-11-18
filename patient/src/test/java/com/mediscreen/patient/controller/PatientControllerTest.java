@@ -3,8 +3,10 @@ package com.mediscreen.patient.controller;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -233,6 +235,36 @@ class PatientControllerTest {
                    .andExpect(status().isBadRequest());
 
             verify(patientServiceMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("deletePatient tests")
+    class DeletePatientByIdTests {
+        @Test
+        void deletePatient_WithExistingPatientId_returnsExistingPatient_And_StatusOk() throws Exception {
+
+            mockMvc.perform(delete("/patient/delete")
+                                .param("patientId", TestConstants.PATIENT1_ID.toString()))
+                   .andExpect(status().isOk());
+
+            verify(patientServiceMock, Mockito.times(1)).deletePatientById(anyInt());
+        }
+
+        @Test
+        void deletePatient_WithUnknownPatientId_returnsStatusNotFound() throws Exception {
+
+            doThrow(new PatientDoesNotExistException(
+                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID))
+                .when(patientServiceMock).deletePatientById(anyInt());
+
+            mockMvc.perform(delete("/patient/delete")
+                                .param("patientId", TestConstants.UNKNOWN_PATIENT_ID.toString()))
+                   .andExpect(status().isNotFound())
+                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
+                                                    .contains(ExceptionConstants.PATIENT_NOT_FOUND));
+
+            verify(patientServiceMock, Mockito.times(1)).deletePatientById(anyInt());
         }
     }
 }
