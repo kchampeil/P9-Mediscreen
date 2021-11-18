@@ -24,4 +24,5 @@ public class LogConstants {
 
     public static final String ADD_PATIENT_REQUEST_RECEIVED = "POST /patient/{} request received on ms-patient";
     public static final String ADD_PATIENT_REQUEST_OK = "Patient {} added \n";
+    public static final String ADD_PATIENT_REQUEST_KO = "Error when creating patient, patient has not been added \n";
 }

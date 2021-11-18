@@ -123,11 +123,11 @@ public class PatientController {
                 log.info(LogConstants.ADD_PATIENT_REQUEST_OK, addedPatient.get().getId());
                 return new ResponseEntity<>(addedPatient.get(), HttpStatus.CREATED);
             } else {
-                log.error("new patient " + patientDtoToAdd + " has not been added\n");
+                log.error(LogConstants.ADD_PATIENT_REQUEST_KO);
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
-        } catch (PatientAlreadyExistException patientAlreadyExistException) { //TODO à revoir
+        } catch (PatientAlreadyExistException patientAlreadyExistException) {
             log.error(patientAlreadyExistException.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());
 
@@ -136,6 +136,5 @@ public class PatientController {
             log.error(e.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
-
     }
 }

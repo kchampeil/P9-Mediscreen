@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -153,7 +154,7 @@ class PatientControllerTest {
         }
 
         @Test
-        void updatePatient_ForExistingPatientWithSameFirstnameLastnameAndBirthDate_returnsStatusConflict()
+        void updatePatient_ForExistingPatientWithSameFullNameAndDob_returnsStatusConflict()
             throws Exception {
 
             when(patientServiceMock.updatePatient(any(PatientDTO.class)))
@@ -180,6 +181,58 @@ class PatientControllerTest {
                    .andExpect(status().isBadRequest());
 
             verify(patientServiceMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("addPatient tests")
+    class AddPatientTests {
+
+        @Test
+        void addPatient_ForNewPatient_returnsCreatedPatientAndStatusCreated() throws Exception {
+            when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(Optional.of(patientDTO));
+
+            mockMvc.perform(post("/patient/add")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isCreated())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$").isNotEmpty())
+                   .andExpect(jsonPath("$.address", is(TestConstants.PATIENT1_ADDRESS)))
+                   .andExpect(jsonPath("$.id", is(TestConstants.PATIENT1_ID)));
+
+            verify(patientServiceMock, Mockito.times(1))
+                .addPatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void addPatient_withExistingPatientWithSameFullNameAndDob_returnsStatusConflict()
+            throws Exception {
+
+            when(patientServiceMock.addPatient(any(PatientDTO.class)))
+                .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));
+
+            mockMvc.perform(post("/patient/add")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isConflict())
+                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
+                                                    .contains(ExceptionConstants.PATIENT_ALREADY_EXISTS));
+
+            verify(patientServiceMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void addPatient_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
+
+            when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(Optional.empty());
+
+            mockMvc.perform(post("/patient/add")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(patientDTO)))
+                   .andExpect(status().isBadRequest());
+
+            verify(patientServiceMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
         }
     }
 }
