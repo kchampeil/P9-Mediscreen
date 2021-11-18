@@ -39,7 +39,7 @@ public class OrganizerController {
     @GetMapping("/patient/list")
     public String showAllPatients(Model model) {
 
-        log.info(LogConstants.SHOW_ALL_PATIENTS_REQUEST_RECEIVED);
+        log.debug(LogConstants.SHOW_ALL_PATIENTS_REQUEST_RECEIVED);
 
         model.addAttribute("patientDtoList", patientProxy.getAllPatients());
 
@@ -51,7 +51,7 @@ public class OrganizerController {
     public String showUpdateForm(@PathVariable("id") Integer patientId, Model model,
                                  RedirectAttributes redirectAttributes) {
 
-        log.info(LogConstants.SHOW_UPDATE_FORM_RECEIVED, patientId);
+        log.debug(LogConstants.SHOW_UPDATE_FORM_RECEIVED, patientId);
 
         try {
             model.addAttribute("patient", patientProxy.getPatientById(patientId));
@@ -70,7 +70,7 @@ public class OrganizerController {
     public String updatePatient(@PathVariable("id") Integer patientId,
                                 @ModelAttribute("patient") @Valid PatientDTO patientDTO,
                                 BindingResult result, Model model, RedirectAttributes redirectAttributes) {
-        log.info(LogConstants.UPDATE_PATIENT_RECEIVED, patientId);
+        log.debug(LogConstants.UPDATE_PATIENT_RECEIVED, patientId);
 
         if (result.hasErrors()) {
             log.error(LogConstants.UPDATE_PATIENT_REQUEST_NOT_VALID + patientId + "\n");
@@ -102,4 +102,45 @@ public class OrganizerController {
         }
     }
 
+    @ApiOperation(value = "Show empty form to add a patient")
+    @GetMapping("patient/add")
+    public String showAddForm(Model model) {
+
+        log.debug(LogConstants.SHOW_ADD_FORM_RECEIVED);
+
+        model.addAttribute("patient", new PatientDTO());
+        return ViewNameConstants.ADD_PATIENT;
+    }
+
+    @ApiOperation(value = "Add patient with data input of add form")
+    @PostMapping("patient/add")
+    public String addPatient(@ModelAttribute("patient") @Valid PatientDTO patientDTO,
+                             BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+        log.debug(LogConstants.ADD_PATIENT_RECEIVED);
+
+        if (result.hasErrors()) {
+            log.error(LogConstants.ADD_PATIENT_REQUEST_NOT_VALID);
+            return ViewNameConstants.ADD_PATIENT;
+        }
+
+        try {
+            patientDTO = patientProxy.addPatient(patientDTO);
+
+            log.info(LogConstants.ADD_PATIENT_REQUEST_OK, patientDTO.getId());
+
+            redirectAttributes.addFlashAttribute("infoMessage",
+                                                 formatOutputMessage("patient.add.ok", patientDTO.getId().toString()));
+            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+
+        } catch (PatientAlreadyExistException patientException) {
+            log.error(LogConstants.ADD_PATIENT_REQUEST_KO, patientException.getMessage());
+            model.addAttribute("errorMessage", "patient.add.ko" + patientException.getMessage()); //TODO
+            return ViewNameConstants.ADD_PATIENT;
+
+        } catch (Exception exception) {
+            log.error(LogConstants.ADD_PATIENT_REQUEST_KO, exception.getMessage());
+            model.addAttribute("errorMessage", "patient.add.ko" + exception.getMessage());
+            return ViewNameConstants.ADD_PATIENT;
+        }
+    }
 }

@@ -19,6 +19,7 @@ import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -186,6 +187,92 @@ class OrganizerControllerTest {
 
             verify(patientProxyMock, Mockito.times(1))
                 .updatePatient(any(PatientDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("addPatient tests")
+    class AddPatientTest {
+        @Test
+        void addPatient_withSuccess_returnsPatientListView() throws Exception {
+
+            when(patientProxyMock.addPatient(any(PatientDTO.class))).thenReturn(patientDTO);
+
+            mockMvc.perform(post("/patient/add")
+                                .param("firstname", TestConstants.PATIENT1_FIRSTNAME)
+                                .param("lastname", TestConstants.PATIENT1_LASTNAME)
+                                .param("birthDate", TestConstants.PATIENT1_BIRTHDATE.toString())
+                                .param("gender", TestConstants.PATIENT1_GENDER)
+                                .param("address", TestConstants.PATIENT1_ADDRESS)
+                                .param("phone", TestConstants.PATIENT1_PHONE))
+                   .andExpect(model().hasNoErrors())
+                   .andExpect(status().isFound())
+                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+
+            verify(patientProxyMock, Mockito.times(1))
+                .addPatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void addPatient_withMissingInfo_returnsUpdatePatientViewWithErrors() throws Exception {
+
+            mockMvc.perform(post("/patient/add")
+                                .param("firstname", "")
+                                .param("lastname", TestConstants.PATIENT1_LASTNAME)
+                                .param("birthDate", TestConstants.PATIENT1_BIRTHDATE.toString())
+                                .param("gender", TestConstants.PATIENT1_GENDER)
+                                .param("address", TestConstants.PATIENT1_ADDRESS)
+                                .param("phone", TestConstants.PATIENT1_PHONE))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("patient"))
+                   .andExpect(model().hasErrors())
+                   .andExpect(model().attributeHasFieldErrorCode("patient", "firstname", "NotBlank"))
+                   .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
+
+            verify(patientProxyMock, Mockito.times(0))
+                .addPatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void addPatient_withInvalidInfo_returnsUpdatePatientViewWithErrors() throws Exception {
+
+            mockMvc.perform(post("/patient/add")
+                                .param("firstname", TestConstants.PATIENT1_FIRSTNAME)
+                                .param("lastname", TestConstants.PATIENT1_LASTNAME)
+                                .param("birthDate", TestConstants.PATIENT1_BIRTHDATE_IN_FUTURE.toString())
+                                .param("gender", TestConstants.PATIENT1_GENDER_TOO_LONG)
+                                .param("address", TestConstants.PATIENT1_ADDRESS)
+                                .param("phone", TestConstants.PATIENT1_PHONE))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("patient"))
+                   .andExpect(model().hasErrors())
+                   .andExpect(model().attributeHasFieldErrorCode("patient", "birthDate", "Past"))
+                   .andExpect(model().attributeHasFieldErrorCode("patient", "gender", "Size"))
+                   .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
+
+            verify(patientProxyMock, Mockito.times(0))
+                .addPatient(any(PatientDTO.class));
+        }
+
+        @Test
+        void addPatient_withException_returnsUpdatePatientViewWithErrorMessage() throws Exception {
+            when(patientProxyMock.addPatient(any(PatientDTO.class)))
+                .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));
+
+            mockMvc.perform(post("/patient/add")
+                                .param("firstname", TestConstants.PATIENT1_FIRSTNAME)
+                                .param("lastname", TestConstants.PATIENT1_LASTNAME)
+                                .param("birthDate", TestConstants.PATIENT1_BIRTHDATE.toString())
+                                .param("gender", TestConstants.PATIENT1_GENDER)
+                                .param("address", TestConstants.PATIENT1_ADDRESS)
+                                .param("phone", TestConstants.PATIENT1_PHONE))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("patient"))
+                   .andExpect(model().attributeExists("errorMessage"))
+                   .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
+
+            verify(patientProxyMock, Mockito.times(1))
+                .addPatient(any(PatientDTO.class));
         }
     }
 }

@@ -109,6 +109,11 @@ public class PatientController {
 
     }
 
+    @ApiOperation(value = "Add patient")
+    @ApiResponses(value = {
+        @ApiResponse(code = 201, message = "Patient createrd"),
+        @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
+    })
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PatientDTO> addPatient(@RequestBody PatientDTO patientDtoToAdd) {

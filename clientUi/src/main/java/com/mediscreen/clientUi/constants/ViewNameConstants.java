@@ -6,4 +6,5 @@ public class ViewNameConstants {
 
     public static final String SHOW_ALL_PATIENTS = "/patient/list";
     public static final String UPDATE_PATIENT = "/patient/update"; //TODO à revoir ?
+    public static final String ADD_PATIENT = "/patient/add"; //TODO à revoir ?
 }
