@@ -1,14 +1,15 @@
 package com.mediscreen.patient.service.contracts;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
+import org.springframework.data.domain.Page;
 
 public interface IPatientService {
-    List<PatientDTO> getAllPatients();
+
+    Page<PatientDTO> getAllPatientsPageable(int pageNumber, int size, String sortField, String sortDir);
 
     PatientDTO getPatientById(Integer patientId) throws PatientDoesNotExistException;
 

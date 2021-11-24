@@ -1,7 +1,5 @@
 package com.mediscreen.patient.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import com.mediscreen.commons.constants.ExceptionConstants;
@@ -15,6 +13,10 @@ import com.mediscreen.patient.service.contracts.IPatientService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,23 +33,33 @@ public class PatientService implements IPatientService {
     }
 
     /**
-     * get all registered patients (DTO)
+     * get all registered patients (DTO) for a given page number, items per page
+     * sorted on one given field with one direction
      *
-     * @return list of patientDTO
+     * @param pageNumber   page we want to retrieve the list of patients
+     * @param itemsPerPage number of items per page
+     * @param sortField    sorted field
+     * @param sortDir      sorted direction
+     * @return Page of PatientDTO
      */
     @Override
-    public List<PatientDTO> getAllPatients() {
-        log.debug(LogConstants.GET_ALL_PATIENTS_SERVICE_CALL);
+    public Page<PatientDTO> getAllPatientsPageable(int pageNumber, int itemsPerPage, String sortField,
+                                                   String sortDir) {
+        log.debug(LogConstants.GET_ALL_PATIENTS_PER_PAGE_SERVICE_CALL);
 
-        List<Patient> patientList = patientRepository.findAll();
+        Sort sort = Sort.by(sortField);
+        sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
+        Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);
+        //TOASK envoyer directement pagenumber-1 par le controller de l'UI ?
 
-        List<PatientDTO> patientDTOList = new ArrayList<>();
+        Page<Patient> patientPage = patientRepository.findAll(pageable);
+
         ModelMapper modelMapper = new ModelMapper();
-        patientList.forEach(patient -> patientDTOList.add(modelMapper.map(patient, PatientDTO.class)));
+        Page<PatientDTO> patientDTOPage = patientPage.map(patient -> modelMapper.map(patient, PatientDTO.class));
 
-        log.debug(LogConstants.GET_ALL_PATIENTS_SERVICE_OK, patientDTOList.size());
+        log.debug(LogConstants.GET_ALL_PATIENTS_PER_PAGE_SERVICE_OK, pageNumber);
 
-        return patientDTOList;
+        return patientDTOPage;
     }
 
     /**

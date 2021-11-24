@@ -33,6 +33,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -59,19 +61,26 @@ class PatientControllerTest {
     }
 
     @Test
-    void getAllPatients_returnsTheListOfAllValues_And_StatusOk() throws Exception {
+    void getAllPatientsByPage_returnsTheListOfAllValues_And_StatusOk() throws Exception {
 
         List<PatientDTO> patientDTOList = new ArrayList<>();
         patientDTOList.add(patientDTO);
+        Page<PatientDTO> patientDTOPage = new PageImpl<>(patientDTOList);
 
-        when(patientServiceMock.getAllPatients()).thenReturn(patientDTOList);
+        when(patientServiceMock.getAllPatientsPageable(anyInt(), anyInt(), any(String.class),
+                                                       any(String.class))).thenReturn(patientDTOPage);
 
-        mockMvc.perform(get("/patient/list"))
+        mockMvc.perform(get("/patient/list/")
+                            .param("pageNumber", String.valueOf(1))
+                            .param("itemsPerPage", String.valueOf(10))
+                            .param("sortField", "id")
+                            .param("sortDir", "asc"))
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$").isNotEmpty());
 
-        verify(patientServiceMock, Mockito.times(1)).getAllPatients();
+        verify(patientServiceMock, Mockito.times(1))
+            .getAllPatientsPageable(anyInt(), anyInt(), any(String.class), any(String.class));
     }
 
     @Nested

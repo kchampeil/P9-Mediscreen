@@ -1,6 +1,5 @@
 package com.mediscreen.patient.controller;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.mediscreen.commons.constants.ExceptionConstants;
@@ -15,6 +14,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,12 +41,15 @@ public class PatientController {
         this.patientService = patientService;
     }
 
-    @ApiOperation(value = "Get all registered patients")
-    @GetMapping(value = "list")
-    public List<PatientDTO> getAllPatients() {
+    @ApiOperation(
+        value = "Get all registered patients by page for a given number of items per page, " +
+                "sorted by one field in one direction")
+    @GetMapping(value = "list/")
+    public Page<PatientDTO> getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
+                                                 @RequestParam String sortField, @RequestParam String sortDir) {
         log.debug(LogConstants.GET_ALL_PATIENTS_REQUEST_RECEIVED);
 
-        return patientService.getAllPatients();
+        return patientService.getAllPatientsPageable(pageNumber, itemsPerPage, sortField, sortDir);
     }
 
     @ApiOperation(value = "Get patient by id")

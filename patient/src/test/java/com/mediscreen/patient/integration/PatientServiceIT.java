@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.mediscreen.commons.dto.PatientDTO;
@@ -18,6 +17,7 @@ import com.mediscreen.patient.service.contracts.IPatientService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -33,14 +33,15 @@ public class PatientServiceIT {
     private PatientRepository patientRepository;
 
     @Test
-    public void getAllPatients_withDataInDb_returnsTheListOfAllValues() {
+    void getAllPatientsPageable_withDataInDb_returnsTheListOfAllValues() {
 
-        List<PatientDTO> patientDTOList = patientService.getAllPatients();
+        Page<PatientDTO> patientDTOPage = patientService.getAllPatientsPageable(1, 10, "id", "asc");
 
-        assertEquals(5, patientDTOList.size());
-        assertEquals(TestConstants.PATIENT1_ID, patientDTOList.get(0).getId());
-        assertEquals(TestConstants.PATIENT1_FIRSTNAME, patientDTOList.get(0).getFirstname());
-        assertEquals(TestConstants.PATIENT1_LASTNAME, patientDTOList.get(0).getLastname());
+        assertFalse(patientDTOPage.getContent().isEmpty());
+        assertTrue(patientDTOPage.getContent().size() <= 10);
+        assertEquals(TestConstants.PATIENT1_ID, patientDTOPage.getContent().get(0).getId());
+        assertEquals(TestConstants.PATIENT1_FIRSTNAME, patientDTOPage.getContent().get(0).getFirstname());
+        assertEquals(TestConstants.PATIENT1_LASTNAME, patientDTOPage.getContent().get(0).getLastname());
     }
 
     @Test
@@ -94,7 +95,8 @@ public class PatientServiceIT {
     }
 
     @Test
-    public void deletePatientById_ForExistingPatient_returnsNothingButPatientNoLongerExists() throws PatientDoesNotExistException {
+    public void deletePatientById_ForExistingPatient_returnsNothingButPatientNoLongerExists()
+        throws PatientDoesNotExistException {
 
         Optional<Patient> patientToDelete = patientRepository.findById(TestConstants.PATIENT1_ID);
         assertTrue(patientToDelete.isPresent());

@@ -12,6 +12,7 @@ import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -19,12 +20,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
 public class OrganizerController {
 
+    private final static String DEFAULT_SORT_FIELD = "id";
+    private final static String DEFAULT_SORT_DIRECTION = "asc";
     private final IPatientProxy patientProxy;
 
     @Autowired
@@ -32,12 +36,34 @@ public class OrganizerController {
         this.patientProxy = patientProxy;
     }
 
-    @GetMapping("/patient/list")
-    public String showAllPatients(Model model) {
+    @GetMapping("/organizer")
+    public String showHomePageOrganizer(Model model) {
 
-        log.debug(LogConstants.SHOW_ALL_PATIENTS_REQUEST_RECEIVED);
+        log.debug(LogConstants.HOME_ORGANIZER_REQUEST_RECEIVED);
+        return showAllPatientsByPage(model, 1, DEFAULT_SORT_FIELD, DEFAULT_SORT_DIRECTION, 5);
+    }
 
-        model.addAttribute("patientDtoList", patientProxy.getAllPatients());
+    @GetMapping("/patient/list/{page}")
+    public String showAllPatientsByPage(Model model,
+                                        @PathVariable("page") int currentPage,
+                                        @RequestParam("sortField") String sortField,
+                                        @RequestParam("sortDir") String sortDir,
+                                        @RequestParam("itemsPerPage") int itemsPerPage) {
+
+        log.debug(LogConstants.SHOW_PATIENTS_PER_PAGE_REQUEST_RECEIVED, currentPage, sortField, sortDir);
+
+        Page<PatientDTO> patientDTOPage = patientProxy.getAllPatientsByPage(currentPage, itemsPerPage, sortField,
+                                                                            sortDir);
+
+        model.addAttribute("patientDtoList", patientDTOPage.getContent());
+        model.addAttribute("currentPage", currentPage);
+        model.addAttribute("totalPages", patientDTOPage.getTotalPages());
+        model.addAttribute("totalItems", patientDTOPage.getTotalElements());
+        model.addAttribute("itemsPerPage", itemsPerPage);
+
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         return ViewNameConstants.SHOW_ALL_PATIENTS;
     }
@@ -78,7 +104,7 @@ public class OrganizerController {
 
             redirectAttributes.addFlashAttribute("infoMessage",
                                                  formatOutputMessage("patient.update.ok", patientId.toString()));
-            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
 
         } catch (PatientDoesNotExistException | PatientAlreadyExistException patientException) {
             log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, patientException.getMessage());
@@ -116,7 +142,7 @@ public class OrganizerController {
 
             redirectAttributes.addFlashAttribute("infoMessage",
                                                  formatOutputMessage("patient.add.ok", patientDTO.getId().toString()));
-            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
 
         } catch (PatientAlreadyExistException patientException) {
             log.error(LogConstants.ADD_PATIENT_REQUEST_KO, patientException.getMessage());
@@ -143,6 +169,6 @@ public class OrganizerController {
                                                  formatOutputMessage("patient.not.found", patientId.toString()));
         }
 
-        return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+        return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
     }
 }

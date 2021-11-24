@@ -1,11 +1,10 @@
 package com.mediscreen.clientUi.proxies;
 
-import java.util.List;
-
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "patient", url = "${patient.feign.url}" + ":" + "${patient.feign.port}")
 public interface IPatientProxy {
 
-    @GetMapping(value = "/patient/list")
-    List<PatientDTO> getAllPatients();
+    @GetMapping(value = "/patient/list/")
+    Page<PatientDTO> getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
+                                          @RequestParam String sortField, @RequestParam String sortDir);
 
     @GetMapping(value = "/patient/get")
     PatientDTO getPatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;

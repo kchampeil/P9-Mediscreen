@@ -1,8 +1,5 @@
 package com.mediscreen.clientUi.integration;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -12,9 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
-import com.mediscreen.commons.dto.PatientDTO;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,13 +25,22 @@ public class OrganizerControllerIT {
     private MockMvc mockMvc;
 
     @Test
-    void showAllPatients_WithSuccess() throws Exception {
+    void showAllPatientsByPage_WithSuccess() throws Exception {
 
-        mockMvc.perform(get("/patient/list"))
+        mockMvc.perform(get("/patient/list/{page}", 1)
+                            .param("page", "1")
+                            .param("sortField", "id")
+                            .param("sortDir", "asc")
+                            .param("itemsPerPage", "10"))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patientDtoList"))
+               .andExpect(model().attributeExists("totalPages"))
+               .andExpect(model().attributeExists("totalItems"))
+               .andExpect(model().attributeExists("itemsPerPage"))
+               .andExpect(model().attributeExists("sortField"))
+               .andExpect(model().attributeExists("sortDir"))
+               .andExpect(model().attributeExists("reverseSortDir"))
                .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS));
-
     }
 
     @Test
@@ -61,7 +65,7 @@ public class OrganizerControllerIT {
                             .param("phone", TestConstants.PATIENT1_PHONE))
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
-               .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+               .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
     }
 
     @Test
@@ -76,6 +80,9 @@ public class OrganizerControllerIT {
                             .param("phone", TestConstants.NEW_PATIENT_PHONE))
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
-               .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+               .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
+
+        //TOASK How-to delete patient after test
+
     }
 }

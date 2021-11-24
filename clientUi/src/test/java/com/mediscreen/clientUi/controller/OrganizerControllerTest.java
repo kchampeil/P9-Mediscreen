@@ -30,19 +30,19 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = OrganizerController.class)
 class OrganizerControllerTest {
 
+    private static PatientDTO patientDTO;
     @Autowired
     private MockMvc mockMvc;
-
     @MockBean
     private IPatientProxy patientProxyMock;
-
-    private static PatientDTO patientDTO;
 
     @BeforeAll
     static void setUp() {
@@ -57,19 +57,59 @@ class OrganizerControllerTest {
     }
 
     @Test
-    void showAllPatients_WithSuccess() throws Exception {
+    void showHomePageOrganizer_WithSuccess() throws Exception {
+        List<PatientDTO> patientDTOList = new ArrayList<>();
+        patientDTOList.add(patientDTO);
+        Page<PatientDTO> patientDTOPage = new PageImpl<>(patientDTOList);
+
+        when(patientProxyMock.getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class)))
+            .thenReturn(patientDTOPage);
+
+        mockMvc.perform(get("/organizer"))
+               .andExpect(status().isOk())
+               .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS));
+
+        verify(patientProxyMock, Mockito.times(1))
+            .getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class));
+    }
+
+    @Test
+    void showAllPatientsByPage_WithSuccess() throws Exception {
 
         List<PatientDTO> patientDTOList = new ArrayList<>();
         patientDTOList.add(patientDTO);
+        Page<PatientDTO> patientDTOPage = new PageImpl<>(patientDTOList);
 
-        when(patientProxyMock.getAllPatients()).thenReturn(patientDTOList);
+        when(patientProxyMock.getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class)))
+            .thenReturn(patientDTOPage);
 
-        mockMvc.perform(get("/patient/list"))
+        mockMvc.perform(get("/patient/list/{page}", 1)
+                            .param("page", "1")
+                            .param("sortField", "id")
+                            .param("sortDir", "asc")
+                            .param("itemsPerPage", "10"))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patientDtoList"))
+               .andExpect(model().attributeExists("totalPages"))
+               .andExpect(model().attributeExists("totalItems"))
+               .andExpect(model().attributeExists("itemsPerPage"))
+               .andExpect(model().attributeExists("sortField"))
+               .andExpect(model().attributeExists("sortDir"))
+               .andExpect(model().attributeExists("reverseSortDir"))
                .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS));
 
-        verify(patientProxyMock, Mockito.times(1)).getAllPatients();
+        verify(patientProxyMock, Mockito.times(1))
+            .getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class));
+    }
+
+    @Test
+    void showAddForm_WithSuccess() throws Exception {
+
+        mockMvc.perform(get("/patient/add"))
+               .andExpect(status().isOk())
+               .andExpect(model().attributeExists("patient"))
+               .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
+
     }
 
     @Nested
@@ -120,7 +160,7 @@ class OrganizerControllerTest {
                                 .param("phone", TestConstants.PATIENT1_PHONE))
                    .andExpect(model().hasNoErrors())
                    .andExpect(status().isFound())
-                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).updatePatient(any(PatientDTO.class));
         }
@@ -185,16 +225,6 @@ class OrganizerControllerTest {
         }
     }
 
-    @Test
-    void showAddForm_WithSuccess() throws Exception {
-
-        mockMvc.perform(get("/patient/add"))
-               .andExpect(status().isOk())
-               .andExpect(model().attributeExists("patient"))
-               .andExpect(view().name(ViewNameConstants.ADD_PATIENT));
-
-    }
-
     @Nested
     @DisplayName("addPatient tests")
     class AddPatientTest {
@@ -212,7 +242,7 @@ class OrganizerControllerTest {
                                 .param("phone", TestConstants.PATIENT1_PHONE))
                    .andExpect(model().hasNoErrors())
                    .andExpect(status().isFound())
-                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
         }
@@ -289,7 +319,7 @@ class OrganizerControllerTest {
             mockMvc.perform(get("/patient/delete/{id}", TestConstants.PATIENT1_ID))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("infoMessage"))
-                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
         }
@@ -303,7 +333,7 @@ class OrganizerControllerTest {
             mockMvc.perform(get("/patient/delete/{id}", TestConstants.UNKNOWN_PATIENT_ID))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("errorMessage"))
-                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
         }

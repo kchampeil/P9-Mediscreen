@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 public class TestConstants {
 
+    public static final int TOTAL_LINES_IN_DB = 6;
+    
     public static final Integer PATIENT1_ID = 1;
     public static final String PATIENT1_FIRSTNAME = "Emma";
     public static final String PATIENT1_LASTNAME = "Stone";

@@ -31,6 +31,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 @SpringBootTest
 class PatientServiceTest {
@@ -65,32 +68,34 @@ class PatientServiceTest {
     }
 
     @Nested
-    @DisplayName("getAllPatients tests")
-    class GetAllPatientsTests {
+    @DisplayName("getAllPatientsPageable tests")
+    class GetAllPatientsPageableTests {
         @Test
-        void getAllPatients_withDataInDb_returnsTheListOfAllValues() {
+        void getAllPatientsPageable_withDataInDb_returnsTheListOfAllValuesForThePage() {
 
             List<Patient> patientList = new ArrayList<>();
             patientList.add(patientInDb);
-            when(patientRepositoryMock.findAll()).thenReturn(patientList);
+            Page<Patient> patientPage = new PageImpl<>(patientList);
+            when(patientRepositoryMock.findAll(any(Pageable.class))).thenReturn(patientPage);
 
-            List<PatientDTO> patientDTOList = patientService.getAllPatients();
-            assertEquals(patientList.size(), patientDTOList.size());
-            assertEquals(patientInDb.getId(), patientDTOList.get(0).getId());
+            Page<PatientDTO> patientDTOPage = patientService.getAllPatientsPageable(1, 1000, "id", "asc");
+            assertEquals(patientList.size(), patientDTOPage.getContent().size());
+            assertEquals(patientInDb.getId(), patientDTOPage.getContent().get(0).getId());
 
-            verify(patientRepositoryMock, Mockito.times(1)).findAll();
+            verify(patientRepositoryMock, Mockito.times(1)).findAll(any(Pageable.class));
         }
 
         @Test
-        void getAllPatients_withNoDataInDb_returnsAnEmptyList() {
+        void getAllPatientsPageable_withNoDataInDb_returnsAnEmptyList() {
 
             List<Patient> patientList = new ArrayList<>();
-            when(patientRepositoryMock.findAll()).thenReturn(patientList);
+            Page<Patient> patientPage = new PageImpl<>(patientList);
+            when(patientRepositoryMock.findAll(any(Pageable.class))).thenReturn(patientPage);
 
-            List<PatientDTO> patientDTOList = patientService.getAllPatients();
-            assertThat(patientDTOList).isEmpty();
+            Page<PatientDTO> patientDTOPage = patientService.getAllPatientsPageable(1, 1000, "id", "asc");
+            assertThat(patientDTOPage.getContent()).isEmpty();
 
-            verify(patientRepositoryMock, Mockito.times(1)).findAll();
+            verify(patientRepositoryMock, Mockito.times(1)).findAll(any(Pageable.class));
         }
     }
 
@@ -260,7 +265,8 @@ class PatientServiceTest {
             when(patientRepositoryMock.findById(anyInt())).thenReturn(Optional.empty());
 
             Exception exception = assertThrows(PatientDoesNotExistException.class,
-                                               () -> patientService.deletePatientById(TestConstants.UNKNOWN_PATIENT_ID));
+                                               () -> patientService.deletePatientById(
+                                                   TestConstants.UNKNOWN_PATIENT_ID));
             assertEquals(ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID,
                          exception.getMessage());
 

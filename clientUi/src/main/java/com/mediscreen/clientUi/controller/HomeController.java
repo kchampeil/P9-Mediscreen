@@ -14,7 +14,7 @@ public class HomeController {
     @GetMapping("/")
     public String showHomePage(Model model) {
 
-        log.info(LogConstants.HOME_REQUEST_RECEIVED);
+        log.debug(LogConstants.HOME_REQUEST_RECEIVED);
         return ViewNameConstants.HOME;
     }
 }
