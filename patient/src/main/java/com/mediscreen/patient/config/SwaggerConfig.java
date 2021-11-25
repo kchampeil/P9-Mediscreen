@@ -31,7 +31,7 @@ public class SwaggerConfig {
         return new ApiInfo(
             "Patient API",
             "API for CRUD operations on patients",
-            "0.0.4-SNAPSHOT",
+            "0.1.0-SNAPSHOT",
             "",
             new Contact("Karine C.", "www.mediscreen.com", "karinec@mediscreen.com"),
             "",

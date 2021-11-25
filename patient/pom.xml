@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
@@ -11,7 +11,7 @@
 
   <groupId>com.mediscreen</groupId>
   <artifactId>patient</artifactId>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <name>patient</name>
   <description>Microservice managing patient personal data</description>
 
@@ -21,6 +21,7 @@
     <junit-jupiter-api.version>5.7.2</junit-jupiter-api.version>
     <modelmapper.version>2.4.4</modelmapper.version>
     <springfox.version>3.0.0</springfox.version>
+    <mediscreen.commons.version>0.1.0-SNAPSHOT</mediscreen.commons.version>
   </properties>
 
   <dependencies>
@@ -86,7 +87,7 @@
     <dependency>
       <groupId>com.mediscreen</groupId>
       <artifactId>commons</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>${mediscreen.commons.version}</version>
       <scope>compile</scope>
     </dependency>
 
@@ -113,78 +114,78 @@
         </configuration>
       </plugin>
 
-			<!-- ==== JaCoCo Configuration ==== -->
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco.version}</version>
+      <!-- ==== JaCoCo Configuration ==== -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
         <configuration>
           <excludes>
             <exclude>com/mediscreen/patient/constants/**/*</exclude>
             <exclude>com/mediscreen/patient/config/**/*</exclude>
           </excludes>
         </configuration>
-				<executions>
-					<execution>
-						<id>pre-UT</id>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>jacoco-report-UT</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-					</execution>
-					<!-- JaCoCo for integration tests -->
-					<execution>
-						<id>pre-integration-test</id>
-						<goals>
-							<goal>prepare-agent-integration</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>jacoco-report-IT</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>report-integration</goal>
-						</goals>
-					</execution>
-					<!-- merging unit & integration tests in one JaCoCo report  -->
-					<execution>
-						<id>merge-unit-and-integration</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>merge</goal>
-						</goals>
-						<configuration>
-							<fileSets>
-								<fileSet>
-									<directory>${project.build.directory}</directory>
-									<includes>
-										<include>*.exec</include>
-									</includes>
-								</fileSet>
-							</fileSets>
-							<destFile>${project.build.directory}/merged.exec</destFile>
-						</configuration>
-					</execution>
-					<execution>
-						<id>create-merged-report</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>report</goal>
-						</goals>
-						<configuration>
-							<dataFile>${project.build.directory}/merged.exec</dataFile>
-							<outputDirectory>${project.build.directory}/site/jacoco-merged-test-coverage-report
-							</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+        <executions>
+          <execution>
+            <id>pre-UT</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-report-UT</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <!-- JaCoCo for integration tests -->
+          <execution>
+            <id>pre-integration-test</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-report-IT</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>report-integration</goal>
+            </goals>
+          </execution>
+          <!-- merging unit & integration tests in one JaCoCo report  -->
+          <execution>
+            <id>merge-unit-and-integration</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>merge</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>*.exec</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
+              <destFile>${project.build.directory}/merged.exec</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>create-merged-report</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/merged.exec</dataFile>
+              <outputDirectory>${project.build.directory}/site/jacoco-merged-test-coverage-report
+              </outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
     </plugins>
   </build>

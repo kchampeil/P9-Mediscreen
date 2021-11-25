@@ -15,20 +15,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "patient", url = "${patient.feign.url}" + ":" + "${patient.feign.port}")
 public interface IPatientProxy {
 
-    @GetMapping(value = "/patient/list/")
+    @GetMapping(value = "/patient/list")
     Page<PatientDTO> getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                           @RequestParam String sortField, @RequestParam String sortDir);
 
-    @GetMapping(value = "/patient/get")
+    @GetMapping(value = "/patient")
     PatientDTO getPatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 
-    @PutMapping(value = "/patient/update")
+    @PutMapping(value = "/patient")
     PatientDTO updatePatient(@RequestBody PatientDTO patientDtoToUpdate)
         throws PatientDoesNotExistException, PatientAlreadyExistException;
 
-    @PostMapping(value = "/patient/add")
+    @PostMapping(value = "/patient")
     PatientDTO addPatient(@RequestBody PatientDTO patientDtoToAdd) throws PatientAlreadyExistException;
 
-    @DeleteMapping(value = "/patient/delete")
+    @DeleteMapping(value = "/patient")
     Integer deletePatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 }

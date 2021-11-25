@@ -1,6 +1,6 @@
 package com.mediscreen.patient.controller;
 
-import java.util.Optional;
+import static com.mediscreen.commons.dto.PatientDTO.PATIENT_DTO_EXAMPLE;
 
 import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.PatientDTO;
@@ -10,8 +10,11 @@ import com.mediscreen.patient.constants.LogConstants;
 import com.mediscreen.patient.service.contracts.IPatientService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,7 +48,7 @@ public class PatientController {
     @ApiOperation(
         value = "Get all registered patients by page for a given number of items per page, " +
                 "sorted by one field in one direction")
-    @GetMapping(value = "list/")
+    @GetMapping(value = "list")
     public Page<PatientDTO> getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                                  @RequestParam String sortField, @RequestParam String sortDir) {
         log.debug(LogConstants.GET_ALL_PATIENTS_REQUEST_RECEIVED);
@@ -57,8 +61,10 @@ public class PatientController {
         @ApiResponse(code = 200, message = "Patient found"),
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
     })
-    @GetMapping(value = "get")
-    public ResponseEntity<PatientDTO> getPatientById(@RequestParam Integer patientId) {
+    @GetMapping(value = "")
+    public ResponseEntity<PatientDTO> getPatientById(
+        @ApiParam(name = "id", type = "Integer", value = "id of patient", example = "1", required = true)
+        @RequestParam Integer patientId) {
 
         log.debug(LogConstants.GET_PATIENT_BY_ID_REQUEST_RECEIVED, patientId);
 
@@ -77,26 +83,23 @@ public class PatientController {
 
     @ApiOperation(value = "Update patient")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Patient updated"),
+        @ApiResponse(code = 200, message = "Patient updated",
+                     examples = @Example(value = {@ExampleProperty(mediaType = "application/json",
+                                                                   value = PATIENT_DTO_EXAMPLE)})),
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND),
         @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
     })
-    @PutMapping(value = "update", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PatientDTO> updatePatient(@RequestBody PatientDTO patientDtoToUpdate) {
+    public ResponseEntity<PatientDTO> updatePatient(@ApiParam(value = "Patient information to update")
+                                                    @RequestBody PatientDTO patientDtoToUpdate) {
 
         log.debug(LogConstants.UPDATE_PATIENT_REQUEST_RECEIVED, patientDtoToUpdate.getId());
 
         try {
-            Optional<PatientDTO> updatedPatientDto = patientService.updatePatient(patientDtoToUpdate);
-
-            if (updatedPatientDto.isPresent()) {
-                log.info(LogConstants.UPDATE_PATIENT_REQUEST_OK, patientDtoToUpdate.getId());
-                return new ResponseEntity<>(updatedPatientDto.get(), HttpStatus.OK);
-            } else {
-                log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientDtoToUpdate.getId());
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+            return patientService.updatePatient(patientDtoToUpdate)
+                                 .map(patientDtoUpdated -> new ResponseEntity<>(patientDtoUpdated, HttpStatus.OK))
+                                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + " \n");
@@ -110,26 +113,24 @@ public class PatientController {
 
     @ApiOperation(value = "Add patient")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Patient created"),
+        @ApiResponse(code = 201, message = "Patient created", examples = @Example(value =
+            {@ExampleProperty(mediaType = "application/json",
+                              value = PATIENT_DTO_EXAMPLE)})),
         @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
     })
-    @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PatientDTO> addPatient(@RequestBody PatientDTO patientDtoToAdd) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<PatientDTO> addPatient(@ApiParam(value = "Information about the patient to create")
+                                                 @RequestBody PatientDTO patientDtoToAdd) {
 
         log.debug(LogConstants.ADD_PATIENT_REQUEST_RECEIVED,
                   patientDtoToAdd.getFirstname() + " " + patientDtoToAdd.getLastname());
 
         try {
-            Optional<PatientDTO> addedPatient = patientService.addPatient(patientDtoToAdd);
-
-            if (addedPatient.isPresent()) {
-                log.info(LogConstants.ADD_PATIENT_REQUEST_OK, addedPatient.get().getId());
-                return new ResponseEntity<>(addedPatient.get(), HttpStatus.CREATED);
-            } else {
-                log.error(LogConstants.ADD_PATIENT_REQUEST_KO);
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
+            return patientService.addPatient(patientDtoToAdd)
+                                 .map(patientDtoAdded -> new ResponseEntity<>(patientDtoAdded, HttpStatus.CREATED))
+                                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
         } catch (PatientAlreadyExistException patientAlreadyExistException) {
             log.error(patientAlreadyExistException.getMessage() + " \n");
@@ -137,13 +138,16 @@ public class PatientController {
         }
     }
 
-    @ApiOperation(value = "Delete patient")
+    @ApiOperation(value = "Delete patient by id")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Patient deleted"),
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
     })
-    @DeleteMapping(value = "/delete")
-    public ResponseEntity<Integer> deletePatientById(@RequestParam Integer patientId) {
+    @DeleteMapping(value = "")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Integer> deletePatientById(
+        @ApiParam(name = "id", type = "Integer", value = "id of patient", example = "1", required = true)
+        @RequestParam Integer patientId) {
 
         log.debug(LogConstants.DELETE_PATIENT_BY_ID_REQUEST_RECEIVED, patientId);
 
@@ -151,7 +155,7 @@ public class PatientController {
             patientService.deletePatientById(patientId);
 
             log.debug(LogConstants.DELETE_PATIENT_BY_ID_REQUEST_OK, patientId);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + " \n");

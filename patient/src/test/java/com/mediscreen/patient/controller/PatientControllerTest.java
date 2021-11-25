@@ -70,7 +70,7 @@ class PatientControllerTest {
         when(patientServiceMock.getAllPatientsPageable(anyInt(), anyInt(), any(String.class),
                                                        any(String.class))).thenReturn(patientDTOPage);
 
-        mockMvc.perform(get("/patient/list/")
+        mockMvc.perform(get("/patient/list")
                             .param("pageNumber", String.valueOf(1))
                             .param("itemsPerPage", String.valueOf(10))
                             .param("sortField", "id")
@@ -91,7 +91,7 @@ class PatientControllerTest {
 
             when(patientServiceMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
-            mockMvc.perform(get("/patient/get")
+            mockMvc.perform(get("/patient")
                                 .param("patientId", TestConstants.PATIENT1_ID.toString()))
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -108,7 +108,7 @@ class PatientControllerTest {
                 .thenThrow(new PatientDoesNotExistException(
                     ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
-            mockMvc.perform(get("/patient/get")
+            mockMvc.perform(get("/patient")
                                 .param("patientId", TestConstants.UNKNOWN_PATIENT_ID.toString()))
                    .andExpect(status().isNotFound());
 
@@ -134,7 +134,7 @@ class PatientControllerTest {
             when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.of(
                 updatedPatientDto));
 
-            mockMvc.perform(put("/patient/update")
+            mockMvc.perform(put("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isOk())
@@ -152,7 +152,7 @@ class PatientControllerTest {
                 .thenThrow(new PatientDoesNotExistException(
                     ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
-            mockMvc.perform(put("/patient/update")
+            mockMvc.perform(put("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isNotFound())
@@ -171,7 +171,7 @@ class PatientControllerTest {
             when(patientServiceMock.updatePatient(any(PatientDTO.class)))
                 .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));
 
-            mockMvc.perform(put("/patient/update")
+            mockMvc.perform(put("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isConflict())
@@ -186,7 +186,7 @@ class PatientControllerTest {
 
             when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.empty());
 
-            mockMvc.perform(put("/patient/update")
+            mockMvc.perform(put("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isBadRequest());
@@ -203,7 +203,7 @@ class PatientControllerTest {
         void addPatient_ForNewPatient_returnsCreatedPatientAndStatusCreated() throws Exception {
             when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(Optional.of(patientDTO));
 
-            mockMvc.perform(post("/patient/add")
+            mockMvc.perform(post("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isCreated())
@@ -223,7 +223,7 @@ class PatientControllerTest {
             when(patientServiceMock.addPatient(any(PatientDTO.class)))
                 .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));
 
-            mockMvc.perform(post("/patient/add")
+            mockMvc.perform(post("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isConflict())
@@ -238,7 +238,7 @@ class PatientControllerTest {
 
             when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(Optional.empty());
 
-            mockMvc.perform(post("/patient/add")
+            mockMvc.perform(post("/patient")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(patientDTO)))
                    .andExpect(status().isBadRequest());
@@ -251,11 +251,11 @@ class PatientControllerTest {
     @DisplayName("deletePatient tests")
     class DeletePatientByIdTests {
         @Test
-        void deletePatient_WithExistingPatientId_returnsExistingPatient_And_StatusOk() throws Exception {
+        void deletePatient_WithExistingPatientId_returnsExistingPatient_And_StatusNoContent() throws Exception {
 
-            mockMvc.perform(delete("/patient/delete")
+            mockMvc.perform(delete("/patient")
                                 .param("patientId", TestConstants.PATIENT1_ID.toString()))
-                   .andExpect(status().isOk());
+                   .andExpect(status().isNoContent());
 
             verify(patientServiceMock, Mockito.times(1)).deletePatientById(anyInt());
         }
@@ -267,7 +267,7 @@ class PatientControllerTest {
                 ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID))
                 .when(patientServiceMock).deletePatientById(anyInt());
 
-            mockMvc.perform(delete("/patient/delete")
+            mockMvc.perform(delete("/patient")
                                 .param("patientId", TestConstants.UNKNOWN_PATIENT_ID.toString()))
                    .andExpect(status().isNotFound())
                    .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()

@@ -81,7 +81,7 @@ public class PatientService implements IPatientService {
             return modelMapper.map(patient.get(), PatientDTO.class);
 
         } else {
-            log.error(LogConstants.GET_PATIENT_BY_ID_SERVICE_NOT_FOUND, patientId);
+            log.error(LogConstants.PATIENT_SERVICE_NOT_FOUND, patientId);
             throw new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId);
         }
 
@@ -113,7 +113,7 @@ public class PatientService implements IPatientService {
                     patientDtoToUpdate.getBirthDate());
 
             if (existingPatient.isPresent() && !patientDtoToUpdate.getId().equals(existingPatient.get().getId())) {
-                log.error(LogConstants.UPDATE_PATIENT_SERVICE_ALREADY_EXISTS);
+                log.error(LogConstants.PATIENT_SERVICE_ALREADY_EXISTS);
                 throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);
 
             } else {
@@ -154,7 +154,7 @@ public class PatientService implements IPatientService {
                 patientDtoToAdd.getBirthDate());
 
         if (existingPatient.isPresent()) {
-            log.error(LogConstants.ADD_PATIENT_SERVICE_ALREADY_EXISTS);
+            log.error(LogConstants.PATIENT_SERVICE_ALREADY_EXISTS);
             throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);
 
         } else {
@@ -182,7 +182,7 @@ public class PatientService implements IPatientService {
 
         patientRepository.findById(patientId)
                          .orElseThrow(() -> {
-                             log.error(LogConstants.DELETE_PATIENT_BY_ID_SERVICE_NOT_FOUND, patientId);
+                             log.error(LogConstants.PATIENT_SERVICE_NOT_FOUND, patientId);
                              return new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId);
                          });
 
