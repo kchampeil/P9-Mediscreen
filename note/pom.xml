@@ -121,8 +121,8 @@
         <version>${jacoco.version}</version>
         <configuration>
           <excludes>
-            <exclude>com/mediscreen/patient/constants/**/*</exclude>
-            <exclude>com/mediscreen/patient/config/**/*</exclude>
+            <exclude>com/mediscreen/note/constants/**/*</exclude>
+            <exclude>com/mediscreen/note/config/**/*</exclude>
           </excludes>
         </configuration>
         <executions>
