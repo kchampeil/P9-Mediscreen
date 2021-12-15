@@ -5,6 +5,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -38,7 +39,24 @@ public class NoteDTO {
     @NotNull(message = "{note.creationDate.notNull}")
     @PastOrPresent(message = "{note.creationDate.pastOrPresent}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd") //TOASK pourquoi non pris en compte ?
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
+
+    public NoteDTO(Integer patientId, String note, LocalDate creationDate) {
+        this.patientId = patientId;
+        this.note = note;
+        this.creationDate = creationDate;
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+               "id='" + id + '\'' +
+               ", patientId=" + patientId +
+               ", note='" + note + '\'' +
+               ", creationDate=" + creationDate +
+               '}';
+    }
 }

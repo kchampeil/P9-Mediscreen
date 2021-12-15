@@ -44,7 +44,7 @@ class NoteControllerTest {
         noteDTO = new NoteDTO(TestConstants.NOTE1_ID,
                               TestConstants.NOTE1_PATIENT_ID,
                               TestConstants.NOTE1_NOTE,
-                              TestConstants.NOTE1_NOTE_DATE);
+                              TestConstants.NOTE1_CREATION_DATE);
     }
 
     @Test

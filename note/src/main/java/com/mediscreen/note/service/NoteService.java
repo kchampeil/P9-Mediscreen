@@ -1,5 +1,7 @@
 package com.mediscreen.note.service;
 
+import java.util.Optional;
+
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.note.constants.LogConstants;
 import com.mediscreen.note.model.Note;
@@ -54,5 +56,25 @@ public class NoteService implements INoteService {
         log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_PER_PAGE_OK, pageNumber);
 
         return noteDTOPage;
+    }
+
+    /**
+     * add a note for a patient
+     *
+     * @param noteDtoToAdd information for the note to add
+     * @return added note (DTO)
+     */
+    @Override
+    public Optional<NoteDTO> addNote(NoteDTO noteDtoToAdd) {
+
+        log.debug(LogConstants.ADD_NOTE_SERVICE_CALL);
+
+        ModelMapper modelMapper = new ModelMapper();
+        Note noteToAdd = modelMapper.map(noteDtoToAdd, Note.class);
+
+        Note addedNote = noteRepository.save(noteToAdd);
+
+        log.debug(LogConstants.ADD_NOTE_SERVICE_OK, noteToAdd.getId());
+        return Optional.ofNullable(modelMapper.map(addedNote, NoteDTO.class));
     }
 }
