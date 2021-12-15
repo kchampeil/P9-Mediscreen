@@ -5,6 +5,7 @@ import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
 import javax.validation.Valid;
 
 import com.mediscreen.clientUi.constants.LogConstants;
+import com.mediscreen.clientUi.constants.ProfileConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.dto.PatientDTO;
@@ -25,14 +26,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
-public class OrganizerController {
+public class PatientController {
 
-    private final static String DEFAULT_SORT_FIELD = "id";
-    private final static String DEFAULT_SORT_DIRECTION = "asc";
     private final IPatientProxy patientProxy;
 
     @Autowired
-    public OrganizerController(IPatientProxy patientProxy) {
+    public PatientController(IPatientProxy patientProxy) {
         this.patientProxy = patientProxy;
     }
 
@@ -40,7 +39,18 @@ public class OrganizerController {
     public String showHomePageOrganizer(Model model) {
 
         log.debug(LogConstants.HOME_ORGANIZER_REQUEST_RECEIVED);
-        return showAllPatientsByPage(model, 1, DEFAULT_SORT_FIELD, DEFAULT_SORT_DIRECTION, 5);
+        model.addAttribute("profile", ProfileConstants.ORGANIZER_PROFILE);
+        return showAllPatientsByPage(model, 1, ProfileConstants.ORGANIZER_DEFAULT_SORT_FIELD,
+                                     ProfileConstants.ORGANIZER_DEFAULT_SORT_DIRECTION, 5);
+    }
+
+    @GetMapping("/doctor")
+    public String showHomePageDoctor(Model model) {
+
+        log.debug(LogConstants.HOME_DOCTOR_REQUEST_RECEIVED);
+        model.addAttribute("profile", ProfileConstants.DOCTOR_PROFILE);
+        return showAllPatientsByPage(model, 1, ProfileConstants.DOCTOR_DEFAULT_SORT_FIELD,
+                                     ProfileConstants.DOCTOR_DEFAULT_SORT_DIRECTION, 5);
     }
 
     @GetMapping("/patient/list/{page}")
@@ -48,7 +58,8 @@ public class OrganizerController {
                                         @PathVariable("page") int currentPage,
                                         @RequestParam("sortField") String sortField,
                                         @RequestParam("sortDir") String sortDir,
-                                        @RequestParam("itemsPerPage") int itemsPerPage) {
+                                        @RequestParam(value = "itemsPerPage",
+                                                      defaultValue = ProfileConstants.DEFAULT_ITEMS_PER_PAGE) int itemsPerPage) {
 
         log.debug(LogConstants.SHOW_PATIENTS_PER_PAGE_REQUEST_RECEIVED, currentPage, sortField, sortDir);
 
@@ -105,6 +116,7 @@ public class OrganizerController {
             redirectAttributes.addFlashAttribute("infoMessage",
                                                  formatOutputMessage("patient.update.ok", patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         } catch (PatientDoesNotExistException | PatientAlreadyExistException patientException) {
             log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, patientException.getMessage());

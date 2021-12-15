@@ -35,10 +35,10 @@ public class NoteDTO {
     private String note;
 
     @ApiModelProperty(value = "date of medical note", example = "2021-11-06")
-    @NotNull(message = "{note.noteDate.notNull}")
-    @PastOrPresent(message = "{note.noteDate.pastOrPresent}")
+    @NotNull(message = "{note.creationDate.notNull}")
+    @PastOrPresent(message = "{note.creationDate.pastOrPresent}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate noteDate;
+    private LocalDate creationDate;
 }

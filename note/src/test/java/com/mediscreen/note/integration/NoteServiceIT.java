@@ -33,7 +33,7 @@ public class NoteServiceIT {
         assertTrue(noteDTOPage.getContent().size() <= 10);
         assertEquals(TestConstants.NOTE1_ID, noteDTOPage.getContent().get(0).getId());
         assertEquals(TestConstants.NOTE1_NOTE, noteDTOPage.getContent().get(0).getNote());
-        assertEquals(TestConstants.NOTE1_NOTE_DATE, noteDTOPage.getContent().get(0).getNoteDate());
+        assertEquals(TestConstants.NOTE1_NOTE_DATE, noteDTOPage.getContent().get(0).getCreationDate());
         assertEquals(TestConstants.NOTE2_NOTE, noteDTOPage.getContent().get(1).getNote());
     }
 }

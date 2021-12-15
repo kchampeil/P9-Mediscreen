@@ -22,4 +22,9 @@ public class LogConstants {
 
     public static final String DELETE_REQUEST_RECEIVED = "GET request /patient/delete/{} received on clientUI";
     public static final String DELETE_PATIENT_REQUEST_OK = "Patient id {} has been deleted\n";
+
+    public static final String HOME_DOCTOR_REQUEST_RECEIVED = "GET request /doctor received on clientUI";
+
+    public static final String SHOW_NOTES_PER_PAGE_REQUEST_RECEIVED =
+        "GET request /note/{}/list/{} sorted by {} and ordered {} received on clientUI";
 }

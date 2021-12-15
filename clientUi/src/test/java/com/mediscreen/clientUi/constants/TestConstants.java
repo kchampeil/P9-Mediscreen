@@ -24,4 +24,9 @@ public class TestConstants {
     public static final String NEW_PATIENT_ADDRESS = "Address new";
     public static final String NEW_PATIENT_PHONE = "0909090909";
 
+    public static final String NOTE1_ID = "61b85fe5fa8e508d4860c7e9";
+    public static final Integer NOTE1_PATIENT_ID = 1;
+    public static final String NOTE1_NOTE = "notes de janvier sur Emma Stone";
+    public static final LocalDate NOTE1_NOTE_DATE = LocalDate.of(2021, 1, 1);
+
 }

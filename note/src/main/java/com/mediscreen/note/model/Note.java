@@ -27,5 +27,5 @@ public class Note {
     private String note;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate noteDate;
+    private LocalDate creationDate;
 }

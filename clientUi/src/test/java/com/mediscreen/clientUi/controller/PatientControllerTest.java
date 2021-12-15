@@ -35,8 +35,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = OrganizerController.class)
-class OrganizerControllerTest {
+@WebMvcTest(controllers = PatientController.class)
+class PatientControllerTest {
 
     private static PatientDTO patientDTO;
     @Autowired
@@ -56,6 +56,7 @@ class OrganizerControllerTest {
         patientDTO.setPhone(TestConstants.PATIENT1_PHONE);
     }
 
+    //TODO ajouter home page doctor
     @Test
     void showHomePageOrganizer_WithSuccess() throws Exception {
         List<PatientDTO> patientDTOList = new ArrayList<>();
@@ -67,7 +68,26 @@ class OrganizerControllerTest {
 
         mockMvc.perform(get("/organizer"))
                .andExpect(status().isOk())
-               .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS));
+               .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS))
+               .andExpect(model().attribute("profile", "organizer"));
+
+        verify(patientProxyMock, Mockito.times(1))
+            .getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class));
+    }
+
+    @Test
+    void showHomePageDoctor_WithSuccess() throws Exception {
+        List<PatientDTO> patientDTOList = new ArrayList<>();
+        patientDTOList.add(patientDTO);
+        Page<PatientDTO> patientDTOPage = new PageImpl<>(patientDTOList);
+
+        when(patientProxyMock.getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class)))
+            .thenReturn(patientDTOPage);
+
+        mockMvc.perform(get("/doctor"))
+               .andExpect(status().isOk())
+               .andExpect(view().name(ViewNameConstants.SHOW_ALL_PATIENTS))
+               .andExpect(model().attribute("profile", "doctor"));
 
         verify(patientProxyMock, Mockito.times(1))
             .getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class));
