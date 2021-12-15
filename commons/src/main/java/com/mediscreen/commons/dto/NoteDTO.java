@@ -30,11 +30,11 @@ public class NoteDTO {
     @NotBlank(message = "{note.patientId.notBlank}")
     private Integer patientId;
 
-    @ApiModelProperty(value = "medical note for the patient", example = "Stone")
+    @ApiModelProperty(value = "medical note for the patient", example = "medical notes about Emma Stone")
     @NotBlank(message = "{note.note.notBlank}")
     private String note;
 
-    @ApiModelProperty(value = "date of medical note", example = "2021-11-06")
+    @ApiModelProperty(value = "creation date of medical note", example = "2021-11-06")
     @NotNull(message = "{note.creationDate.notNull}")
     @PastOrPresent(message = "{note.creationDate.pastOrPresent}")
     @DateTimeFormat(pattern = "yyyy-MM-dd")

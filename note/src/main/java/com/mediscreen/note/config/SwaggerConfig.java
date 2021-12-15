@@ -20,7 +20,7 @@ public class SwaggerConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
             .select()
-            .apis(RequestHandlerSelectors.basePackage("com.mediscreen.patient"))
+            .apis(RequestHandlerSelectors.basePackage("com.mediscreen.note"))
             .paths(PathSelectors.any())
             .build()
             .apiInfo(apiInfo())
@@ -29,9 +29,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfo(
-            "Patient API",
-            "API for CRUD operations on patients",
-            "0.1.0-SNAPSHOT",
+            "Note API",
+            "API for CRUD operations on medical notes",
+            "0.0.1-SNAPSHOT",
             "",
             new Contact("Karine C.", "www.mediscreen.com", "karinec@mediscreen.com"),
             "",
