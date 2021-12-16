@@ -35,7 +35,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @Api(value = "API for CRUD operations on patients")
 @RestController
-@RequestMapping("patient")
+@RequestMapping("/patient")
 public class PatientController {
 
     private final IPatientService patientService;
@@ -48,7 +48,7 @@ public class PatientController {
     @ApiOperation(
         value = "Get all registered patients by page for a given number of items per page, " +
                 "sorted by one field in one direction")
-    @GetMapping(value = "list")
+    @GetMapping(value = "/list")
     public Page<PatientDTO> getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                                  @RequestParam String sortField, @RequestParam String sortDir) {
         log.debug(LogConstants.GET_ALL_PATIENTS_REQUEST_RECEIVED);
@@ -61,7 +61,7 @@ public class PatientController {
         @ApiResponse(code = 200, message = "Patient found"),
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
     })
-    @GetMapping(value = "")
+    @GetMapping(value = "/")
     public ResponseEntity<PatientDTO> getPatientById(
         @ApiParam(name = "id", type = "Integer", value = "id of patient", example = "1", required = true)
         @RequestParam Integer patientId) {
@@ -89,7 +89,7 @@ public class PatientController {
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND),
         @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
     })
-    @PutMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PatientDTO> updatePatient(@ApiParam(value = "Patient information to update")
                                                     @RequestBody PatientDTO patientDtoToUpdate) {
@@ -118,7 +118,7 @@ public class PatientController {
                               value = PATIENT_DTO_EXAMPLE)})),
         @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
     })
-    @PostMapping(value = "", consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PostMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<PatientDTO> addPatient(@ApiParam(value = "Information about the patient to create")
@@ -143,7 +143,7 @@ public class PatientController {
         @ApiResponse(code = 200, message = "Patient deleted"),
         @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
     })
-    @DeleteMapping(value = "")
+    @DeleteMapping(value = "/")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Integer> deletePatientById(
         @ApiParam(name = "id", type = "Integer", value = "id of patient", example = "1", required = true)

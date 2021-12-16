@@ -1,22 +1,27 @@
 package com.mediscreen.note.controller;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.note.constants.TestConstants;
 import com.mediscreen.note.service.contracts.INoteService;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +46,17 @@ class NoteControllerTest {
 
     @BeforeAll
     static void setUp() {
-        noteDTO = new NoteDTO(TestConstants.NOTE1_ID,
+        /*noteDTO = new NoteDTO(TestConstants.NOTE1_ID,
                               TestConstants.NOTE1_PATIENT_ID,
                               TestConstants.NOTE1_NOTE,
                               TestConstants.NOTE1_CREATION_DATE);
+
+         */
+        noteDTO = new NoteDTO();
+        noteDTO.setId(TestConstants.NOTE1_ID);
+        noteDTO.setPatientId(TestConstants.NOTE1_PATIENT_ID);
+        noteDTO.setNote(TestConstants.NOTE1_NOTE);
+        noteDTO.setCreationDate(TestConstants.NOTE1_CREATION_DATE);
     }
 
     @Test
@@ -70,5 +82,41 @@ class NoteControllerTest {
 
         verify(noteServiceMock, Mockito.times(1))
             .getAllNotesForPatientPageable(anyInt(), anyInt(), anyInt(), any(String.class), any(String.class));
+    }
+
+    @Nested
+    @DisplayName("addNote tests")
+    class AddNoteTests {
+
+        @Test
+        void addNote_ForNewNote_returnsCreatedNoteAndStatusCreated() throws Exception {
+            when(noteServiceMock.addNote(any(NoteDTO.class))).thenReturn(Optional.of(noteDTO));
+
+            mockMvc.perform(post("/note/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(noteDTO)))
+                   .andExpect(status().isCreated())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$").isNotEmpty())
+                   .andExpect(jsonPath("$.patientId", is(noteDTO.getPatientId())))
+                   .andExpect(jsonPath("$.note", is(noteDTO.getNote())));
+            //TOASK gestion de la date dans le DTO
+            // .andExpect(jsonPath("$.creationDate", is(noteDTO.getCreationDate())));
+
+            verify(noteServiceMock, Mockito.times(1)).addNote(any(NoteDTO.class));
+        }
+
+        @Test
+        void addNote_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
+
+            when(noteServiceMock.addNote(any(NoteDTO.class))).thenReturn(Optional.empty());
+
+            mockMvc.perform(post("/note/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(noteDTO)))
+                   .andExpect(status().isBadRequest());
+
+            verify(noteServiceMock, Mockito.times(1)).addNote(any(NoteDTO.class));
+        }
     }
 }

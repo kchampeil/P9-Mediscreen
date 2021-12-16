@@ -8,4 +8,5 @@ public class LogConstants {
 
     public static final String ADD_NOTE_SERVICE_CALL = "NoteService.addNote request received on ms-note";
     public static final String ADD_NOTE_SERVICE_OK = "Note {} added \n";
+    public static final String ADD_NOTE_REQUEST_RECEIVED = "POST /note request received for patientId {} on ms-note";
 }
