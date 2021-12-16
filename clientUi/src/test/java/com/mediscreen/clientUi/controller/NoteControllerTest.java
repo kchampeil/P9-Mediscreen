@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
@@ -22,7 +25,12 @@ import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -59,8 +67,17 @@ public class NoteControllerTest {
                               TestConstants.NOTE1_NOTE_DATE);
     }
 
-    @Test
-    void showAllNotesForPatientByPage_WithSuccess() throws Exception {
+    private static Stream<Arguments> provideArgsForShowAllNotesWithSuccess() {
+        return Stream.of(
+            Arguments.of("1", "id", "asc", "10"),
+            Arguments.of("1", "id", "desc", "10")
+                        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArgsForShowAllNotesWithSuccess")
+    void showAllNotesForPatientByPage_WithSuccess(String page, String sortField, String sortDir, String itemsPerPage)
+        throws Exception {
 
         List<NoteDTO> noteDTOList = new ArrayList<>();
         noteDTOList.add(noteDTO);
@@ -73,10 +90,10 @@ public class NoteControllerTest {
 
         mockMvc.perform(get("/note/{patientId}/list/{page}", 1, 1)
                             .param("patientId", String.valueOf(noteDTO.getPatientId()))
-                            .param("page", "1")
-                            .param("sortField", "id")
-                            .param("sortDir", "asc")
-                            .param("itemsPerPage", "10"))
+                            .param("page", page)
+                            .param("sortField", sortField)
+                            .param("sortDir", sortDir)
+                            .param("itemsPerPage", itemsPerPage))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patient"))
                .andExpect(model().attributeExists("noteDtoList"))
@@ -104,8 +121,7 @@ public class NoteControllerTest {
 
         when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
         when(noteProxyMock.getAllNotesForPatientByPage(anyInt(), anyInt(), anyInt(), any(String.class),
-                                                       any(String.class)))
-            .thenReturn(noteDTOPage);
+                                                       any(String.class))).thenReturn(noteDTOPage);
 
         mockMvc.perform(get("/note/{patientId}/list/{page}", 1, 1)
                             .param("patientId", String.valueOf(noteDTO.getPatientId()))
@@ -113,9 +129,10 @@ public class NoteControllerTest {
                             .param("sortField", "id")
                             .param("sortDir", "asc")
                             .param("itemsPerPage", "10"))
-               .andExpect(status().isOk())
-               .andExpect(model().attributeExists("infoMessage"))
-               .andExpect(view().name(ViewNameConstants.SHOW_ALL_NOTES_FOR_PATIENT));
+               .andExpect(status().isFound())
+               .andExpect(flash().attributeExists("infoMessage"))
+               .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+        //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         verify(patientProxyMock, Mockito.times(1))
             .getPatientById(anyInt());
@@ -136,11 +153,96 @@ public class NoteControllerTest {
                             .param("sortDir", "asc")
                             .param("itemsPerPage", "10"))
                .andExpect(status().isFound())
-               .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+               .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
+        //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         verify(patientProxyMock, Mockito.times(1))
             .getPatientById(anyInt());
         verify(noteProxyMock, Mockito.times(0))
             .getAllNotesForPatientByPage(anyInt(), anyInt(), anyInt(), any(String.class), any(String.class));
+    }
+
+    @Nested
+    @DisplayName("showAddForm tests")
+    class ShowAddFormTest {
+        @Test
+        void showAddForm_WithSuccess() throws Exception {
+
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+
+            mockMvc.perform(get("/note/" + noteDTO.getPatientId() + "/add"))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("patient"))
+                   .andExpect(model().attributeExists("note"))
+                   .andExpect(view().name(ViewNameConstants.ADD_NOTE));
+
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+
+        @Test
+        void showAddForm_forUnknownPatient_returnsPatientListViewWithErrorMessage() throws Exception {
+            when(patientProxyMock.getPatientById(anyInt()))
+                .thenThrow(new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND));
+
+            mockMvc.perform(get("/note/" + noteDTO.getPatientId() + "/add"))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("errorMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(0)).addNote(any(NoteDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("addNote tests")
+    class AddNoteTest {
+        @Test
+        void addNote_withSuccess_returnsNoteListView() throws Exception {
+
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+            when(noteProxyMock.addNote(any(NoteDTO.class))).thenReturn(noteDTO);
+
+            mockMvc.perform(post("/note/" + noteDTO.getPatientId() + "/add")
+                                .param("note", TestConstants.NOTE1_NOTE))
+                   .andExpect(model().hasNoErrors())
+                   .andExpect(status().isFound())
+                   .andExpect(redirectedUrl("/note/" + noteDTO.getPatientId() + "/list/1"));
+
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(1)).addNote(any(NoteDTO.class));
+        }
+
+        @Test
+        void addNote_withMissingInfo_returnsAddNoteViewWithErrors() throws Exception {
+
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+
+            mockMvc.perform(post("/note/" + noteDTO.getPatientId() + "/add")
+                                .param("note", ""))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("note"))
+                   .andExpect(model().hasErrors())
+                   .andExpect(model().attributeHasFieldErrorCode("note", "note", "NotBlank"))
+                   .andExpect(view().name(ViewNameConstants.ADD_NOTE));
+
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(0)).addNote(any(NoteDTO.class));
+        }
+
+        @Test
+        void addNote_forUnknownPatient_returnsPatientListViewWithErrorMessage() throws Exception {
+            when(patientProxyMock.getPatientById(anyInt()))
+                .thenThrow(new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND));
+
+            mockMvc.perform(post("/note/" + noteDTO.getPatientId() + "/add")
+                                .param("note", noteDTO.getNote()))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("errorMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(0)).addNote(any(NoteDTO.class));
+        }
     }
 }

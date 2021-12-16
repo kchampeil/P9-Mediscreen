@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
@@ -26,6 +27,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -56,7 +60,13 @@ class PatientControllerTest {
         patientDTO.setPhone(TestConstants.PATIENT1_PHONE);
     }
 
-    //TODO ajouter home page doctor
+    private static Stream<Arguments> provideArgsForShowAllPatientsByPageWithSuccess() {
+        return Stream.of(
+            Arguments.of("1", "id", "asc", "10"),
+            Arguments.of("1", "id", "desc", "10")
+                        );
+    }
+
     @Test
     void showHomePageOrganizer_WithSuccess() throws Exception {
         List<PatientDTO> patientDTOList = new ArrayList<>();
@@ -93,8 +103,10 @@ class PatientControllerTest {
             .getAllPatientsByPage(anyInt(), anyInt(), any(String.class), any(String.class));
     }
 
-    @Test
-    void showAllPatientsByPage_WithSuccess() throws Exception {
+    @ParameterizedTest
+    @MethodSource("provideArgsForShowAllPatientsByPageWithSuccess")
+    void showAllPatientsByPage_WithSuccess(String page, String sortField, String sortDir, String itemsPerPage)
+        throws Exception {
 
         List<PatientDTO> patientDTOList = new ArrayList<>();
         patientDTOList.add(patientDTO);
@@ -104,10 +116,10 @@ class PatientControllerTest {
             .thenReturn(patientDTOPage);
 
         mockMvc.perform(get("/patient/list/{page}", 1)
-                            .param("page", "1")
-                            .param("sortField", "id")
-                            .param("sortDir", "asc")
-                            .param("itemsPerPage", "10"))
+                            .param("page", page)
+                            .param("sortField", sortField)
+                            .param("sortDir", sortDir)
+                            .param("itemsPerPage", itemsPerPage))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patientDtoList"))
                .andExpect(model().attributeExists("totalPages"))
@@ -137,7 +149,7 @@ class PatientControllerTest {
     class ShowUpdateFormTest {
 
         @Test
-        void showUpdateForm_forExistingUser_returnsPatientUpdateFormInitialized() throws Exception {
+        void showUpdateForm_forExistingPatient_returnsPatientUpdateFormInitialized() throws Exception {
 
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
@@ -150,14 +162,15 @@ class PatientControllerTest {
         }
 
         @Test
-        void showUpdateForm_forUnknownUser_returnsPatientListView() throws Exception {
+        void showUpdateForm_forUnknownPatient_returnsPatientListView() throws Exception {
 
             when(patientProxyMock.getPatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
                 ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
             mockMvc.perform(get("/patient/update/{id}", TestConstants.UNKNOWN_PATIENT_ID))
                    .andExpect(status().isFound())
-                   .andExpect(redirectedUrl(ViewNameConstants.SHOW_ALL_PATIENTS));
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
             verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         }
@@ -225,7 +238,7 @@ class PatientControllerTest {
         }
 
         @Test
-        void updatePatient_withException_returnsUpdatePatientViewWithErrorMessage() throws Exception {
+        void updatePatient_forUnknownPatient_returnsUpdatePatientViewWithErrorMessage() throws Exception {
             when(patientProxyMock.updatePatient(any(PatientDTO.class))).thenThrow(new PatientDoesNotExistException(
                 ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
@@ -268,7 +281,7 @@ class PatientControllerTest {
         }
 
         @Test
-        void addPatient_withMissingInfo_returnsUpdatePatientViewWithErrors() throws Exception {
+        void addPatient_withMissingInfo_returnsAddPatientViewWithErrors() throws Exception {
 
             mockMvc.perform(post("/patient/add")
                                 .param("firstname", "")
@@ -287,7 +300,7 @@ class PatientControllerTest {
         }
 
         @Test
-        void addPatient_withInvalidInfo_returnsUpdatePatientViewWithErrors() throws Exception {
+        void addPatient_withInvalidInfo_returnsAddPatientViewWithErrors() throws Exception {
 
             mockMvc.perform(post("/patient/add")
                                 .param("firstname", TestConstants.PATIENT1_FIRSTNAME)
@@ -307,7 +320,7 @@ class PatientControllerTest {
         }
 
         @Test
-        void addPatient_withException_returnsUpdatePatientViewWithErrorMessage() throws Exception {
+        void addPatient_forExistingPatient_returnsAddPatientViewWithErrorMessage() throws Exception {
             when(patientProxyMock.addPatient(any(PatientDTO.class)))
                 .thenThrow(new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS));
 
@@ -332,7 +345,7 @@ class PatientControllerTest {
     class DeletePatientTest {
 
         @Test
-        void deletePatient_forExistingUser_returnsPatientListViewWithInfoMessage() throws Exception {
+        void deletePatient_forExistingPatient_returnsPatientListViewWithInfoMessage() throws Exception {
 
             when(patientProxyMock.deletePatientById(anyInt())).thenReturn(HttpStatus.OK.value());
 
@@ -345,7 +358,7 @@ class PatientControllerTest {
         }
 
         @Test
-        void deletePatient_forUnknownUser_returnsPatientListViewWithErrorMessage() throws Exception {
+        void deletePatient_forUnknownPatient_returnsPatientListViewWithErrorMessage() throws Exception {
 
             when(patientProxyMock.deletePatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
                 ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));

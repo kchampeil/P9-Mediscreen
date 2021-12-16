@@ -4,11 +4,17 @@
 <head>
 
 </head>
+
 <body>
+
+<!-- =============================== -->
+<!-- Header                          -->
+<!-- Contains brand logo and navbar  -->
+<!-- =============================== -->
 <div th:fragment="header">
     <nav class="navbar navbar-expand navbar-light justify-content-around">
         <a class="navbar-brand" href="/">
-            <img alt="Mediscreen logo" height="100" src="/img/favicon.png" width="100">
+            <img alt="Mediscreen Logo" class="rounded" height="100" src="/img/logo.png" width="100"/>
         </a>
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
@@ -25,6 +31,28 @@
             <span th:text="${profile}"> profile </span>
         </div>
     </nav>
+</div>
+
+<!-- =============================================== -->
+<!-- show Patient Informations for Note screens      -->
+<!-- =============================================== -->
+<div th:fragment="patientInfo">
+    <h4 class="mt-2 text-secondary">Patient information</h4>
+    <div class="row mt-1 text-secondary">
+        <div class="col col-4 text-center">
+            <span th:text="'Firstname: '+${patient.firstname}"></span><br>
+            <span th:text="'Lastname: '+${patient.lastname}"></span>
+        </div>
+        <div class="col col-4 text-center">
+            <span th:text="'Date of birth: '+${patient.birthDate}"></span><br>
+            <!--TODO plus tard ajouter l'âge entre parenthèses -->
+            <span th:text="'Gender: '+${patient.gender}"></span>
+        </div>
+        <div class="col col-4 text-center">
+            <span th:text="'Address: '+${patient.address}"></span><br>
+            <span th:text="'Phone: '+${patient.phone}"></span>
+        </div>
+    </div>
 </div>
 
 </body>

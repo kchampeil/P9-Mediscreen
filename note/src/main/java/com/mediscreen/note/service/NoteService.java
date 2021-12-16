@@ -1,5 +1,6 @@
 package com.mediscreen.note.service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import com.mediscreen.commons.dto.NoteDTO;
@@ -71,6 +72,7 @@ public class NoteService implements INoteService {
 
         ModelMapper modelMapper = new ModelMapper();
         Note noteToAdd = modelMapper.map(noteDtoToAdd, Note.class);
+        noteToAdd.setCreationDate(LocalDate.now());
 
         Note addedNote = noteRepository.save(noteToAdd);
 

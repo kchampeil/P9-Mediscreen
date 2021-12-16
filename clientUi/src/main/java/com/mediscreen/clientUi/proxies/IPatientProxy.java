@@ -19,16 +19,16 @@ public interface IPatientProxy {
     Page<PatientDTO> getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                           @RequestParam String sortField, @RequestParam String sortDir);
 
-    @GetMapping(value = "/patient")
+    @GetMapping(value = "/patient/")
     PatientDTO getPatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 
-    @PutMapping(value = "/patient")
+    @PutMapping(value = "/patient/")
     PatientDTO updatePatient(@RequestBody PatientDTO patientDtoToUpdate)
         throws PatientDoesNotExistException, PatientAlreadyExistException;
 
-    @PostMapping(value = "/patient")
+    @PostMapping(value = "/patient/")
     PatientDTO addPatient(@RequestBody PatientDTO patientDtoToAdd) throws PatientAlreadyExistException;
 
-    @DeleteMapping(value = "/patient")
+    @DeleteMapping(value = "/patient/")
     Integer deletePatientById(@RequestParam Integer patientId) throws PatientDoesNotExistException;
 }

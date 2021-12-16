@@ -26,7 +26,8 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="firstname">Firstname</label>
                     <div class="col-sm-10">
-                        <input class="col-4" id="firstname" placeholder="Firstname" th:field="*{firstname}" type="text">
+                        <input class="col-4" id="firstname" placeholder="Firstname" required
+                               th:field="*{firstname}" type="text">
                         <p class="text-danger" th:errors="*{firstname}" th:if="${#fields.hasErrors('firstname')}"></p>
                     </div>
                 </div>
@@ -35,7 +36,8 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="lastname">Lastname</label>
                     <div class="col-sm-10">
-                        <input class="col-4" id="lastname" placeholder="Lastname" th:field="*{lastname}" type="text">
+                        <input class="col-4" id="lastname" placeholder="Lastname" required
+                               th:field="*{lastname}" type="text">
                         <p class="text-danger" th:errors="*{lastname}" th:if="${#fields.hasErrors('lastname')}"></p>
                     </div>
                 </div>
@@ -44,8 +46,8 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="birthDate">Birth date</label>
                     <div class="col-sm-10">
-                        <input class="col-4" id="birthDate" placeholder="Birth date" th:field="*{birthDate}"
-                               type="date">
+                        <input class="col-4" id="birthDate" placeholder="Birth date" required
+                               th:field="*{birthDate}" type="date">
                         <p class="text-danger" th:errors="*{birthDate}" th:if="${#fields.hasErrors('birthDate')}"></p>
                     </div>
                 </div>
@@ -69,8 +71,8 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="address">Address</label>
                     <div class="col-sm-10">
-                    <textarea class="col-4" id="address" placeholder="Address" rows="4"
-                              th:field="*{address}"></textarea>
+                    <textarea class="col-4" id="address" placeholder="Address" required
+                              rows="4" th:field="*{address}"></textarea>
                         <p class="text-danger" th:errors="*{address}" th:if="${#fields.hasErrors('address')}"></p>
                     </div>
                 </div>
@@ -79,7 +81,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label" for="phone">Phone</label>
                     <div class="col-sm-10">
-                        <input class="col-4" id="phone" placeholder="Phone" th:field="*{phone}" type="text">
+                        <input class="col-4" id="phone" placeholder="Phone" required th:field="*{phone}" type="text">
                         <p class="text-danger" th:errors="*{phone}" th:if="${#fields.hasErrors('phone')}"></p>
                     </div>
                 </div>
@@ -87,7 +89,7 @@
 
                 <div class="form-group">
                     <div class="col-sm-10">
-                        <a class="btn btn-danger btn-sm" href="/organizer">Cancel</a>
+                        <a class="btn btn-danger btn-sm" href="/patient/list/1">Cancel</a>
                         <input class="btn btn-primary btn-sm" type="submit" value="Update patient">
                     </div>
                 </div>

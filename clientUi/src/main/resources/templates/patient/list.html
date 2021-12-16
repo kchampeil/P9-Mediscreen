@@ -27,12 +27,12 @@
         <!-- Show items per page -->
         <div class="col-3">
             <span>Show per page: </span>
-            <a class="btn btn-light btn-sm" th:href="@{'/patient/list/'+${currentPage}} + '?sortField=' + ${sortField}
-            + '&sortDir=' + ${sortDir} + '&itemsPerPage=5'" th:text="5"> </a>
-            <a class="btn btn-light btn-sm" th:href="@{'/patient/list/'+${currentPage}} + '?sortField=' + ${sortField}
-            + '&sortDir=' + ${sortDir} + '&itemsPerPage=10'" th:text="10"> </a>
-            <a class="btn btn-light btn-sm" th:href="@{'/patient/list/'+${currentPage}} + '?sortField=' + ${sortField}
-            + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${totalItems}"
+            <a class="btn btn-light btn-sm" th:href="@{'/patient/list/1?sortField=' + ${sortField}
+            + '&sortDir=' + ${sortDir} + '&itemsPerPage=5'}" th:text="5"> </a>
+            <a class="btn btn-light btn-sm" th:href="@{'/patient/list/1?sortField=' + ${sortField}
+            + '&sortDir=' + ${sortDir} + '&itemsPerPage=10'}" th:text="10"> </a>
+            <a class="btn btn-light btn-sm" th:href="@{'/patient/list/1?sortField=' + ${sortField}
+            + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${totalItems}}"
                th:text="All"> </a>
         </div>
 
@@ -97,39 +97,39 @@
             <ul class="nav nav-pills justify-content-center">
                 <li class="nav-item">
                     <a class="nav-link"
-                       th:href="@{/patient/list/1}  + '?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}
-                       + '&itemsPerPage=' + ${itemsPerPage}"
+                       th:href="@{'/patient/list/1?sortField=' + ${sortField} + '&sortDir=' + ${sortDir}
+                       + '&itemsPerPage=' + ${itemsPerPage}}"
                        th:if="${currentPage > 1}" th:text="First"></a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link"
-                       th:href="@{'/patient/list/'+${currentPage - 1}}  + '?sortField=' + ${sortField}
-                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}"
+                       th:href="@{'/patient/list/'+ ${currentPage - 1}  + '?sortField=' + ${sortField}
+                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}}"
                        th:if="${currentPage > 1}" th:text="Previous"></a>
                 </li>
 
                 <li class="nav-item"
                     th:each="i : ${#numbers.sequence(1, totalPages)}">
                     <a class="nav-link"
-                       th:classappend="${currentPage}==${i}?'active':''"
-                       th:href="@{'/patient/list/'+${i}} + '?sortField=' + ${sortField}
-                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}"
+                       th:classappend="${currentPage == i}?'active':''"
+                       th:href="@{'/patient/list/'+ ${i} + '?sortField=' + ${sortField}
+                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}}"
                        th:text="${i}"></a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link"
-                       th:href="@{'/patient/list/'+${currentPage + 1}} + '?sortField=' + ${sortField}
-                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}"
+                       th:href="@{'/patient/list/'+ ${currentPage + 1}+ '?sortField=' + ${sortField}
+                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}}"
                        th:if="${currentPage < totalPages}"
                        th:text="Next"></a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link"
-                       th:href="@{'/patient/list/'+${totalPages}}  + '?sortField=' + ${sortField}
-                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}"
+                       th:href="@{'/patient/list/'+ ${totalPages}  + '?sortField=' + ${sortField}
+                       + '&sortDir=' + ${sortDir} + '&itemsPerPage=' + ${itemsPerPage}}"
                        th:if="${currentPage < totalPages}"
                        th:text="Last"></a>
                 </li>

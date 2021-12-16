@@ -31,7 +31,7 @@ public class SwaggerConfig {
         return new ApiInfo(
             "Note API",
             "API for CRUD operations on medical notes",
-            "0.0.1-SNAPSHOT",
+            "0.0.2-SNAPSHOT",
             "",
             new Contact("Karine C.", "www.mediscreen.com", "karinec@mediscreen.com"),
             "",

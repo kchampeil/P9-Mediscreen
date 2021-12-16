@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @Controller
+@ControllerAdvice
 public class PatientController {
 
     private final IPatientProxy patientProxy;
@@ -49,15 +51,17 @@ public class PatientController {
 
         log.debug(LogConstants.HOME_DOCTOR_REQUEST_RECEIVED);
         model.addAttribute("profile", ProfileConstants.DOCTOR_PROFILE);
-        return showAllPatientsByPage(model, 1, ProfileConstants.DOCTOR_DEFAULT_SORT_FIELD,
+        return showAllPatientsByPage(model, 1, ProfileConstants.DOCTOR_DEFAULT_SORT_FIELD_FOR_PATIENTS,
                                      ProfileConstants.DOCTOR_DEFAULT_SORT_DIRECTION, 5);
     }
 
     @GetMapping("/patient/list/{page}")
     public String showAllPatientsByPage(Model model,
                                         @PathVariable("page") int currentPage,
-                                        @RequestParam("sortField") String sortField,
-                                        @RequestParam("sortDir") String sortDir,
+                                        @RequestParam(value = "sortField",
+                                                      defaultValue = ProfileConstants.DEFAULT_SORT_FIELD) String sortField,
+                                        @RequestParam(value = "sortDir",
+                                                      defaultValue = ProfileConstants.DEFAULT_SORT_DIRECTION) String sortDir,
                                         @RequestParam(value = "itemsPerPage",
                                                       defaultValue = ProfileConstants.DEFAULT_ITEMS_PER_PAGE) int itemsPerPage) {
 
@@ -79,25 +83,27 @@ public class PatientController {
         return ViewNameConstants.SHOW_ALL_PATIENTS;
     }
 
-    @GetMapping("patient/update/{id}")
+    @GetMapping("/patient/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer patientId, Model model,
                                  RedirectAttributes redirectAttributes) {
 
-        log.debug(LogConstants.SHOW_UPDATE_FORM_RECEIVED, patientId);
+        log.debug(LogConstants.SHOW_UPDATE_PATIENT_FORM_RECEIVED, patientId);
 
         try {
             model.addAttribute("patient", patientProxy.getPatientById(patientId));
             return ViewNameConstants.UPDATE_PATIENT;
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
-            log.error(patientDoesNotExistException.getMessage());
+            log.error(patientDoesNotExistException.getMessage() + patientId);
             redirectAttributes.addFlashAttribute("errorMessage",
-                                                 formatOutputMessage("patient.not.found", patientId.toString()));
-            return "redirect:" + ViewNameConstants.SHOW_ALL_PATIENTS;
+                                                 formatOutputMessage("patient.not.found",
+                                                                     patientId.toString()));
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
     }
 
-    @PostMapping("patient/update/{id}")
+    @PostMapping("/patient/update/{id}")
     public String updatePatient(@PathVariable("id") Integer patientId,
                                 @ModelAttribute("patient") @Valid PatientDTO patientDTO,
                                 BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -114,7 +120,8 @@ public class PatientController {
             log.info(LogConstants.UPDATE_PATIENT_REQUEST_OK, patientId);
 
             redirectAttributes.addFlashAttribute("infoMessage",
-                                                 formatOutputMessage("patient.update.ok", patientId.toString()));
+                                                 formatOutputMessage("patient.update.ok",
+                                                                     patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
             //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
@@ -128,16 +135,16 @@ public class PatientController {
         }
     }
 
-    @GetMapping("patient/add")
+    @GetMapping("/patient/add")
     public String showAddForm(Model model) {
 
-        log.debug(LogConstants.SHOW_ADD_FORM_RECEIVED);
+        log.debug(LogConstants.SHOW_ADD_PATIENT_FORM_RECEIVED);
 
         model.addAttribute("patient", new PatientDTO());
         return ViewNameConstants.ADD_PATIENT;
     }
 
-    @PostMapping("patient/add")
+    @PostMapping("/patient/add")
     public String addPatient(@ModelAttribute("patient") @Valid PatientDTO patientDTO,
                              BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         log.debug(LogConstants.ADD_PATIENT_RECEIVED);
@@ -153,34 +160,40 @@ public class PatientController {
             log.info(LogConstants.ADD_PATIENT_REQUEST_OK, patientDTO.getId());
 
             redirectAttributes.addFlashAttribute("infoMessage",
-                                                 formatOutputMessage("patient.add.ok", patientDTO.getId().toString()));
+                                                 formatOutputMessage("patient.add.ok",
+                                                                     patientDTO.getId().toString()));
             return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         } catch (PatientAlreadyExistException patientException) {
             log.error(LogConstants.ADD_PATIENT_REQUEST_KO, patientException.getMessage());
-            model.addAttribute("errorMessage", "patient.add.ko" + patientException.getMessage());
+            model.addAttribute("errorMessage",
+                               formatOutputMessage("patient.add.ko", patientException.getMessage()));
             return ViewNameConstants.ADD_PATIENT;
 
         }
     }
 
-    @GetMapping("patient/delete/{id}")
+    @GetMapping("/patient/delete/{id}")
     public String deletePatient(@PathVariable("id") Integer patientId, RedirectAttributes redirectAttributes) {
 
-        log.debug(LogConstants.DELETE_REQUEST_RECEIVED, patientId);
+        log.debug(LogConstants.DELETE_PATIENT_REQUEST_RECEIVED, patientId);
 
         try {
             patientProxy.deletePatientById(patientId);
             log.info(LogConstants.DELETE_PATIENT_REQUEST_OK, patientId);
             redirectAttributes.addFlashAttribute("infoMessage",
-                                                 formatOutputMessage("patient.delete.ok", patientId.toString()));
+                                                 formatOutputMessage("patient.delete.ok",
+                                                                     patientId.toString()));
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
-            log.error(patientDoesNotExistException.getMessage());
+            log.error(patientDoesNotExistException.getMessage() + patientId);
             redirectAttributes.addFlashAttribute("errorMessage",
-                                                 formatOutputMessage("patient.not.found", patientId.toString()));
+                                                 formatOutputMessage("patient.delete.ko",
+                                                                     patientDoesNotExistException.getMessage() + patientId.toString()));
         }
 
         return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
+        //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
     }
 }
