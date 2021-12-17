@@ -9,4 +9,10 @@ public class LogConstants {
     public static final String ADD_NOTE_SERVICE_CALL = "NoteService.addNote request received on ms-note";
     public static final String ADD_NOTE_SERVICE_OK = "Note {} added \n";
     public static final String ADD_NOTE_REQUEST_RECEIVED = "POST /note request received for patientId {} on ms-note";
+    public static final String UPDATE_NOTE_SERVICE_CALL = "NoteService.updateNote request received on ms-note";
+    public static final String UPDATE_NOTE_SERVICE_OK = "Note {} updated \n";
+    public static final String UPDATE_NOTE_SERVICE_NOT_FOUND = "Note {} not found \n";
+    public static final String GET_NOTE_BY_ID_SERVICE_CALL = "NoteService.getNoteById request received on ms-note";
+    public static final String GET_NOTE_BY_ID_SERVICE_OK = "Note {} retrieved \n";
+    public static final String NOTE_SERVICE_NOT_FOUND = "Note {} not found \n";
 }

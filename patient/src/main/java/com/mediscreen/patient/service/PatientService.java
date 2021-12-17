@@ -50,7 +50,6 @@ public class PatientService implements IPatientService {
         Sort sort = Sort.by(sortField);
         sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
         Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);
-        //TOASK envoyer directement pagenumber-1 par le controller de l'UI ?
 
         Page<Patient> patientPage = patientRepository.findAll(pageable);
 

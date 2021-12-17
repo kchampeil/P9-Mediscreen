@@ -3,7 +3,9 @@ package com.mediscreen.note.service;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.LogConstants;
 import com.mediscreen.note.model.Note;
 import com.mediscreen.note.repository.NoteRepository;
@@ -47,7 +49,6 @@ public class NoteService implements INoteService {
         Sort sort = Sort.by(sortField);
         sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
         Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);
-        //TOASK envoyer directement pagenumber-1 par le controller de l'UI ?
 
         Page<Note> notePage = noteRepository.findAllByPatientId(patientId, pageable);
 
@@ -78,5 +79,59 @@ public class NoteService implements INoteService {
 
         log.debug(LogConstants.ADD_NOTE_SERVICE_OK, noteToAdd.getId());
         return Optional.ofNullable(modelMapper.map(addedNote, NoteDTO.class));
+    }
+
+    /**
+     * get note  from his id
+     *
+     * @param noteId id of the note
+     * @return note(DTO)
+     * @throws NoteDoesNotExistException if no note found for the id
+     */
+    @Override
+    public NoteDTO getNoteById(String noteId) throws NoteDoesNotExistException {
+        log.debug(LogConstants.GET_NOTE_BY_ID_SERVICE_CALL);
+
+        Optional<Note> note = noteRepository.findById(noteId);
+
+        if (note.isPresent()) {
+            log.debug(LogConstants.GET_NOTE_BY_ID_SERVICE_OK, noteId);
+            ModelMapper modelMapper = new ModelMapper();
+            return modelMapper.map(note.get(), NoteDTO.class);
+
+        } else {
+            log.error(LogConstants.NOTE_SERVICE_NOT_FOUND, noteId);
+            throw new NoteDoesNotExistException(ExceptionConstants.NOTE_NOT_FOUND + noteId);
+        }
+    }
+
+    /**
+     * update a note
+     *
+     * @param noteDtoToUpdate new information for the note
+     * @return updated note (DTO)
+     */
+    @Override
+    public Optional<NoteDTO> updateNote(NoteDTO noteDtoToUpdate) throws NoteDoesNotExistException {
+
+        log.debug(LogConstants.UPDATE_NOTE_SERVICE_CALL);
+
+        try {
+            /* check if patient exists for the id */
+            this.getNoteById(noteDtoToUpdate.getId());
+
+            /* map DTO to DAO, save in repository and map back to NoteDTO for return */
+            ModelMapper modelMapper = new ModelMapper();
+            Note noteToUpdate = modelMapper.map(noteDtoToUpdate, Note.class);
+            noteToUpdate.setLastUpdateDate(LocalDate.now());
+
+            Note updatedNote = noteRepository.save(noteToUpdate);
+
+            log.debug(LogConstants.UPDATE_NOTE_SERVICE_OK, noteToUpdate.getId());
+            return Optional.ofNullable(modelMapper.map(updatedNote, NoteDTO.class));
+        } catch (NoteDoesNotExistException noteDoesNotExistException) {
+            log.error(LogConstants.UPDATE_NOTE_SERVICE_NOT_FOUND, noteDtoToUpdate.getId());
+            throw noteDoesNotExistException;
+        }
     }
 }

@@ -46,17 +46,20 @@ class NoteControllerTest {
 
     @BeforeAll
     static void setUp() {
-        /*noteDTO = new NoteDTO(TestConstants.NOTE1_ID,
+        noteDTO = new NoteDTO(TestConstants.NOTE1_ID,
                               TestConstants.NOTE1_PATIENT_ID,
                               TestConstants.NOTE1_NOTE,
-                              TestConstants.NOTE1_CREATION_DATE);
+                              TestConstants.NOTE1_CREATION_DATE,
+                              TestConstants.NOTE1_LAST_UPDATE_DATE);
 
-         */
-        noteDTO = new NoteDTO();
+
+        /*TODEL noteDTO = new NoteDTO();
         noteDTO.setId(TestConstants.NOTE1_ID);
         noteDTO.setPatientId(TestConstants.NOTE1_PATIENT_ID);
         noteDTO.setNote(TestConstants.NOTE1_NOTE);
         noteDTO.setCreationDate(TestConstants.NOTE1_CREATION_DATE);
+
+         */
     }
 
     @Test
@@ -100,8 +103,7 @@ class NoteControllerTest {
                    .andExpect(jsonPath("$").isNotEmpty())
                    .andExpect(jsonPath("$.patientId", is(noteDTO.getPatientId())))
                    .andExpect(jsonPath("$.note", is(noteDTO.getNote())));
-            //TOASK gestion de la date dans le DTO
-            // .andExpect(jsonPath("$.creationDate", is(noteDTO.getCreationDate())));
+            //.andExpect(jsonPath("$.creationDate", is(noteDTO.getCreationDate()))); TODO
 
             verify(noteServiceMock, Mockito.times(1)).addNote(any(NoteDTO.class));
         }

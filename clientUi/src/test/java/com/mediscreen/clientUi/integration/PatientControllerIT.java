@@ -82,7 +82,7 @@ public class PatientControllerIT {
                .andExpect(status().isFound())
                .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
-        //TOASK How-to delete patient after test
+        // How-to delete patient after test TODO : à faire avec le @DeleteMapping sur id retour du modèle
 
     }
 }

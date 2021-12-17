@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Optional;
 
 import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.TestConstants;
 import com.mediscreen.note.repository.NoteRepository;
 import com.mediscreen.note.service.contracts.INoteService;
@@ -19,6 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @SpringBootTest
+//TODO voir pour droper la base au début et faire des @before @after pour préparer les tests ?
 public class NoteServiceIT {
     @Autowired
     private INoteService noteService;
@@ -43,8 +45,7 @@ public class NoteServiceIT {
     @Test
     void addNote_returnsCreatedNote() {
 
-        NoteDTO noteDtoToAdd = new NoteDTO(TestConstants.NEW_NOTE_PATIENT_ID, TestConstants.NEW_NOTE_NOTE,
-                                           TestConstants.NEW_NOTE_CREATION_DATE);
+        NoteDTO noteDtoToAdd = new NoteDTO(TestConstants.NEW_NOTE_PATIENT_ID, TestConstants.NEW_NOTE_NOTE);
 
         Optional<NoteDTO> addedNoteDTO = noteService.addNote(noteDtoToAdd);
 
@@ -55,5 +56,27 @@ public class NoteServiceIT {
 
         //clean collection after test
         noteRepository.deleteById(addedNoteDTO.get().getId());
+    }
+
+    @Test
+    void getNoteById_ForExistingNote_returnsNote() throws NoteDoesNotExistException {
+
+        NoteDTO noteDTO = noteService.getNoteById(TestConstants.NOTE1_ID);
+        assertEquals(TestConstants.NOTE1_ID, noteDTO.getId());
+        assertEquals(TestConstants.NOTE1_NOTE, noteDTO.getNote());
+    }
+
+    @Test
+    void updateNote_ForExistingNote_returnsUpdatedNote() throws NoteDoesNotExistException {
+
+        NoteDTO noteDtoToUpdate = new NoteDTO(TestConstants.NOTE2_ID, TestConstants.NOTE2_PATIENT_ID,
+                                              TestConstants.NOTE2_NOTE, TestConstants.NOTE2_CREATION_DATE,
+                                              null);
+        Optional<NoteDTO> updatedNoteDTO = noteService.updateNote(noteDtoToUpdate);
+        assertTrue(updatedNoteDTO.isPresent());
+        assertEquals(TestConstants.NOTE2_ID, updatedNoteDTO.get().getId());
+        assertEquals(TestConstants.NOTE2_NOTE, updatedNoteDTO.get().getNote());
+        assertEquals(TestConstants.NOTE2_CREATION_DATE, updatedNoteDTO.get().getCreationDate());
+        assertNotNull(updatedNoteDTO.get().getLastUpdateDate());
     }
 }

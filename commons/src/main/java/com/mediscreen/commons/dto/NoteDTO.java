@@ -32,12 +32,18 @@ public class NoteDTO {
     private String note;
 
     @ApiModelProperty(value = "creation date of medical note", example = "2021-01-01")
-    @JsonFormat(pattern = "yyyy-MM-dd") //TOASK pourquoi non pris en compte ?
+    @JsonFormat(pattern = "yyyy-MM-dd") //TODO
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
 
-    public NoteDTO(Integer patientId, String note, LocalDate creationDate) {
+    @ApiModelProperty(value = "last update date of medical note", example = "2021-12-01")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate lastUpdateDate;
+
+    public NoteDTO(Integer patientId, String note) {
         this.patientId = patientId;
         this.note = note;
         this.creationDate = creationDate;
@@ -50,6 +56,7 @@ public class NoteDTO {
                ", patientId=" + patientId +
                ", note='" + note + '\'' +
                ", creationDate=" + creationDate +
+               ", lastUpdateDate=" + lastUpdateDate +
                '}';
     }
 }

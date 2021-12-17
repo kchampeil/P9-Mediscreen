@@ -31,6 +31,9 @@ public class Note {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate creationDate;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate lastUpdateDate;
+
     @Override
     public String toString() {
         return "{" +
@@ -38,6 +41,7 @@ public class Note {
                ", patientId=" + patientId +
                ", note='" + note + '\'' +
                ", creationDate=" + creationDate +
+               ", lastUpdateDate=" + lastUpdateDate +
                '}';
     }
 }
