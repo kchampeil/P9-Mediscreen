@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -126,6 +127,33 @@ public class NoteController {
         } catch (NoteDoesNotExistException noteDoesNotExistException) {
             log.error(noteDoesNotExistException.getMessage() + " \n");
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage());
+        }
+    }
+
+    @ApiOperation(value = "Delete note by id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Note deleted"),
+        @ApiResponse(code = 404, message = ExceptionConstants.NOTE_NOT_FOUND)
+    })
+    @DeleteMapping(value = "/")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Integer> deleteNoteById(
+        @ApiParam(name = "id", type = "String", value = "id of note", example = "61b85fe5fa8e508d4860c7e9",
+                  required = true)
+        @RequestParam String noteId) {
+
+        log.debug(LogConstants.DELETE_NOTE_BY_ID_REQUEST_RECEIVED, noteId);
+
+        try {
+            noteService.deleteNoteById(noteId);
+
+            log.debug(LogConstants.DELETE_NOTE_BY_ID_REQUEST_OK, noteId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        } catch (NoteDoesNotExistException noteDoesNotExistException) {
+            log.error(noteDoesNotExistException.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage(),
+                                              noteDoesNotExistException);
         }
     }
 }

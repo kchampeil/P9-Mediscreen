@@ -23,4 +23,6 @@ public class LogConstants {
     public static final String NOTE_SERVICE_NOT_FOUND = "Note {} not found \n";
 
     public static final String DELETE_NOTE_BY_ID_SERVICE_CALL = "NoteService.deleteNote request received on ms-note";
+    public static final String DELETE_NOTE_BY_ID_REQUEST_RECEIVED = "DELETE /note/{} request received on ms-note";
+    public static final String DELETE_NOTE_BY_ID_REQUEST_OK = "Note {} deleted \n";
 }

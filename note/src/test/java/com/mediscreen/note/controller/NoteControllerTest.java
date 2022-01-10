@@ -4,8 +4,10 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -202,6 +204,36 @@ class NoteControllerTest {
                    .andExpect(status().isBadRequest());
 
             verify(noteServiceMock, Mockito.times(1)).updateNote(any(NoteDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteNote tests")
+    class DeleteNoteByIdTests {
+        @Test
+        void deleteNote_WithExistingNoteId_returnsExistingNote_And_StatusNoContent() throws Exception {
+
+            mockMvc.perform(delete("/note/")
+                                .param("noteId", TestConstants.NOTE1_ID.toString()))
+                   .andExpect(status().isNoContent());
+
+            verify(noteServiceMock, Mockito.times(1)).deleteNoteById(anyString());
+        }
+
+        @Test
+        void deleteNote_WithUnknownNoteId_returnsStatusNotFound() throws Exception {
+
+            doThrow(new NoteDoesNotExistException(
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID))
+                .when(noteServiceMock).deleteNoteById(anyString());
+
+            mockMvc.perform(delete("/note/")
+                                .param("noteId", TestConstants.UNKNOWN_NOTE_ID.toString()))
+                   .andExpect(status().isNotFound())
+                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
+                                                    .contains(ExceptionConstants.NOTE_NOT_FOUND));
+
+            verify(noteServiceMock, Mockito.times(1)).deleteNoteById(anyString());
         }
     }
 }
