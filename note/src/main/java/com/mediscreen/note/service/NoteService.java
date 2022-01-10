@@ -116,7 +116,7 @@ public class NoteService implements INoteService {
         try {
             /* check if note exists for the id */
             this.getNoteById(noteDtoToUpdate.getId());
-            
+
             Note noteToUpdate = modelMapper.map(noteDtoToUpdate, Note.class);
             noteToUpdate.setLastUpdateDate(LocalDate.now());
 
@@ -129,5 +129,25 @@ public class NoteService implements INoteService {
             log.error(LogConstants.UPDATE_NOTE_SERVICE_NOT_FOUND, noteDtoToUpdate.getId());
             throw noteDoesNotExistException;
         }
+    }
+
+    /**
+     * delete a note
+     *
+     * @param noteId of the note to delete
+     * @throws NoteDoesNotExistException if no note found to delete
+     */
+    @Override
+    public void deleteNoteById(String noteId) throws NoteDoesNotExistException {
+
+        log.debug(LogConstants.DELETE_NOTE_BY_ID_SERVICE_CALL);
+
+        noteRepository.findById(noteId)
+                      .orElseThrow(() -> {
+                          log.error(LogConstants.NOTE_SERVICE_NOT_FOUND, noteId);
+                          return new NoteDoesNotExistException(ExceptionConstants.NOTE_NOT_FOUND + noteId);
+                      });
+
+        noteRepository.deleteById(noteId);
     }
 }

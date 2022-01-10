@@ -19,7 +19,8 @@ public class LogConstants {
     public static final String GET_NOTE_BY_ID_SERVICE_OK = "Note {} retrieved \n";
     public static final String GET_NOTE_BY_ID_REQUEST_RECEIVED = "GET /note?noteId={} request received on ms-note";
     public static final String GET_NOTE_BY_ID_REQUEST_OK = "Note {} retrieved \n";
-    ;
 
     public static final String NOTE_SERVICE_NOT_FOUND = "Note {} not found \n";
+
+    public static final String DELETE_NOTE_BY_ID_SERVICE_CALL = "NoteService.deleteNote request received on ms-note";
 }

@@ -9,8 +9,10 @@ public interface INoteService {
                                                 String sortDir);
 
     NoteDTO addNote(NoteDTO noteDtoToAdd);
-    
+
     NoteDTO updateNote(NoteDTO NoteDtoToUpdate) throws NoteDoesNotExistException;
 
     NoteDTO getNoteById(String id) throws NoteDoesNotExistException;
+
+    void deleteNoteById(String noteId) throws NoteDoesNotExistException;
 }

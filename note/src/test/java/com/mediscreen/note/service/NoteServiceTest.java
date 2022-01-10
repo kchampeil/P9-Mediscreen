@@ -170,4 +170,34 @@ class NoteServiceTest {
             verify(noteRepositoryMock, Mockito.times(0)).save(any(Note.class));
         }
     }
+
+    @Nested
+    @DisplayName("deleteNote tests")
+    class deleteNoteTests {
+        @Test
+        void deleteNote_ForExistingNote_returnsNothing() throws NoteDoesNotExistException {
+
+            when(noteRepositoryMock.findById(anyString())).thenReturn(Optional.ofNullable(note1InDb));
+
+            noteService.deleteNoteById(note1InDb.getId());
+
+            verify(noteRepositoryMock, Mockito.times(1)).findById(anyString());
+            verify(noteRepositoryMock, Mockito.times(1)).deleteById(anyString());
+        }
+
+        @Test
+        void deleteNote_ForUnknownNote_throwsNoteNotFoundException() {
+
+            when(noteRepositoryMock.findById(anyString())).thenReturn(Optional.empty());
+
+            Exception exception = assertThrows(NoteDoesNotExistException.class,
+                                               () -> noteService.deleteNoteById(
+                                                   TestConstants.UNKNOWN_NOTE_ID));
+            assertEquals(ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID,
+                         exception.getMessage());
+
+            verify(noteRepositoryMock, Mockito.times(1)).findById(anyString());
+            verify(noteRepositoryMock, Mockito.times(0)).deleteById(anyString());
+        }
+    }
 }
