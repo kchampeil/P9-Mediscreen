@@ -3,6 +3,7 @@ package com.mediscreen.note.controller;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -78,6 +79,39 @@ class NoteControllerTest {
 
         verify(noteServiceMock, Mockito.times(1))
             .getAllNotesForPatientPageable(anyInt(), anyInt(), anyInt(), any(String.class), any(String.class));
+    }
+
+    @Nested
+    @DisplayName("getNoteById tests")
+    class GetNoteByIdTests {
+        @Test
+        void getNoteById_WithExistingNoteId_returnsExistingNote_And_StatusOk() throws Exception {
+
+            when(noteServiceMock.getNoteById(anyString())).thenReturn(noteDTO);
+
+            mockMvc.perform(get("/note/")
+                                .param("noteId", TestConstants.NOTE1_ID))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$").isNotEmpty())
+                   .andExpect(jsonPath("$.note", is(TestConstants.NOTE1_NOTE)));
+
+            verify(noteServiceMock, Mockito.times(1)).getNoteById(anyString());
+        }
+
+        @Test
+        void getNoteById_WithUnknownNoteId_returnsStatusNotFound() throws Exception {
+
+            when(noteServiceMock.getNoteById(anyString()))
+                .thenThrow(new NoteDoesNotExistException(
+                    ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
+
+            mockMvc.perform(get("/note/")
+                                .param("noteId", TestConstants.UNKNOWN_NOTE_ID))
+                   .andExpect(status().isNotFound());
+
+            verify(noteServiceMock, Mockito.times(1)).getNoteById(anyString());
+        }
     }
 
     @Nested

@@ -1,5 +1,6 @@
 package com.mediscreen.note.controller;
 
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.LogConstants;
@@ -55,6 +56,32 @@ public class NoteController {
         log.debug(LogConstants.GET_ALL_NOTES_REQUEST_RECEIVED);
 
         return noteService.getAllNotesForPatientPageable(patientId, pageNumber, itemsPerPage, sortField, sortDir);
+    }
+
+    @ApiOperation(value = "Get note by id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Note found"),
+        @ApiResponse(code = 404, message = ExceptionConstants.NOTE_NOT_FOUND)
+    })
+    @GetMapping(value = "/")
+    public ResponseEntity<NoteDTO> getNoteById(
+        @ApiParam(name = "id", type = "String", value = "id of note",
+                  example = "61b85fe5fa8e508d4860c7e9", required = true)
+        @RequestParam String noteId) {
+
+        log.debug(LogConstants.GET_NOTE_BY_ID_REQUEST_RECEIVED, noteId);
+
+        try {
+            NoteDTO noteDTO = noteService.getNoteById(noteId);
+
+            log.debug(LogConstants.GET_NOTE_BY_ID_REQUEST_OK, noteId);
+            return new ResponseEntity<>(noteDTO, HttpStatus.OK);
+
+        } catch (NoteDoesNotExistException noteDoesNotExistException) {
+            log.error(noteDoesNotExistException.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage(),
+                                              noteDoesNotExistException);
+        }
     }
 
     @ApiOperation(value = "Add medical note to the patient")

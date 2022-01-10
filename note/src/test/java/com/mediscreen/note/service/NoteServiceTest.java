@@ -78,7 +78,6 @@ class NoteServiceTest {
     class GetAllNotesForPatientPageableTests {
         @Test
         void getAllNotesForPatientPageable_withDataInDb_returnsTheListOfAllValuesForThePage() {
-
             List<Note> noteList = new ArrayList<>();
             noteList.add(note1InDb);
             noteList.add(note2InDb);
