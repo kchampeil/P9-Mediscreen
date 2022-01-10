@@ -36,4 +36,6 @@ public class LogConstants {
     public static final String UPDATE_NOTE_REQUEST_NOT_VALID = "Note information not valid for note id: ";
     public static final String UPDATE_NOTE_REQUEST_OK = "Note id {} has been updated\n";
     public static final String UPDATE_NOTE_REQUEST_KO = "Note id {} has not been updated : {} \n";
+    public static final String DELETE_NOTE_REQUEST_RECEIVED = "GET request /note/delete/{} received on clientUI";
+    public static final String DELETE_NOTE_REQUEST_OK = "Note id {} has been deleted\n";
 }

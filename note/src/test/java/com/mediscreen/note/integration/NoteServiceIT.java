@@ -3,6 +3,7 @@ package com.mediscreen.note.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
@@ -99,5 +100,18 @@ public class NoteServiceIT {
         assertEquals(TestConstants.NOTE2_NOTE, updatedNoteDTO.getNote());
         assertEquals(TestConstants.NOTE2_CREATION_DATE, updatedNoteDTO.getCreationDate());
         assertNotNull(updatedNoteDTO.getLastUpdateDate());
+    }
+
+    @Test
+    void deleteNote_ForExistingNote_returnsNothing() throws NoteDoesNotExistException {
+
+        /* check that the note exists before deletion */
+        NoteDTO noteDTO = noteService.getNoteById(TestConstants.NOTE1_ID);
+        assertNotNull(noteDTO);
+
+        noteService.deleteNoteById(TestConstants.NOTE1_ID);
+
+        /* check that the note has been deleted */
+        assertThrows(NoteDoesNotExistException.class, () -> noteService.getNoteById(TestConstants.NOTE1_ID));
     }
 }

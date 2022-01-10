@@ -214,4 +214,27 @@ public class NoteController {
             //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
     }
+
+    @GetMapping("/note/delete/{id}")
+    public String deleteNote(@PathVariable("id") String noteId, RedirectAttributes redirectAttributes) {
+
+        log.debug(LogConstants.DELETE_NOTE_REQUEST_RECEIVED, noteId);
+
+        try {
+            noteProxy.deleteNoteById(noteId);
+            log.info(LogConstants.DELETE_NOTE_REQUEST_OK, noteId);
+            redirectAttributes.addFlashAttribute("infoMessage",
+                                                 formatOutputMessage("note.delete.ok",
+                                                                     noteId.toString()));
+
+        } catch (NoteDoesNotExistException noteDoesNotExistException) {
+            log.error(noteDoesNotExistException.getMessage() + noteId);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                                                 formatOutputMessage("note.delete.ko",
+                                                                     noteDoesNotExistException.getMessage() + noteId.toString()));
+        }
+
+        return "redirect:" + ViewNameConstants.HOME_DOCTOR;
+        //TODO revenir plutôt à la liste des notes >>> nécessite de récupérer le patientId en amont
+    }
 }

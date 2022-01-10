@@ -11,7 +11,7 @@
 
   <groupId>com.mediscreen</groupId>
   <artifactId>note</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <name>note</name>
   <description>Microservice managing medical notes on patients</description>
 

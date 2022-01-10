@@ -4,6 +4,7 @@ import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,4 +27,7 @@ public interface INoteProxy {
 
     @PutMapping(value = "/note/")
     NoteDTO updateNote(@RequestBody NoteDTO noteDtoToUpdate) throws NoteDoesNotExistException;
+
+    @DeleteMapping(value = "/note/")
+    Integer deleteNoteById(@RequestParam String noteId) throws NoteDoesNotExistException;
 }

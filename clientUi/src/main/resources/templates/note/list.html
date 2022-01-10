@@ -75,7 +75,7 @@
                         <a class="btn btn-primary btn-sm"
                            th:href="@{/note/update/{id}(id=${noteDto.id})}">Edit</a>
                         <a class="btn btn-danger btn-sm"
-                           th:href="@{/note/{patientId}/delete/{id}((patientId=${patient.id},id=${noteDto.id})}">Delete</a>
+                           th:href="@{/note/delete/{id}(id=${noteDto.id})}">Delete</a>
                     </td>
                 </tr>
                 </tbody>

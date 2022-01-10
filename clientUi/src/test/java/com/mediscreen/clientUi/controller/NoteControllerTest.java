@@ -39,6 +39,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = NoteController.class)
@@ -357,6 +358,38 @@ public class NoteControllerTest {
 
             verify(noteProxyMock, Mockito.times(0)).updateNote(any(NoteDTO.class));
             verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+    }
+
+    @Nested
+    @DisplayName("deleteNote tests")
+    class DeleteNoteTest {
+
+        @Test
+        void deleteNote_forExistingNote_returnsNoteListViewWithInfoMessage() throws Exception {
+
+            when(noteProxyMock.deleteNoteById(anyString())).thenReturn(HttpStatus.OK.value());
+
+            mockMvc.perform(get("/note/delete/{id}", TestConstants.PATIENT1_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("infoMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+            verify(noteProxyMock, Mockito.times(1)).deleteNoteById(anyString());
+        }
+
+        @Test
+        void deleteNote_forUnknownNote_returnsNoteListViewWithErrorMessage() throws Exception {
+
+            when(noteProxyMock.deleteNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
+                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+
+            mockMvc.perform(get("/note/delete/{id}", TestConstants.UNKNOWN_PATIENT_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("errorMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+            verify(noteProxyMock, Mockito.times(1)).deleteNoteById(anyString());
         }
     }
 }
