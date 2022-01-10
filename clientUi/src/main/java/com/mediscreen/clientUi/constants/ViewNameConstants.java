@@ -15,4 +15,5 @@ public class ViewNameConstants {
     public static final String SHOW_ALL_NOTES_FOR_PATIENT = "note/list";//TODO revoir pourquoi là pas de / et pas
     // pour patient
     public static final String ADD_NOTE = "note/add";
+    public static final String UPDATE_NOTE = "note/update";
 }

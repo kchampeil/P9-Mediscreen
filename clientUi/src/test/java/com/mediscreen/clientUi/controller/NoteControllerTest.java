@@ -2,6 +2,7 @@ package com.mediscreen.clientUi.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,6 +24,7 @@ import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -244,6 +246,117 @@ public class NoteControllerTest {
 
             verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
             verify(noteProxyMock, Mockito.times(0)).addNote(any(NoteDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("showUpdateForm tests")
+    class ShowUpdateFormTest {
+
+        @Test
+        void showUpdateForm_forExistingNote_returnsNoteUpdateFormInitialized() throws Exception {
+
+            when(noteProxyMock.getNoteById(anyString())).thenReturn(noteDTO);
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+
+            mockMvc.perform(get("/note/update/{id}", TestConstants.NOTE1_ID))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("patient"))
+                   .andExpect(model().attributeExists("note"))
+                   .andExpect(view().name(ViewNameConstants.UPDATE_NOTE));
+
+            verify(noteProxyMock, Mockito.times(1)).getNoteById(anyString());
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+
+        @Test
+        void showUpdateForm_forUnknownNote_returnsNoteListView() throws Exception {
+
+            when(noteProxyMock.getNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
+
+            mockMvc.perform(get("/note/update/{id}", TestConstants.UNKNOWN_NOTE_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+
+            verify(noteProxyMock, Mockito.times(1)).getNoteById(anyString());
+            verify(patientProxyMock, Mockito.times(0)).getPatientById(anyInt());
+        }
+    }
+
+    @Nested
+    @DisplayName("updateNote tests")
+    class UpdateNoteTest {
+        @Test
+        void updateNote_withSuccess_returnsNoteListView() throws Exception {
+
+            when(noteProxyMock.updateNote(any(NoteDTO.class))).thenReturn(noteDTO);
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+
+            mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+                                .param("patientId", TestConstants.NOTE1_PATIENT_ID.toString())
+                                .param("note", TestConstants.NOTE1_NOTE))
+                   .andExpect(model().hasNoErrors())
+                   .andExpect(status().isFound())
+                   .andExpect(redirectedUrl("/note/" + TestConstants.NOTE1_PATIENT_ID + "/list/1"));
+
+            verify(noteProxyMock, Mockito.times(1)).updateNote(any(NoteDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+
+        @Test
+        void updateNote_withMissingInfo_returnsUpdateNoteViewWithErrors() throws Exception {
+
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+
+            mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+                                .param("patientId", TestConstants.NOTE1_PATIENT_ID.toString())
+                                .param("note", ""))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("note"))
+                   .andExpect(model().hasErrors())
+                   .andExpect(model().attributeHasFieldErrorCode("note", "note", "NotBlank"))
+                   .andExpect(view().name(ViewNameConstants.UPDATE_NOTE));
+
+            verify(noteProxyMock, Mockito.times(0)).updateNote(any(NoteDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+
+        @Test
+        void updateNote_forUnknownNote_returnsUpdateNoteViewWithErrorMessage() throws Exception {
+            when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
+            when(noteProxyMock.updateNote(any(NoteDTO.class))).thenThrow(new NoteDoesNotExistException(
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
+
+            mockMvc.perform(post("/note/update/{id}", TestConstants.UNKNOWN_NOTE_ID)
+                                .param("patientId", TestConstants.NOTE1_PATIENT_ID.toString())
+                                .param("note", TestConstants.NOTE1_NOTE))
+                   .andExpect(status().isOk())
+                   .andExpect(model().attributeExists("note"))
+                   .andExpect(model().attributeExists("errorMessage"))
+                   .andExpect(view().name(ViewNameConstants.UPDATE_NOTE));
+
+            verify(noteProxyMock, Mockito.times(1)).updateNote(any(NoteDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
+        }
+
+        @Test
+        void updateNote_forUnknownPatient_returnsUpdateNoteViewWithErrorMessage() throws Exception {
+            when(patientProxyMock.getPatientById(anyInt()))
+                .thenThrow(new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND));
+            when(noteProxyMock.updateNote(any(NoteDTO.class))).thenThrow(new NoteDoesNotExistException(
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
+
+            mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+                                .param("patientId", TestConstants.UNKNOWN_PATIENT_ID.toString())
+                                .param("note", TestConstants.NOTE1_NOTE))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("errorMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+            verify(noteProxyMock, Mockito.times(0)).updateNote(any(NoteDTO.class));
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         }
     }
 }

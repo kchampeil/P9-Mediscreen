@@ -53,7 +53,11 @@
                 <tr>
                     <th style="text-align: center; vertical-align: middle">
                         <a th:href="@{'/note/'+ ${patient.id} + '/list/' + ${currentPage} + '?sortField=creationDate&sortDir='
-                   + ${reverseSortDir} + '&itemsPerPage=' + ${itemsPerPage}}">Creation date</a>
+                   + ${reverseSortDir} + '&itemsPerPage=' + ${itemsPerPage}}">Created on</a>
+                    </th>
+                    <th style="text-align: center; vertical-align: middle">
+                        <a th:href="@{'/note/'+ ${patient.id} + '/list/' + ${currentPage} + '?sortField=lastUpdateDate&sortDir='
+                   + ${reverseSortDir} + '&itemsPerPage=' + ${itemsPerPage}}">Updated on</a>
                     </th>
                     <th style="text-align: center; vertical-align: middle">Note</th>
                     <th style="text-align: center; vertical-align: middle">Actions</th>
@@ -63,11 +67,13 @@
                 <tr th:each="noteDto : ${noteDtoList}">
                     <td style="text-align: center; vertical-align: middle">
                         <span th:text="${noteDto.creationDate}"> Creation date</span></td>
+                    <td style="text-align: center; vertical-align: middle">
+                        <span th:text="${noteDto.lastUpdateDate}"> Last update</span></td>
                     <td style="text-align: left; vertical-align: middle">
                         <span th:text="${noteDto.note}"> Note</span></td>
                     <td class="text-center" style="width: 15%">
                         <a class="btn btn-primary btn-sm"
-                           th:href="@{/note/{patientId}/update/{id}(patientId=${patient.id},id=${noteDto.id})}">Edit</a>
+                           th:href="@{/note/update/{id}(id=${noteDto.id})}">Edit</a>
                         <a class="btn btn-danger btn-sm"
                            th:href="@{/note/{patientId}/delete/{id}((patientId=${patient.id},id=${noteDto.id})}">Delete</a>
                     </td>

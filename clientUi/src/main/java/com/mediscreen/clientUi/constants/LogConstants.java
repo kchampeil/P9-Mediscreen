@@ -31,4 +31,9 @@ public class LogConstants {
     public static final String ADD_NOTE_RECEIVED = "POST request /note/{}/add received on clientUI";
     public static final String ADD_NOTE_REQUEST_NOT_VALID = "Note information not valid \n";
     public static final String ADD_NOTE_REQUEST_OK = "Note id {} has been created\n";
+    public static final String SHOW_UPDATE_NOTE_FORM_RECEIVED = "GET request /note/update/{} received on clientUI";
+    public static final String UPDATE_NOTE_RECEIVED = "POST request /note/update/{} received on clientUI";
+    public static final String UPDATE_NOTE_REQUEST_NOT_VALID = "Note information not valid for note id: ";
+    public static final String UPDATE_NOTE_REQUEST_OK = "Note id {} has been updated\n";
+    public static final String UPDATE_NOTE_REQUEST_KO = "Note id {} has not been updated : {} \n";
 }

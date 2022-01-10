@@ -11,6 +11,7 @@ import com.mediscreen.clientUi.proxies.INoteProxy;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,6 +137,79 @@ public class NoteController {
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("patient.not.found",
                                                                      patientId.toString()));
+            return "redirect:" + ViewNameConstants.HOME_DOCTOR;
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+        }
+    }
+
+    @GetMapping("/note/update/{id}")
+    public String showUpdateForm(@PathVariable("id") String noteId, Model model,
+                                 RedirectAttributes redirectAttributes) {
+
+        log.debug(LogConstants.SHOW_UPDATE_NOTE_FORM_RECEIVED, noteId);
+
+        try {
+            NoteDTO noteDTO = noteProxy.getNoteById(noteId);
+            model.addAttribute("note", noteDTO);
+            model.addAttribute("patient", patientProxy.getPatientById(noteDTO.getPatientId()));
+            return ViewNameConstants.UPDATE_NOTE;
+
+        } catch (NoteDoesNotExistException noteDoesNotExistException) {
+            log.error(noteDoesNotExistException.getMessage() + noteId);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                                                 formatOutputMessage("note.not.found", noteId));
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+            log.error(patientDoesNotExistException.getMessage() + "for note: " + noteId);
+            redirectAttributes.addFlashAttribute("errorMessage",
+                                                 formatOutputMessage("patient.not.found",
+                                                                     noteId));
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
+            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+        }
+    }
+
+    @PostMapping("/note/update/{id}")
+    public String updateNote(@PathVariable("id") String noteId,
+                             @ModelAttribute("note") @Valid NoteDTO noteDTO,
+                             BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+        log.debug(LogConstants.UPDATE_NOTE_RECEIVED, noteId);
+
+        try {
+            PatientDTO patientDTO = patientProxy.getPatientById(noteDTO.getPatientId());
+            model.addAttribute("patient", patientDTO);
+
+            if (result.hasErrors()) {
+                log.error(LogConstants.UPDATE_NOTE_REQUEST_NOT_VALID + noteId + "\n");
+                return ViewNameConstants.UPDATE_NOTE;
+            }
+
+            try {
+                NoteDTO noteDtoUpdated = noteProxy.updateNote(noteDTO);
+
+                log.info(LogConstants.UPDATE_NOTE_REQUEST_OK, noteId);
+
+                redirectAttributes.addFlashAttribute("infoMessage",
+                                                     formatOutputMessage("note.update.ok",
+                                                                         noteDtoUpdated.getLastUpdateDate()
+                                                                                       .toString()));
+                return "redirect:/note/" + noteDTO.getPatientId() + "/list/1";
+
+            } catch (NoteDoesNotExistException noteDoesNotExistException) {
+                log.error(LogConstants.UPDATE_NOTE_REQUEST_KO, noteId, noteDoesNotExistException.getMessage());
+                model.addAttribute("errorMessage",
+                                   formatOutputMessage("note.update.ko", noteId)
+                                   + noteDoesNotExistException.getMessage());
+
+                return ViewNameConstants.UPDATE_NOTE;
+            }
+
+        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+            log.error(patientDoesNotExistException.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                                                 formatOutputMessage("patient.not.found",
+                                                                     noteDTO.getPatientId().toString()));
             return "redirect:" + ViewNameConstants.HOME_DOCTOR;
             //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }

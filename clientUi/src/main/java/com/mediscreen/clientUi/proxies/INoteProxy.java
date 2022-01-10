@@ -1,11 +1,12 @@
 package com.mediscreen.clientUi.proxies;
 
 import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -17,7 +18,12 @@ public interface INoteProxy {
                                               @RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                               @RequestParam String sortField, @RequestParam String sortDir);
 
-    @PostMapping(value = "/note/", consumes = MediaType.APPLICATION_JSON_VALUE,
-                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/note/")
     NoteDTO addNote(@RequestBody NoteDTO noteDtoToAdd);
+
+    @GetMapping(value = "/note/")
+    NoteDTO getNoteById(@RequestParam String noteId) throws NoteDoesNotExistException;
+
+    @PutMapping(value = "/note/")
+    NoteDTO updateNote(@RequestBody NoteDTO noteDtoToUpdate) throws NoteDoesNotExistException;
 }
