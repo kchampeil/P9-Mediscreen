@@ -67,12 +67,12 @@ public class PatientServiceIT {
         patientDtoToUpdate.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
         patientDtoToUpdate.setPhone(TestConstants.PATIENT1_PHONE);
 
-        Optional<PatientDTO> patientDTO = patientService.updatePatient(patientDtoToUpdate);
+        PatientDTO patientDtoUpdated = patientService.updatePatient(patientDtoToUpdate);
 
-        assertTrue(patientDTO.isPresent());
-        assertEquals(TestConstants.PATIENT1_ID, patientDTO.get().getId());
-        assertEquals(TestConstants.PATIENT1_FIRSTNAME, patientDTO.get().getFirstname());
-        assertEquals(TestConstants.PATIENT1_LASTNAME, patientDTO.get().getLastname());
+        assertNotNull(patientDtoUpdated);
+        assertEquals(TestConstants.PATIENT1_ID, patientDtoUpdated.getId());
+        assertEquals(TestConstants.PATIENT1_FIRSTNAME, patientDtoUpdated.getFirstname());
+        assertEquals(TestConstants.PATIENT1_LASTNAME, patientDtoUpdated.getLastname());
     }
 
     @Test
@@ -86,12 +86,12 @@ public class PatientServiceIT {
         patientDtoToAdd.setAddress(TestConstants.NEW_PATIENT_ADDRESS);
         patientDtoToAdd.setPhone(TestConstants.NEW_PATIENT_PHONE);
 
-        Optional<PatientDTO> addedPatientDTO = patientService.addPatient(patientDtoToAdd);
+        PatientDTO addedPatientDTO = patientService.addPatient(patientDtoToAdd);
 
-        assertTrue(addedPatientDTO.isPresent());
-        assertNotNull(addedPatientDTO.get().getId());
-        patientDtoToAdd.setId(addedPatientDTO.get().getId());
-        assertEquals(patientDtoToAdd.toString(), addedPatientDTO.get().toString());
+        assertNotNull(addedPatientDTO);
+        assertNotNull(addedPatientDTO.getId());
+        patientDtoToAdd.setId(addedPatientDTO.getId());
+        assertEquals(patientDtoToAdd.toString(), addedPatientDTO.toString());
     }
 
     @Test

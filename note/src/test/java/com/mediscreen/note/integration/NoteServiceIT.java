@@ -3,30 +3,51 @@ package com.mediscreen.note.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Optional;
 
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.TestConstants;
+import com.mediscreen.note.model.Note;
 import com.mediscreen.note.repository.NoteRepository;
 import com.mediscreen.note.service.contracts.INoteService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @SpringBootTest
-//TODO voir pour droper la base au début et faire des @before @after pour préparer les tests ?
 public class NoteServiceIT {
     @Autowired
     private INoteService noteService;
 
     @Autowired
     private NoteRepository noteRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @BeforeEach
+    public void setUp() {
+        mongoTemplate.dropCollection(Note.class);
+
+        /* prepare DB for test with data */
+        Note noteInDb = new Note(TestConstants.NOTE1_ID, TestConstants.NOTE1_PATIENT_ID, TestConstants.NOTE1_NOTE,
+                                 TestConstants.NOTE1_CREATION_DATE, TestConstants.NOTE1_LAST_UPDATE_DATE);
+        noteRepository.save(noteInDb);
+        noteInDb = new Note(TestConstants.NOTE2_ID, TestConstants.NOTE2_PATIENT_ID, TestConstants.NOTE2_NOTE,
+                            TestConstants.NOTE2_CREATION_DATE, TestConstants.NOTE2_LAST_UPDATE_DATE);
+        noteRepository.save(noteInDb);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        mongoTemplate.dropCollection(Note.class);
+    }
 
     @Test
     void getAllNotesForPatientPageable_withDataInDb_returnsTheListOfAllValues() {
@@ -35,7 +56,7 @@ public class NoteServiceIT {
             TestConstants.NOTE1_PATIENT_ID, 1, 10, "id", "asc");
 
         assertFalse(noteDTOPage.getContent().isEmpty());
-        assertTrue(noteDTOPage.getContent().size() <= 10);
+        assertEquals(2, noteDTOPage.getContent().size());
         assertEquals(TestConstants.NOTE1_ID, noteDTOPage.getContent().get(0).getId());
         assertEquals(TestConstants.NOTE1_NOTE, noteDTOPage.getContent().get(0).getNote());
         assertEquals(TestConstants.NOTE1_CREATION_DATE, noteDTOPage.getContent().get(0).getCreationDate());
@@ -47,21 +68,19 @@ public class NoteServiceIT {
 
         NoteDTO noteDtoToAdd = new NoteDTO(TestConstants.NEW_NOTE_PATIENT_ID, TestConstants.NEW_NOTE_NOTE);
 
-        Optional<NoteDTO> addedNoteDTO = noteService.addNote(noteDtoToAdd);
+        NoteDTO addedNoteDTO = noteService.addNote(noteDtoToAdd);
 
-        assertTrue(addedNoteDTO.isPresent());
-        assertNotNull(addedNoteDTO.get().getId());
-        noteDtoToAdd.setId(addedNoteDTO.get().getId());
-        assertEquals(noteDtoToAdd.toString(), addedNoteDTO.get().toString());
-
-        //clean collection after test
-        noteRepository.deleteById(addedNoteDTO.get().getId());
+        assertNotNull(addedNoteDTO);
+        assertNotNull(addedNoteDTO.getId());
+        assertEquals(noteDtoToAdd.getPatientId(), addedNoteDTO.getPatientId());
+        assertEquals(noteDtoToAdd.getNote(), addedNoteDTO.getNote());
     }
 
     @Test
     void getNoteById_ForExistingNote_returnsNote() throws NoteDoesNotExistException {
 
         NoteDTO noteDTO = noteService.getNoteById(TestConstants.NOTE1_ID);
+
         assertEquals(TestConstants.NOTE1_ID, noteDTO.getId());
         assertEquals(TestConstants.NOTE1_NOTE, noteDTO.getNote());
     }
@@ -72,11 +91,13 @@ public class NoteServiceIT {
         NoteDTO noteDtoToUpdate = new NoteDTO(TestConstants.NOTE2_ID, TestConstants.NOTE2_PATIENT_ID,
                                               TestConstants.NOTE2_NOTE, TestConstants.NOTE2_CREATION_DATE,
                                               null);
-        Optional<NoteDTO> updatedNoteDTO = noteService.updateNote(noteDtoToUpdate);
-        assertTrue(updatedNoteDTO.isPresent());
-        assertEquals(TestConstants.NOTE2_ID, updatedNoteDTO.get().getId());
-        assertEquals(TestConstants.NOTE2_NOTE, updatedNoteDTO.get().getNote());
-        assertEquals(TestConstants.NOTE2_CREATION_DATE, updatedNoteDTO.get().getCreationDate());
-        assertNotNull(updatedNoteDTO.get().getLastUpdateDate());
+
+        NoteDTO updatedNoteDTO = noteService.updateNote(noteDtoToUpdate);
+
+        assertNotNull(updatedNoteDTO);
+        assertEquals(TestConstants.NOTE2_ID, updatedNoteDTO.getId());
+        assertEquals(TestConstants.NOTE2_NOTE, updatedNoteDTO.getNote());
+        assertEquals(TestConstants.NOTE2_CREATION_DATE, updatedNoteDTO.getCreationDate());
+        assertNotNull(updatedNoteDTO.getLastUpdateDate());
     }
 }

@@ -97,9 +97,9 @@ public class PatientController {
         log.debug(LogConstants.UPDATE_PATIENT_REQUEST_RECEIVED, patientDtoToUpdate.getId());
 
         try {
-            return patientService.updatePatient(patientDtoToUpdate)
-                                 .map(patientDtoUpdated -> new ResponseEntity<>(patientDtoUpdated, HttpStatus.OK))
-                                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+            PatientDTO patientDtoUpdated = patientService.updatePatient(patientDtoToUpdate);
+            return patientDtoUpdated != null ? new ResponseEntity<>(patientDtoUpdated, HttpStatus.OK)
+                                             : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + " \n");
@@ -128,9 +128,9 @@ public class PatientController {
                   patientDtoToAdd.getFirstname() + " " + patientDtoToAdd.getLastname());
 
         try {
-            return patientService.addPatient(patientDtoToAdd)
-                                 .map(patientDtoAdded -> new ResponseEntity<>(patientDtoAdded, HttpStatus.CREATED))
-                                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+            PatientDTO patientDtoAdded = patientService.addPatient(patientDtoToAdd);
+            return patientDtoAdded != null ? new ResponseEntity<>(patientDtoAdded, HttpStatus.CREATED)
+                                           : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         } catch (PatientAlreadyExistException patientAlreadyExistException) {
             log.error(patientAlreadyExistException.getMessage() + " \n");

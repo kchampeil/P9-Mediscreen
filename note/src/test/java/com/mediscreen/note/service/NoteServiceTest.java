@@ -2,8 +2,8 @@ package com.mediscreen.note.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -65,10 +65,10 @@ class NoteServiceTest {
 
         when(noteRepositoryMock.save(any(Note.class))).thenReturn(note1InDb);
 
-        Optional<NoteDTO> addedNoteDTO = noteService.addNote(note1DtoToAdd);
-        assertTrue(addedNoteDTO.isPresent());
-        assertEquals(TestConstants.NOTE1_ID, addedNoteDTO.get().getId());
-        assertEquals(note1InDb.toString(), addedNoteDTO.get().toString());
+        NoteDTO addedNoteDTO = noteService.addNote(note1DtoToAdd);
+        assertNotNull(addedNoteDTO);
+        assertEquals(TestConstants.NOTE1_ID, addedNoteDTO.getId());
+        assertEquals(note1InDb.toString(), addedNoteDTO.toString());
 
         verify(noteRepositoryMock, Mockito.times(1)).save(any(Note.class));
     }
@@ -148,10 +148,10 @@ class NoteServiceTest {
             when(noteRepositoryMock.findById(anyString())).thenReturn(Optional.ofNullable(note2InDb));
             when(noteRepositoryMock.save(any(Note.class))).thenReturn(note2InDb);
 
-            Optional<NoteDTO> updatedNoteDTO = noteService.updateNote(note2DtoToUpdate);
-            assertTrue(updatedNoteDTO.isPresent());
-            assertEquals(note2InDb.getId(), updatedNoteDTO.get().getId());
-            assertEquals(note2InDb.toString(), updatedNoteDTO.get().toString());
+            NoteDTO updatedNoteDTO = noteService.updateNote(note2DtoToUpdate);
+            assertNotNull(updatedNoteDTO);
+            assertEquals(note2InDb.getId(), updatedNoteDTO.getId());
+            assertEquals(note2InDb.toString(), updatedNoteDTO.toString());
 
             verify(noteRepositoryMock, Mockito.times(1)).findById(anyString());
             verify(noteRepositoryMock, Mockito.times(1)).save(any(Note.class));

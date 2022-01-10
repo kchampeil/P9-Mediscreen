@@ -13,7 +13,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediscreen.commons.dto.NoteDTO;
@@ -93,7 +92,7 @@ class NoteControllerTest {
 
         @Test
         void addNote_ForNewNote_returnsCreatedNoteAndStatusCreated() throws Exception {
-            when(noteServiceMock.addNote(any(NoteDTO.class))).thenReturn(Optional.of(noteDTO));
+            when(noteServiceMock.addNote(any(NoteDTO.class))).thenReturn(noteDTO);
 
             mockMvc.perform(post("/note/")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +102,6 @@ class NoteControllerTest {
                    .andExpect(jsonPath("$").isNotEmpty())
                    .andExpect(jsonPath("$.patientId", is(noteDTO.getPatientId())))
                    .andExpect(jsonPath("$.note", is(noteDTO.getNote())));
-            //.andExpect(jsonPath("$.creationDate", is(noteDTO.getCreationDate()))); TODO
 
             verify(noteServiceMock, Mockito.times(1)).addNote(any(NoteDTO.class));
         }
@@ -111,7 +109,7 @@ class NoteControllerTest {
         @Test
         void addNote_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
 
-            when(noteServiceMock.addNote(any(NoteDTO.class))).thenReturn(Optional.empty());
+            when(noteServiceMock.addNote(any(NoteDTO.class))).thenReturn(null);
 
             mockMvc.perform(post("/note/")
                                 .contentType(MediaType.APPLICATION_JSON)

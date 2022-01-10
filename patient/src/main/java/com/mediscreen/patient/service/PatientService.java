@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PatientService implements IPatientService {
 
+    private static final ModelMapper modelMapper = new ModelMapper();
     public final PatientRepository patientRepository;
 
     @Autowired
@@ -51,10 +52,8 @@ public class PatientService implements IPatientService {
         sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
         Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);
 
-        Page<Patient> patientPage = patientRepository.findAll(pageable);
-
-        ModelMapper modelMapper = new ModelMapper();
-        Page<PatientDTO> patientDTOPage = patientPage.map(patient -> modelMapper.map(patient, PatientDTO.class));
+        Page<PatientDTO> patientDTOPage = patientRepository.findAll(pageable)
+                                                           .map(patient -> modelMapper.map(patient, PatientDTO.class));
 
         log.debug(LogConstants.GET_ALL_PATIENTS_PER_PAGE_SERVICE_OK, pageNumber);
 
@@ -76,7 +75,6 @@ public class PatientService implements IPatientService {
 
         if (patient.isPresent()) {
             log.debug(LogConstants.GET_PATIENT_BY_ID_SERVICE_OK, patientId);
-            ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(patient.get(), PatientDTO.class);
 
         } else {
@@ -96,7 +94,7 @@ public class PatientService implements IPatientService {
      *                                      birthdate
      */
     @Override
-    public Optional<PatientDTO> updatePatient(PatientDTO patientDtoToUpdate)
+    public PatientDTO updatePatient(PatientDTO patientDtoToUpdate)
         throws PatientDoesNotExistException, PatientAlreadyExistException {
 
         log.debug(LogConstants.UPDATE_PATIENT_SERVICE_CALL);
@@ -117,14 +115,10 @@ public class PatientService implements IPatientService {
 
             } else {
 
-                /* map DTO to DAO, save in repository and map back to PatientDTO for return */
-                ModelMapper modelMapper = new ModelMapper();
-                Patient patientToUpdate = modelMapper.map(patientDtoToUpdate, Patient.class);
+                Patient updatedPatient = patientRepository.save(modelMapper.map(patientDtoToUpdate, Patient.class));
 
-                Patient updatedPatient = patientRepository.save(patientToUpdate);
-
-                log.debug(LogConstants.UPDATE_PATIENT_SERVICE_OK, patientToUpdate.getId());
-                return Optional.ofNullable(modelMapper.map(updatedPatient, PatientDTO.class));
+                log.debug(LogConstants.UPDATE_PATIENT_SERVICE_OK, updatedPatient.getId());
+                return modelMapper.map(updatedPatient, PatientDTO.class);
             }
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
@@ -142,7 +136,7 @@ public class PatientService implements IPatientService {
      *                                      birthdate
      */
     @Override
-    public Optional<PatientDTO> addPatient(PatientDTO patientDtoToAdd) throws PatientAlreadyExistException {
+    public PatientDTO addPatient(PatientDTO patientDtoToAdd) throws PatientAlreadyExistException {
 
         log.debug(LogConstants.ADD_PATIENT_SERVICE_CALL);
 
@@ -157,14 +151,10 @@ public class PatientService implements IPatientService {
             throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);
 
         } else {
-            /* map DTO to DAO, save in repository and map back to PatientDTO for return */
-            ModelMapper modelMapper = new ModelMapper();
-            Patient patientToAdd = modelMapper.map(patientDtoToAdd, Patient.class);
+            Patient addedPatient = patientRepository.save(modelMapper.map(patientDtoToAdd, Patient.class));
 
-            Patient addedPatient = patientRepository.save(patientToAdd);
-
-            log.debug(LogConstants.ADD_PATIENT_SERVICE_OK, patientToAdd.getId());
-            return Optional.ofNullable(modelMapper.map(addedPatient, PatientDTO.class));
+            log.debug(LogConstants.ADD_PATIENT_SERVICE_OK, addedPatient.getId());
+            return modelMapper.map(addedPatient, PatientDTO.class);
         }
     }
 

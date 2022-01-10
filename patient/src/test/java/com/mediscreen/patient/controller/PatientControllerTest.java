@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediscreen.commons.constants.ExceptionConstants;
@@ -131,8 +130,7 @@ class PatientControllerTest {
             updatedPatientDto.setAddress(TestConstants.PATIENT1_ADDRESS_UPDATED);
             updatedPatientDto.setPhone(TestConstants.PATIENT1_PHONE);
 
-            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.of(
-                updatedPatientDto));
+            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(updatedPatientDto);
 
             mockMvc.perform(put("/patient/")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -184,7 +182,7 @@ class PatientControllerTest {
         @Test
         void updatePatient_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
 
-            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(Optional.empty());
+            when(patientServiceMock.updatePatient(any(PatientDTO.class))).thenReturn(null);
 
             mockMvc.perform(put("/patient/")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -201,7 +199,7 @@ class PatientControllerTest {
 
         @Test
         void addPatient_ForNewPatient_returnsCreatedPatientAndStatusCreated() throws Exception {
-            when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(Optional.of(patientDTO));
+            when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(patientDTO);
 
             mockMvc.perform(post("/patient/")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -236,7 +234,7 @@ class PatientControllerTest {
         @Test
         void addPatient_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
 
-            when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(Optional.empty());
+            when(patientServiceMock.addPatient(any(PatientDTO.class))).thenReturn(null);
 
             mockMvc.perform(post("/patient/")
                                 .contentType(MediaType.APPLICATION_JSON)

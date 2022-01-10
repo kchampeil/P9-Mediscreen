@@ -2,8 +2,8 @@ package com.mediscreen.patient.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -142,10 +142,10 @@ class PatientServiceTest {
                 .thenReturn(Optional.empty());
             when(patientRepositoryMock.save(any(Patient.class))).thenReturn(patientInDb);
 
-            Optional<PatientDTO> updatedPatientDTO = patientService.updatePatient(patientDto);
-            assertTrue(updatedPatientDTO.isPresent());
-            assertEquals(TestConstants.PATIENT1_ID, updatedPatientDTO.get().getId());
-            assertEquals(patientInDb.toString(), updatedPatientDTO.get().toString());
+            PatientDTO updatedPatientDTO = patientService.updatePatient(patientDto);
+            assertNotNull(updatedPatientDTO);
+            assertEquals(TestConstants.PATIENT1_ID, updatedPatientDTO.getId());
+            assertEquals(patientInDb.toString(), updatedPatientDTO.toString());
 
             verify(patientRepositoryMock, Mockito.times(1)).findById(anyInt());
             verify(patientRepositoryMock, Mockito.times(1))
@@ -210,10 +210,10 @@ class PatientServiceTest {
                 .thenReturn(Optional.empty());
             when(patientRepositoryMock.save(any(Patient.class))).thenReturn(patientInDb);
 
-            Optional<PatientDTO> addedPatientDTO = patientService.addPatient(patientDto);
-            assertTrue(addedPatientDTO.isPresent());
-            assertEquals(TestConstants.PATIENT1_ID, addedPatientDTO.get().getId());
-            assertEquals(patientInDb.toString(), addedPatientDTO.get().toString());
+            PatientDTO addedPatientDTO = patientService.addPatient(patientDto);
+            assertNotNull(addedPatientDTO);
+            assertEquals(TestConstants.PATIENT1_ID, addedPatientDTO.getId());
+            assertEquals(patientInDb.toString(), addedPatientDTO.toString());
 
             verify(patientRepositoryMock, Mockito.times(1))
                 .findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(anyString(), anyString(),

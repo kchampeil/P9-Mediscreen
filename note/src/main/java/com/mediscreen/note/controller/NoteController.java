@@ -68,8 +68,9 @@ public class NoteController {
 
         log.debug(LogConstants.ADD_NOTE_REQUEST_RECEIVED, noteDtoToAdd.getPatientId());
 
-        return noteService.addNote(noteDtoToAdd)
-                          .map(noteDtoAdded -> new ResponseEntity<>(noteDtoAdded, HttpStatus.CREATED))
-                          .orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+        NoteDTO noteDtoAdded = noteService.addNote(noteDtoToAdd);
+
+        return noteDtoAdded != null ? new ResponseEntity<>(noteDtoAdded, HttpStatus.CREATED)
+                                    : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

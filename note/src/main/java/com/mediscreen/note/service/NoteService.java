@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class NoteService implements INoteService {
 
+    private static final ModelMapper modelMapper = new ModelMapper();
     public final NoteRepository noteRepository;
 
     @Autowired
@@ -50,10 +51,8 @@ public class NoteService implements INoteService {
         sort = sortDir.equals("asc") ? sort.ascending() : sort.descending();
         Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);
 
-        Page<Note> notePage = noteRepository.findAllByPatientId(patientId, pageable);
-
-        ModelMapper modelMapper = new ModelMapper();
-        Page<NoteDTO> noteDTOPage = notePage.map(note -> modelMapper.map(note, NoteDTO.class));
+        Page<NoteDTO> noteDTOPage = noteRepository.findAllByPatientId(patientId, pageable)
+                                                  .map(note -> modelMapper.map(note, NoteDTO.class));
 
         log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_PER_PAGE_OK, pageNumber);
 
@@ -67,18 +66,17 @@ public class NoteService implements INoteService {
      * @return added note (DTO)
      */
     @Override
-    public Optional<NoteDTO> addNote(NoteDTO noteDtoToAdd) {
+    public NoteDTO addNote(NoteDTO noteDtoToAdd) {
 
         log.debug(LogConstants.ADD_NOTE_SERVICE_CALL);
 
-        ModelMapper modelMapper = new ModelMapper();
         Note noteToAdd = modelMapper.map(noteDtoToAdd, Note.class);
         noteToAdd.setCreationDate(LocalDate.now());
 
         Note addedNote = noteRepository.save(noteToAdd);
 
         log.debug(LogConstants.ADD_NOTE_SERVICE_OK, noteToAdd.getId());
-        return Optional.ofNullable(modelMapper.map(addedNote, NoteDTO.class));
+        return modelMapper.map(addedNote, NoteDTO.class);
     }
 
     /**
@@ -96,7 +94,6 @@ public class NoteService implements INoteService {
 
         if (note.isPresent()) {
             log.debug(LogConstants.GET_NOTE_BY_ID_SERVICE_OK, noteId);
-            ModelMapper modelMapper = new ModelMapper();
             return modelMapper.map(note.get(), NoteDTO.class);
 
         } else {
@@ -112,23 +109,22 @@ public class NoteService implements INoteService {
      * @return updated note (DTO)
      */
     @Override
-    public Optional<NoteDTO> updateNote(NoteDTO noteDtoToUpdate) throws NoteDoesNotExistException {
+    public NoteDTO updateNote(NoteDTO noteDtoToUpdate) throws NoteDoesNotExistException {
 
         log.debug(LogConstants.UPDATE_NOTE_SERVICE_CALL);
 
         try {
-            /* check if patient exists for the id */
+            /* check if note exists for the id */
             this.getNoteById(noteDtoToUpdate.getId());
-
-            /* map DTO to DAO, save in repository and map back to NoteDTO for return */
-            ModelMapper modelMapper = new ModelMapper();
+            
             Note noteToUpdate = modelMapper.map(noteDtoToUpdate, Note.class);
             noteToUpdate.setLastUpdateDate(LocalDate.now());
 
             Note updatedNote = noteRepository.save(noteToUpdate);
 
             log.debug(LogConstants.UPDATE_NOTE_SERVICE_OK, noteToUpdate.getId());
-            return Optional.ofNullable(modelMapper.map(updatedNote, NoteDTO.class));
+            return modelMapper.map(updatedNote, NoteDTO.class);
+
         } catch (NoteDoesNotExistException noteDoesNotExistException) {
             log.error(LogConstants.UPDATE_NOTE_SERVICE_NOT_FOUND, noteDtoToUpdate.getId());
             throw noteDoesNotExistException;
