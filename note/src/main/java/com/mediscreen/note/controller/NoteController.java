@@ -1,6 +1,7 @@
 package com.mediscreen.note.controller;
 
 import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.LogConstants;
 import com.mediscreen.note.service.contracts.INoteService;
 import io.swagger.annotations.Api;
@@ -18,11 +19,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Api(value = "API for CRUD operations on medical notes")
@@ -72,5 +75,30 @@ public class NoteController {
 
         return noteDtoAdded != null ? new ResponseEntity<>(noteDtoAdded, HttpStatus.CREATED)
                                     : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @ApiOperation(value = "Update medical note of the patient")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Note updated", examples = @Example(value =
+            {@ExampleProperty(mediaType = "application/json",
+                              value = NOTE_DTO_EXAMPLE)})),
+    })
+    @PutMapping(value = "/", consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<NoteDTO> updateNote(@ApiParam(value = "Medical note to update")
+                                              @RequestBody NoteDTO noteDtoToUpdate) {
+
+        log.debug(LogConstants.UPDATE_NOTE_REQUEST_RECEIVED, noteDtoToUpdate.getPatientId());
+
+        try {
+            NoteDTO noteDtoUpdated = noteService.updateNote(noteDtoToUpdate);
+
+            return noteDtoUpdated != null ? new ResponseEntity<>(noteDtoUpdated, HttpStatus.OK)
+                                          : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        } catch (NoteDoesNotExistException noteDoesNotExistException) {
+            log.error(noteDoesNotExistException.getMessage() + " \n");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage());
+        }
     }
 }

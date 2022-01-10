@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,7 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.TestConstants;
 import com.mediscreen.note.service.contracts.INoteService;
 import org.junit.jupiter.api.BeforeAll;
@@ -50,15 +53,6 @@ class NoteControllerTest {
                               TestConstants.NOTE1_NOTE,
                               TestConstants.NOTE1_CREATION_DATE,
                               TestConstants.NOTE1_LAST_UPDATE_DATE);
-
-
-        /*TODEL noteDTO = new NoteDTO();
-        noteDTO.setId(TestConstants.NOTE1_ID);
-        noteDTO.setPatientId(TestConstants.NOTE1_PATIENT_ID);
-        noteDTO.setNote(TestConstants.NOTE1_NOTE);
-        noteDTO.setCreationDate(TestConstants.NOTE1_CREATION_DATE);
-
-         */
     }
 
     @Test
@@ -117,6 +111,63 @@ class NoteControllerTest {
                    .andExpect(status().isBadRequest());
 
             verify(noteServiceMock, Mockito.times(1)).addNote(any(NoteDTO.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("updateNote tests")
+    class UpdateNoteTests {
+        @Test
+        void updateNote_ForExistingNote_returnsUpdatedNoteAndStatusOk() throws Exception {
+
+            NoteDTO updatedNoteDto = new NoteDTO(TestConstants.NOTE1_ID,
+                                                 TestConstants.NOTE1_PATIENT_ID,
+                                                 TestConstants.NOTE1_NOTE_UPDATED,
+                                                 TestConstants.NOTE1_CREATION_DATE,
+                                                 TestConstants.NOTE1_LAST_UPDATE_DATE);
+
+            when(noteServiceMock.updateNote(any(NoteDTO.class))).thenReturn(updatedNoteDto);
+
+            mockMvc.perform(put("/note/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(noteDTO)))
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$").isNotEmpty())
+                   .andExpect(jsonPath("$.note", is(TestConstants.NOTE1_NOTE_UPDATED)));
+
+            verify(noteServiceMock, Mockito.times(1)).updateNote(any(NoteDTO.class));
+        }
+
+        @Test
+        void updateNote_ForUnknownNote_returnsStatusNotFound() throws Exception {
+
+            when(noteServiceMock.updateNote(any(NoteDTO.class)))
+                .thenThrow(new NoteDoesNotExistException(
+                    ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
+
+            mockMvc.perform(put("/note/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(noteDTO)))
+                   .andExpect(status().isNotFound())
+                   .andExpect(mvcResult -> mvcResult.getResolvedException().getMessage()
+                                                    .contains(ExceptionConstants.NOTE_NOT_FOUND
+                                                              + TestConstants.UNKNOWN_NOTE_ID));
+
+            verify(noteServiceMock, Mockito.times(1)).updateNote(any(NoteDTO.class));
+        }
+
+        @Test
+        void updateNote_WithNoDtoInReturn_returnsStatusBadRequest() throws Exception {
+
+            when(noteServiceMock.updateNote(any(NoteDTO.class))).thenReturn(null);
+
+            mockMvc.perform(put("/note/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(noteDTO)))
+                   .andExpect(status().isBadRequest());
+
+            verify(noteServiceMock, Mockito.times(1)).updateNote(any(NoteDTO.class));
         }
     }
 }
