@@ -32,7 +32,7 @@ public class NoteDTO {
     private String note;
 
     @ApiModelProperty(value = "creation date of medical note", example = "2021-01-01")
-    @JsonFormat(pattern = "yyyy-MM-dd") //TODO voir si sujet d'affichage ou pas utile ?
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
@@ -46,7 +46,7 @@ public class NoteDTO {
     public NoteDTO(Integer patientId, String note) {
         this.patientId = patientId;
         this.note = note;
-        this.creationDate = creationDate;
+        this.creationDate = creationDate; //TODO
     }
 
     @Override

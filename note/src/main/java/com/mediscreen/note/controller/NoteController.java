@@ -1,5 +1,7 @@
 package com.mediscreen.note.controller;
 
+import java.util.List;
+
 import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
@@ -54,9 +56,18 @@ public class NoteController {
     public Page<NoteDTO> getAllNotesForPatientByPage(@RequestParam Integer patientId,
                                                      @RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                                      @RequestParam String sortField, @RequestParam String sortDir) {
-        log.debug(LogConstants.GET_ALL_NOTES_REQUEST_RECEIVED);
+        log.debug(LogConstants.GET_ALL_NOTES_BY_PAGE_REQUEST_RECEIVED);
 
         return noteService.getAllNotesForPatientPageable(patientId, pageNumber, itemsPerPage, sortField, sortDir);
+    }
+
+    @ApiOperation(
+        value = "Get all registered notes for one patient")
+    @GetMapping(value = "/all")
+    public List<NoteDTO> getAllNotesForPatient(@RequestParam Integer patientId) {
+        log.debug(LogConstants.GET_ALL_NOTES_REQUEST_RECEIVED);
+
+        return noteService.getAllNotesForPatient(patientId);
     }
 
     @ApiOperation(value = "Get note by id")

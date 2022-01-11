@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.List;
+
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.note.constants.TestConstants;
@@ -62,6 +64,14 @@ public class NoteServiceIT {
         assertEquals(TestConstants.NOTE1_NOTE, noteDTOPage.getContent().get(0).getNote());
         assertEquals(TestConstants.NOTE1_CREATION_DATE, noteDTOPage.getContent().get(0).getCreationDate());
         assertEquals(TestConstants.NOTE2_NOTE, noteDTOPage.getContent().get(1).getNote());
+    }
+
+    @Test
+    void getAllNotesForPatient_withDataInDb_returnsTheListOfAllValues() {
+
+        List<NoteDTO> noteDTOList = noteService.getAllNotesForPatient(TestConstants.NOTE1_PATIENT_ID);
+        assertEquals(2, noteDTOList.size());
+        assertEquals(TestConstants.NOTE1_ID, noteDTOList.get(0).getId());
     }
 
     @Test

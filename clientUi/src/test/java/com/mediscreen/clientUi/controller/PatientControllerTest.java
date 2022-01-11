@@ -2,6 +2,7 @@ package com.mediscreen.clientUi.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,9 +19,12 @@ import java.util.stream.Stream;
 
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.clientUi.proxies.INoteProxy;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.commons.constants.ExceptionConstants;
+import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.junit.jupiter.api.BeforeAll;
@@ -43,10 +47,16 @@ import org.springframework.test.web.servlet.MockMvc;
 class PatientControllerTest {
 
     private static PatientDTO patientDTO;
+    private static List<NoteDTO> noteDTOList;
+
     @Autowired
     private MockMvc mockMvc;
+
     @MockBean
     private IPatientProxy patientProxyMock;
+
+    @MockBean
+    private INoteProxy noteProxyMock;
 
     @BeforeAll
     static void setUp() {
@@ -58,6 +68,14 @@ class PatientControllerTest {
         patientDTO.setGender(TestConstants.PATIENT1_GENDER);
         patientDTO.setAddress(TestConstants.PATIENT1_ADDRESS);
         patientDTO.setPhone(TestConstants.PATIENT1_PHONE);
+
+        noteDTOList = new ArrayList<>();
+        NoteDTO noteDTO1 = new NoteDTO(TestConstants.NOTE1_ID, TestConstants.PATIENT1_ID, TestConstants.NOTE1_NOTE,
+                                       TestConstants.NOTE1_CREATION_DATE, TestConstants.NOTE1_LAST_UPDATE_DATE);
+        noteDTOList.add(noteDTO1);
+        NoteDTO noteDTO2 = new NoteDTO(TestConstants.NOTE2_ID, TestConstants.PATIENT1_ID, TestConstants.NOTE2_NOTE,
+                                       TestConstants.NOTE2_CREATION_DATE, TestConstants.NOTE2_LAST_UPDATE_DATE);
+        noteDTOList.add(noteDTO2);
     }
 
     private static Stream<Arguments> provideArgsForShowAllPatientsByPageWithSuccess() {
@@ -170,7 +188,6 @@ class PatientControllerTest {
             mockMvc.perform(get("/patient/update/{id}", TestConstants.UNKNOWN_PATIENT_ID))
                    .andExpect(status().isFound())
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
             verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         }
@@ -278,6 +295,7 @@ class PatientControllerTest {
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
+            //TOASK voir pour le nettoyage post test
         }
 
         @Test
@@ -348,6 +366,8 @@ class PatientControllerTest {
         void deletePatient_forExistingPatient_returnsPatientListViewWithInfoMessage() throws Exception {
 
             when(patientProxyMock.deletePatientById(anyInt())).thenReturn(HttpStatus.OK.value());
+            when(noteProxyMock.getAllNotesForPatient(anyInt())).thenReturn(noteDTOList);
+            when(noteProxyMock.deleteNoteById(anyString())).thenReturn(HttpStatus.OK.value());
 
             mockMvc.perform(get("/patient/delete/{id}", TestConstants.PATIENT1_ID))
                    .andExpect(status().isFound())
@@ -355,6 +375,8 @@ class PatientControllerTest {
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(1)).getAllNotesForPatient(anyInt());
+            verify(noteProxyMock, Mockito.atLeast(1)).deleteNoteById(anyString());
         }
 
         @Test
@@ -369,6 +391,25 @@ class PatientControllerTest {
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(1)).getAllNotesForPatient(anyInt());
+            verify(noteProxyMock, Mockito.times(0)).deleteNoteById(anyString());
+        }
+
+        @Test
+        void deleteNoteWhileDeletingPatient_forUnknownNote_returnsPatientListViewWithInfoMessage() throws Exception {
+
+            when(noteProxyMock.getAllNotesForPatient(anyInt())).thenReturn(noteDTOList);
+            when(noteProxyMock.deleteNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
+
+            mockMvc.perform(get("/patient/delete/{id}", TestConstants.PATIENT1_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(flash().attributeExists("infoMessage"))
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
+
+            verify(patientProxyMock, Mockito.times(1)).deletePatientById(anyInt());
+            verify(noteProxyMock, Mockito.times(1)).getAllNotesForPatient(anyInt());
+            verify(noteProxyMock, Mockito.atLeast(1)).deleteNoteById(anyString());
         }
     }
 }

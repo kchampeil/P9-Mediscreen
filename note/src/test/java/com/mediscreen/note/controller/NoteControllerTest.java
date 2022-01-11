@@ -83,6 +83,23 @@ class NoteControllerTest {
             .getAllNotesForPatientPageable(anyInt(), anyInt(), anyInt(), any(String.class), any(String.class));
     }
 
+    @Test
+    void getAllNotesForPatient_returnsTheListOfAllValues_And_StatusOk() throws Exception {
+
+        List<NoteDTO> noteDTOList = new ArrayList<>();
+        noteDTOList.add(noteDTO);
+
+        when(noteServiceMock.getAllNotesForPatient(anyInt())).thenReturn(noteDTOList);
+
+        mockMvc.perform(get("/note/all")
+                            .param("patientId", String.valueOf(1)))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$").isNotEmpty());
+
+        verify(noteServiceMock, Mockito.times(1)).getAllNotesForPatient(anyInt());
+    }
+
     @Nested
     @DisplayName("getNoteById tests")
     class GetNoteByIdTests {

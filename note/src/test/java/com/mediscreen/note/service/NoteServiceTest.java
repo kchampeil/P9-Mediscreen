@@ -74,6 +74,35 @@ class NoteServiceTest {
     }
 
     @Nested
+    @DisplayName("getAllNotesForPatient tests")
+    class GetAllNotesForPatientTests {
+        @Test
+        void getAllNotesForPatient_withDataInDb_returnsTheListOfAllValues() {
+            List<Note> noteList = new ArrayList<>();
+            noteList.add(note1InDb);
+            noteList.add(note2InDb);
+            when(noteRepositoryMock.findAllByPatientId(anyInt())).thenReturn(noteList);
+
+            List<NoteDTO> noteDTOList = noteService.getAllNotesForPatient(TestConstants.NOTE1_PATIENT_ID);
+            assertEquals(noteList.size(), noteDTOList.size());
+            assertEquals(note1InDb.getId(), noteDTOList.get(0).getId());
+
+            verify(noteRepositoryMock, Mockito.times(1)).findAllByPatientId(anyInt());
+        }
+
+        @Test
+        void getAllNotesForPatient_withNoDataInDb_returnsAnEmptyList() {
+
+            when(noteRepositoryMock.findAllByPatientId(anyInt())).thenReturn(new ArrayList<>());
+
+            List<NoteDTO> noteDTOList = noteService.getAllNotesForPatient(TestConstants.NOTE1_PATIENT_ID);
+            assertThat(noteDTOList).isEmpty();
+
+            verify(noteRepositoryMock, Mockito.times(1)).findAllByPatientId(anyInt());
+        }
+    }
+
+    @Nested
     @DisplayName("getAllNotesForPatientPageable tests")
     class GetAllNotesForPatientPageableTests {
         @Test

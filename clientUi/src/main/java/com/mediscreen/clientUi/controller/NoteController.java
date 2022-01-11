@@ -62,8 +62,7 @@ public class NoteController {
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("patient.not.found",
                                                                      patientId.toString()));
-            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+            return "redirect:" + ViewNameConstants.HOME_DOCTOR;
         }
 
         Page<NoteDTO> noteDTOPage = noteProxy.getAllNotesForPatientByPage(patientId, currentPage, itemsPerPage,
@@ -73,7 +72,6 @@ public class NoteController {
             redirectAttributes.addFlashAttribute("infoMessage",
                                                  formatOutputMessage("note.list.not.found", patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_DOCTOR;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
 
         model.addAttribute("noteDtoList", noteDTOPage.getContent());
@@ -105,11 +103,10 @@ public class NoteController {
                                                  formatOutputMessage("patient.not.found",
                                                                      patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_DOCTOR;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
     }
 
-    @PostMapping("/note/{patientId}/add") //TODO voir si mutualisable avec l'update
+    @PostMapping("/note/{patientId}/add")
     public String addNote(@PathVariable("patientId") Integer patientId,
                           @ModelAttribute("note") @Valid NoteDTO noteDTO,
                           BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -138,7 +135,6 @@ public class NoteController {
                                                  formatOutputMessage("patient.not.found",
                                                                      patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_DOCTOR;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
     }
 
@@ -158,15 +154,14 @@ public class NoteController {
             log.error(noteDoesNotExistException.getMessage() + noteId);
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("note.not.found", noteId));
-            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+            return "redirect:" + ViewNameConstants.HOME_DOCTOR;
+
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + "for note: " + noteId);
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("patient.not.found",
                                                                      noteId));
-            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+            return "redirect:" + ViewNameConstants.HOME_DOCTOR;
         }
     }
 
@@ -211,7 +206,6 @@ public class NoteController {
                                                  formatOutputMessage("patient.not.found",
                                                                      noteDTO.getPatientId().toString()));
             return "redirect:" + ViewNameConstants.HOME_DOCTOR;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
     }
 
@@ -221,20 +215,29 @@ public class NoteController {
         log.debug(LogConstants.DELETE_NOTE_REQUEST_RECEIVED, noteId);
 
         try {
-            noteProxy.deleteNoteById(noteId);
-            log.info(LogConstants.DELETE_NOTE_REQUEST_OK, noteId);
-            redirectAttributes.addFlashAttribute("infoMessage",
-                                                 formatOutputMessage("note.delete.ok",
-                                                                     noteId.toString()));
+            String noteListForPatientUrl = "/note/" + noteProxy.getNoteById(noteId).getPatientId() + "/list/1";
+
+            try {
+                noteProxy.deleteNoteById(noteId);
+                log.info(LogConstants.DELETE_NOTE_REQUEST_OK, noteId);
+                redirectAttributes.addFlashAttribute("infoMessage",
+                                                     formatOutputMessage("note.delete.ok",
+                                                                         noteId.toString()));
+                return "redirect:" + noteListForPatientUrl;
+            } catch (NoteDoesNotExistException noteDoesNotExistException) {
+                log.error(noteDoesNotExistException.getMessage() + noteId);
+                redirectAttributes.addFlashAttribute("errorMessage",
+                                                     formatOutputMessage("note.delete.ko",
+                                                                         noteDoesNotExistException.getMessage() + noteId.toString()));
+                return "redirect:" + noteListForPatientUrl;
+            }
 
         } catch (NoteDoesNotExistException noteDoesNotExistException) {
             log.error(noteDoesNotExistException.getMessage() + noteId);
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("note.delete.ko",
                                                                      noteDoesNotExistException.getMessage() + noteId.toString()));
+            return "redirect:" + ViewNameConstants.HOME_DOCTOR;
         }
-
-        return "redirect:" + ViewNameConstants.HOME_DOCTOR;
-        //TODO revenir plutôt à la liste des notes >>> nécessite de récupérer le patientId en amont
     }
 }

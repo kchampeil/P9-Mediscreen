@@ -136,7 +136,6 @@ public class NoteControllerTest {
                .andExpect(status().isFound())
                .andExpect(flash().attributeExists("infoMessage"))
                .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
-        //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         verify(patientProxyMock, Mockito.times(1))
             .getPatientById(anyInt());
@@ -157,8 +156,7 @@ public class NoteControllerTest {
                             .param("sortDir", "asc")
                             .param("itemsPerPage", "10"))
                .andExpect(status().isFound())
-               .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
-        //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+               .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
 
         verify(patientProxyMock, Mockito.times(1))
             .getPatientById(anyInt());
@@ -271,18 +269,32 @@ public class NoteControllerTest {
         }
 
         @Test
-        void showUpdateForm_forUnknownNote_returnsNoteListView() throws Exception {
+        void showUpdateForm_forUnknownNote_returnsPatientListView() throws Exception {
 
             when(noteProxyMock.getNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
                 ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
 
             mockMvc.perform(get("/note/update/{id}", TestConstants.UNKNOWN_NOTE_ID))
                    .andExpect(status().isFound())
-                   .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
 
             verify(noteProxyMock, Mockito.times(1)).getNoteById(anyString());
             verify(patientProxyMock, Mockito.times(0)).getPatientById(anyInt());
+        }
+
+        @Test
+        void showUpdateForm_forUnknownPatient_returnsPatientListView() throws Exception {
+
+            when(noteProxyMock.getNoteById(anyString())).thenReturn(noteDTO);
+            when(patientProxyMock.getPatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
+                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+
+            mockMvc.perform(get("/note/update/{id}", TestConstants.NOTE1_ID))
+                   .andExpect(status().isFound())
+                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+            verify(noteProxyMock, Mockito.times(1)).getNoteById(anyString());
+            verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         }
     }
 
@@ -368,28 +380,33 @@ public class NoteControllerTest {
         @Test
         void deleteNote_forExistingNote_returnsNoteListViewWithInfoMessage() throws Exception {
 
+            when(noteProxyMock.getNoteById(anyString())).thenReturn(noteDTO);
             when(noteProxyMock.deleteNoteById(anyString())).thenReturn(HttpStatus.OK.value());
 
-            mockMvc.perform(get("/note/delete/{id}", TestConstants.PATIENT1_ID))
+            mockMvc.perform(get("/note/delete/{id}", TestConstants.NOTE1_ID))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("infoMessage"))
-                   .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+                   .andExpect(redirectedUrl("/note/" + TestConstants.NOTE1_PATIENT_ID + "/list/1"));
 
+            verify(noteProxyMock, Mockito.times(1)).getNoteById(anyString());
             verify(noteProxyMock, Mockito.times(1)).deleteNoteById(anyString());
         }
 
         @Test
         void deleteNote_forUnknownNote_returnsNoteListViewWithErrorMessage() throws Exception {
 
+            when(noteProxyMock.getNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
             when(noteProxyMock.deleteNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
-                ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+                ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
 
-            mockMvc.perform(get("/note/delete/{id}", TestConstants.UNKNOWN_PATIENT_ID))
+            mockMvc.perform(get("/note/delete/{id}", TestConstants.UNKNOWN_NOTE_ID))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("errorMessage"))
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
 
-            verify(noteProxyMock, Mockito.times(1)).deleteNoteById(anyString());
+            verify(noteProxyMock, Mockito.times(1)).getNoteById(anyString());
+            verify(noteProxyMock, Mockito.times(0)).deleteNoteById(anyString());
         }
     }
 }

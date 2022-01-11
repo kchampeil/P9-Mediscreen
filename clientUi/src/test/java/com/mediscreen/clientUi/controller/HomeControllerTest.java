@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.clientUi.proxies.INoteProxy;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ class HomeControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private IPatientProxy patientProxyMock;
+    @MockBean
+    private INoteProxy noteProxyMock;
 
     @Test
     void showHomePage_WithSuccess() throws Exception {

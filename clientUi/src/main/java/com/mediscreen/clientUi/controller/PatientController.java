@@ -2,13 +2,17 @@ package com.mediscreen.clientUi.controller;
 
 import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
 
+import java.util.List;
 import javax.validation.Valid;
 
 import com.mediscreen.clientUi.constants.LogConstants;
 import com.mediscreen.clientUi.constants.ProfileConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.clientUi.proxies.INoteProxy;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
 import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +35,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class PatientController {
 
     private final IPatientProxy patientProxy;
+    private final INoteProxy noteProxy;
 
     @Autowired
-    public PatientController(IPatientProxy patientProxy) {
+    public PatientController(IPatientProxy patientProxy, INoteProxy noteProxy) {
         this.patientProxy = patientProxy;
+        this.noteProxy = noteProxy;
     }
 
     @GetMapping("/organizer")
@@ -99,7 +105,6 @@ public class PatientController {
                                                  formatOutputMessage("patient.not.found",
                                                                      patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
         }
     }
 
@@ -123,7 +128,6 @@ public class PatientController {
                                                  formatOutputMessage("patient.update.ok",
                                                                      patientId.toString()));
             return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         } catch (PatientDoesNotExistException | PatientAlreadyExistException patientException) {
             log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, patientException.getMessage());
@@ -163,7 +167,6 @@ public class PatientController {
                                                  formatOutputMessage("patient.add.ok",
                                                                      patientDTO.getId().toString()));
             return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-            //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
 
         } catch (PatientAlreadyExistException patientException) {
             log.error(LogConstants.ADD_PATIENT_REQUEST_KO, patientException.getMessage());
@@ -179,21 +182,51 @@ public class PatientController {
 
         log.debug(LogConstants.DELETE_PATIENT_REQUEST_RECEIVED, patientId);
 
+        /* check that the patient exists */
         try {
+            patientProxy.getPatientById(patientId);
+
+            /* Deletion of all existing notes for the patient */
+            int numberOfNotesNotDeleted = deleteExistingNotesForPatient(patientId);
+            if (numberOfNotesNotDeleted > 0) {
+                redirectAttributes.addFlashAttribute("infoMessage",
+                                                     formatOutputMessage("note.delete.ko.when.delete.patient",
+                                                                         String.valueOf(numberOfNotesNotDeleted)));
+            }
+
+            /* Deletion of the patient */
             patientProxy.deletePatientById(patientId);
             log.info(LogConstants.DELETE_PATIENT_REQUEST_OK, patientId);
             redirectAttributes.addFlashAttribute("infoMessage",
                                                  formatOutputMessage("patient.delete.ok",
                                                                      patientId.toString()));
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
 
-        } catch (PatientDoesNotExistException patientDoesNotExistException) {
+        } catch (
+            PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage() + patientId);
             redirectAttributes.addFlashAttribute("errorMessage",
                                                  formatOutputMessage("patient.delete.ko",
                                                                      patientDoesNotExistException.getMessage() + patientId.toString()));
+            return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
         }
 
-        return "redirect:" + ViewNameConstants.HOME_ORGANIZER;
-        //TODO à voir pour appeler une méthode qui choisi le home en fonction du profil
+    }
+
+    private int deleteExistingNotesForPatient(Integer patientId) {
+
+        int numberOfNotesNotDeleted = 0;
+        List<NoteDTO> noteDTOList = noteProxy.getAllNotesForPatient(patientId);
+        if (!noteDTOList.isEmpty()) {
+            for (NoteDTO note : noteDTOList) {
+                try {
+                    noteProxy.deleteNoteById(note.getId());
+                } catch (NoteDoesNotExistException noteDoesNotExistException) {
+                    log.info(noteDoesNotExistException.getMessage() + note.getId());
+                    numberOfNotesNotDeleted++;
+                }
+            }
+        }
+        return numberOfNotesNotDeleted;
     }
 }

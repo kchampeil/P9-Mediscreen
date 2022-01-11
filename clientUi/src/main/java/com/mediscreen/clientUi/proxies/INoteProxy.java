@@ -1,5 +1,7 @@
 package com.mediscreen.clientUi.proxies;
 
+import java.util.List;
+
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -18,6 +20,9 @@ public interface INoteProxy {
     Page<NoteDTO> getAllNotesForPatientByPage(@RequestParam Integer patientId,
                                               @RequestParam int pageNumber, @RequestParam int itemsPerPage,
                                               @RequestParam String sortField, @RequestParam String sortDir);
+
+    @GetMapping(value = "/note/all")
+    List<NoteDTO> getAllNotesForPatient(@RequestParam Integer patientId);
 
     @PostMapping(value = "/note/")
     NoteDTO addNote(@RequestBody NoteDTO noteDtoToAdd);

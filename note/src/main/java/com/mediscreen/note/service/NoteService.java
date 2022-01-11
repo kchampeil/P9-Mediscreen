@@ -1,6 +1,8 @@
 package com.mediscreen.note.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.mediscreen.commons.constants.ExceptionConstants;
@@ -57,6 +59,25 @@ public class NoteService implements INoteService {
         log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_PER_PAGE_OK, pageNumber);
 
         return noteDTOPage;
+    }
+
+    /**
+     * get all medical notes (DTO) for a given patient
+     *
+     * @param patientId id of the patient we want to retrieve the medical notes
+     * @return List of NoteDTO
+     */
+    @Override
+    public List<NoteDTO> getAllNotesForPatient(Integer patientId) {
+        log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_SERVICE_CALL);
+
+        List<Note> noteList = noteRepository.findAllByPatientId(patientId);
+        List<NoteDTO> noteDTOList = new ArrayList<>();
+        noteList.forEach(note -> noteDTOList.add(modelMapper.map(note, NoteDTO.class)));
+
+        log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_OK);
+
+        return noteDTOList;
     }
 
     /**
