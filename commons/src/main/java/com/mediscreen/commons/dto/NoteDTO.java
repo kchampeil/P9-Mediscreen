@@ -46,7 +46,6 @@ public class NoteDTO {
     public NoteDTO(Integer patientId, String note) {
         this.patientId = patientId;
         this.note = note;
-        this.creationDate = creationDate; //TODO
     }
 
     @Override

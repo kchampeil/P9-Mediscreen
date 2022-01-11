@@ -11,7 +11,7 @@
 
   <groupId>com.mediscreen</groupId>
   <artifactId>patient</artifactId>
-  <version>0.1.3-SNAPSHOT</version>
+  <version>0.1.4-SNAPSHOT</version>
   <name>patient</name>
   <description>Microservice managing patient personal data</description>
 
@@ -21,7 +21,7 @@
     <junit-jupiter-api.version>5.7.2</junit-jupiter-api.version>
     <modelmapper.version>2.4.4</modelmapper.version>
     <springfox.version>3.0.0</springfox.version>
-    <mediscreen.commons.version>0.1.3-SNAPSHOT</mediscreen.commons.version>
+    <mediscreen.commons.version>0.1.4-SNAPSHOT</mediscreen.commons.version>
   </properties>
 
   <dependencies>
