@@ -1,4 +1,4 @@
-package com.mediscreen.riskAssessment.model;
+package com.mediscreen.commons.constants;
 
 public enum RiskLevel {
     NONE("Aucun risque"),
@@ -13,7 +13,7 @@ public enum RiskLevel {
         this.description = s;
     }
 
-    public String getDescription() { //TODO used ?
+    public String getDescription() {
         return description;
     }
 }

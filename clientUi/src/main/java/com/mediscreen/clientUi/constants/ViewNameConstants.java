@@ -16,4 +16,6 @@ public class ViewNameConstants {
     // pour patient
     public static final String ADD_NOTE = "note/add";
     public static final String UPDATE_NOTE = "note/update";
+
+    public static final String RISK_ASSESSMENT_RESULT = "/riskAssessment/assess";
 }

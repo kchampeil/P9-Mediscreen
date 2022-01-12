@@ -17,10 +17,10 @@ import java.time.Period;
 import java.util.List;
 import java.util.Locale;
 
+import com.mediscreen.commons.constants.RiskLevel;
 import com.mediscreen.commons.dto.NoteDTO;
-import com.mediscreen.commons.dto.PatientDTO;
-import com.mediscreen.riskAssessment.model.DiabetesRiskFactors;
-import com.mediscreen.riskAssessment.model.RiskLevel;
+import com.mediscreen.commons.dto.RiskAssessmentDTO;
+import com.mediscreen.riskAssessment.constants.DiabetesRiskFactors;
 import com.mediscreen.riskAssessment.service.contracts.IRiskAssessmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,17 +41,16 @@ public class DiabetesRiskAssessmentService implements IRiskAssessmentService {
     /**
      * evaluate diabetes risk for one given patient and his medical notes
      *
-     * @param patientDTO  patient we want to evaluate the diabetes risk
-     * @param noteDTOList list of medical notes for the patient
+     * @param riskAssessmentDTO information and medical notes about patient
      * @return risk level
      */
     @Override
 
-    public RiskLevel evaluateRisk(PatientDTO patientDTO, List<NoteDTO> noteDTOList) {
+    public RiskLevel evaluateRisk(RiskAssessmentDTO riskAssessmentDTO) {
 
-        int age = Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears();
+        int age = Period.between(riskAssessmentDTO.getPatientDTO().getBirthDate(), LocalDate.now()).getYears();
 
-        int numberOfRiskFactors = countRiskFactors(noteDTOList);
+        int numberOfRiskFactors = countRiskFactors(riskAssessmentDTO.getNoteDTOList());
 
         if (numberOfRiskFactors == NUMBER_RISK_FACTORS_FOR_NONE) {
             return RiskLevel.NONE;
@@ -61,7 +60,8 @@ public class DiabetesRiskAssessmentService implements IRiskAssessmentService {
             return calculateRiskForPatientAboveRiskAgeLimit(numberOfRiskFactors);
         }
 
-        return calculateRiskForPatientUnderRiskAgeLimit(numberOfRiskFactors, patientDTO.getGender());
+        return calculateRiskForPatientUnderRiskAgeLimit(numberOfRiskFactors, riskAssessmentDTO.getPatientDTO()
+                                                                                              .getGender());
     }
 
     /**

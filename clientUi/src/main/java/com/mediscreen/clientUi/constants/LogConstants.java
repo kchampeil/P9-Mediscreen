@@ -38,4 +38,6 @@ public class LogConstants {
     public static final String UPDATE_NOTE_REQUEST_KO = "Note id {} has not been updated : {} \n";
     public static final String DELETE_NOTE_REQUEST_RECEIVED = "GET request /note/delete/{} received on clientUI";
     public static final String DELETE_NOTE_REQUEST_OK = "Note id {} has been deleted\n";
+
+    public static final String SHOW_RISK_ASSESSMENT_RESULT_RECEIVED = "GET request /assess/{} received on clientUI";
 }

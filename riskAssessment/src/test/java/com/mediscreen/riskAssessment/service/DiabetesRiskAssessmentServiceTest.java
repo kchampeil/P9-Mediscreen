@@ -6,10 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import com.mediscreen.commons.constants.RiskLevel;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.dto.RiskAssessmentDTO;
 import com.mediscreen.riskAssessment.constants.TestConstants;
-import com.mediscreen.riskAssessment.model.RiskLevel;
 import com.mediscreen.riskAssessment.service.contracts.IRiskAssessmentService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -168,64 +169,97 @@ class DiabetesRiskAssessmentServiceTest {
     public static Stream<Arguments> provideArgsForEvaluateRisk() {
 
         return Stream.of(
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithNoRiskFactor, RiskLevel.NONE),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithNoRiskFactor, RiskLevel.NONE),
-            Arguments.of(maleAtRiskAgeLimit, noteListWithNoRiskFactor, RiskLevel.NONE),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithNoRiskFactor, RiskLevel.NONE),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithNoRiskFactor, RiskLevel.NONE),
-            Arguments.of(femaleAtRiskAgeLimit, noteListWithNoRiskFactor, RiskLevel.NONE),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithNoRiskFactor), RiskLevel.NONE),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithNoRiskFactor), RiskLevel.NONE),
+            Arguments.of(new RiskAssessmentDTO(maleAtRiskAgeLimit, noteListWithNoRiskFactor), RiskLevel.NONE),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithNoRiskFactor), RiskLevel.NONE),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithNoRiskFactor), RiskLevel.NONE),
+            Arguments.of(new RiskAssessmentDTO(femaleAtRiskAgeLimit, noteListWithNoRiskFactor), RiskLevel.NONE),
 
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithTwoRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithTwoRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithThreeRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithThreeRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithFourRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithFourRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithFiveRiskFactors, RiskLevel.BORDERLINE),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithFiveRiskFactors, RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithTwoRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithTwoRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithThreeRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithThreeRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithFourRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithFourRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithFiveRiskFactors),
+                         RiskLevel.BORDERLINE),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithFiveRiskFactors),
+                         RiskLevel.BORDERLINE),
 
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithSixRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithSixRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithSevenRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithSevenRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithThreeRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithFourRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithFourRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithFiveRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithSixRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(maleAtRiskAgeLimit, noteListWithThreeRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(maleAtRiskAgeLimit, noteListWithFourRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleAtRiskAgeLimit, noteListWithFourRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleAtRiskAgeLimit, noteListWithFiveRiskFactors, RiskLevel.IN_DANGER),
-            Arguments.of(femaleAtRiskAgeLimit, noteListWithSixRiskFactors, RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithSixRiskFactors), RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithSixRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithSevenRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithSevenRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithThreeRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithFourRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithFourRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithFiveRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithSixRiskFactors),
+                         RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(maleAtRiskAgeLimit, noteListWithThreeRiskFactors), RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(maleAtRiskAgeLimit, noteListWithFourRiskFactors), RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleAtRiskAgeLimit, noteListWithFourRiskFactors), RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleAtRiskAgeLimit, noteListWithFiveRiskFactors), RiskLevel.IN_DANGER),
+            Arguments.of(new RiskAssessmentDTO(femaleAtRiskAgeLimit, noteListWithSixRiskFactors), RiskLevel.IN_DANGER),
 
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithEightRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithEightRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithTenRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithTenRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithFiveRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithEightRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithSevenRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithTenRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(maleAtRiskAgeLimit, noteListWithFiveRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(maleAtRiskAgeLimit, noteListWithTenRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(femaleAtRiskAgeLimit, noteListWithSevenRiskFactors, RiskLevel.EARLY_ONSET),
-            Arguments.of(femaleAtRiskAgeLimit, noteListWithTenRiskFactors, RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithEightRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithEightRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithTenRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithTenRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithFiveRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithEightRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithSevenRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithTenRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(maleAtRiskAgeLimit, noteListWithFiveRiskFactors), RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(maleAtRiskAgeLimit, noteListWithTenRiskFactors), RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(femaleAtRiskAgeLimit, noteListWithSevenRiskFactors),
+                         RiskLevel.EARLY_ONSET),
+            Arguments.of(new RiskAssessmentDTO(femaleAtRiskAgeLimit, noteListWithTenRiskFactors),
+                         RiskLevel.EARLY_ONSET),
 
-            Arguments.of(maleAboveRiskAgeLimit, noteListWithOneRiskFactor, RiskLevel.NOT_APPLICABLE),
-            Arguments.of(femaleAboveRiskAgeLimit, noteListWithOneRiskFactor, RiskLevel.NOT_APPLICABLE),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithOneRiskFactor, RiskLevel.NOT_APPLICABLE),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithOneRiskFactor, RiskLevel.NOT_APPLICABLE),
-            Arguments.of(maleUnderRiskAgeLimit, noteListWithTwoRiskFactors, RiskLevel.NOT_APPLICABLE),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithTwoRiskFactors, RiskLevel.NOT_APPLICABLE),
-            Arguments.of(femaleUnderRiskAgeLimit, noteListWithThreeRiskFactors, RiskLevel.NOT_APPLICABLE)
+            Arguments.of(new RiskAssessmentDTO(maleAboveRiskAgeLimit, noteListWithOneRiskFactor),
+                         RiskLevel.NOT_APPLICABLE),
+            Arguments.of(new RiskAssessmentDTO(femaleAboveRiskAgeLimit, noteListWithOneRiskFactor),
+                         RiskLevel.NOT_APPLICABLE),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithOneRiskFactor),
+                         RiskLevel.NOT_APPLICABLE),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithOneRiskFactor),
+                         RiskLevel.NOT_APPLICABLE),
+            Arguments.of(new RiskAssessmentDTO(maleUnderRiskAgeLimit, noteListWithTwoRiskFactors),
+                         RiskLevel.NOT_APPLICABLE),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithTwoRiskFactors),
+                         RiskLevel.NOT_APPLICABLE),
+            Arguments.of(new RiskAssessmentDTO(femaleUnderRiskAgeLimit, noteListWithThreeRiskFactors),
+                         RiskLevel.NOT_APPLICABLE)
                         );
     }
 
     @ParameterizedTest
     @MethodSource("provideArgsForEvaluateRisk")
-    void evaluateRisk(PatientDTO patientDTO, List<NoteDTO> noteDTOList, RiskLevel expectedRiskLevel) {
-        RiskLevel riskLevel = riskAssessmentService.evaluateRisk(patientDTO, noteDTOList);
+    void evaluateRisk(RiskAssessmentDTO riskAssessmentDTO, RiskLevel expectedRiskLevel) {
+        RiskLevel riskLevel = riskAssessmentService.evaluateRisk(riskAssessmentDTO);
         assertEquals(expectedRiskLevel, riskLevel);
     }
 }

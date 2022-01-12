@@ -295,7 +295,6 @@ class PatientControllerTest {
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
 
             verify(patientProxyMock, Mockito.times(1)).addPatient(any(PatientDTO.class));
-            //TOASK voir pour le nettoyage post test
         }
 
         @Test

@@ -1,4 +1,4 @@
-package com.mediscreen.riskAssessment.model;
+package com.mediscreen.riskAssessment.constants;
 
 public enum DiabetesRiskFactors {
     HEMOGLOBINE_A1C("Hémoglobine A1C"),
