@@ -8,6 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "riskAssessment", url = "${riskAssessment.feign.url}" + ":" + "${riskAssessment.feign.port}")
 public interface IRiskAssessmentProxy {
 
-    @PostMapping(value = "/assess/")
-    String getRiskForPatient(@RequestBody RiskAssessmentDTO riskAssessmentDTO);
+    @PostMapping(value = "/assess/diabetes")
+    String getDiabetesRiskForPatient(@RequestBody RiskAssessmentDTO riskAssessmentDTO);
 }

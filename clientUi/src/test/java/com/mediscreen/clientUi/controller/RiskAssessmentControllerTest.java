@@ -78,7 +78,7 @@ class RiskAssessmentControllerTest {
 
         when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
         when(noteProxyMock.getAllNotesForPatient(anyInt())).thenReturn(noteDTOList);
-        when(riskAssessmentProxyMock.getRiskForPatient(any(RiskAssessmentDTO.class)))
+        when(riskAssessmentProxyMock.getDiabetesRiskForPatient(any(RiskAssessmentDTO.class)))
             .thenReturn(RiskLevel.IN_DANGER.getDescription());
 
         mockMvc.perform(get("/assess/{id}", TestConstants.PATIENT1_ID))
@@ -89,6 +89,6 @@ class RiskAssessmentControllerTest {
         verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
         verify(noteProxyMock, Mockito.times(1)).getAllNotesForPatient(anyInt());
         verify(riskAssessmentProxyMock, Mockito.times(1))
-            .getRiskForPatient(any(RiskAssessmentDTO.class));
+            .getDiabetesRiskForPatient(any(RiskAssessmentDTO.class));
     }
 }

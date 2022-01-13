@@ -34,8 +34,8 @@ public class RiskAssessmentController {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Diabetes risk evaluated")
     })
-    @PostMapping(value = "/") //TOASK : post et pas get dans l'énoncé
-    public ResponseEntity<String> getRiskForPatient(
+    @PostMapping(value = "/diabetes") //TOASK : post et pas get dans l'énoncé
+    public ResponseEntity<String> getDiabetesRiskForPatient(
         @ApiParam(value = "information and medical notes about patient")
         @RequestBody RiskAssessmentDTO riskAssessmentDTO) {
 

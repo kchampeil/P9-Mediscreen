@@ -53,7 +53,8 @@ public class RiskAssessmentController {
             List<NoteDTO> noteDTOList = noteProxy.getAllNotesForPatient(patientId);
 
             model.addAttribute("riskLevel",
-                               riskAssessmentProxy.getRiskForPatient(new RiskAssessmentDTO(patientDTO, noteDTOList)));
+                               riskAssessmentProxy.getDiabetesRiskForPatient(
+                                   new RiskAssessmentDTO(patientDTO, noteDTOList)));
             return ViewNameConstants.RISK_ASSESSMENT_RESULT;
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
