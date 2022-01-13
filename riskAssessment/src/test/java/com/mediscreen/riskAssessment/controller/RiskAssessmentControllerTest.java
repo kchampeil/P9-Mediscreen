@@ -1,10 +1,12 @@
 package com.mediscreen.riskAssessment.controller;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -63,11 +65,12 @@ class RiskAssessmentControllerTest {
     void getRiskForPatient_returnsRiskLevel() throws Exception {
         when(riskAssessmentServiceMock.evaluateRisk(any(RiskAssessmentDTO.class))).thenReturn(RiskLevel.EARLY_ONSET);
 
-        mockMvc.perform(post("/assess/")
+        mockMvc.perform(post("/assess/diabetes")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(riskAssessmentDTO)))
                .andExpect(status().isOk())
-               .andExpect(content().string(RiskLevel.EARLY_ONSET.getDescription()));
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$", is(RiskLevel.EARLY_ONSET.toString())));
 
         verify(riskAssessmentServiceMock, Mockito.times(1))
             .evaluateRisk(any(RiskAssessmentDTO.class));

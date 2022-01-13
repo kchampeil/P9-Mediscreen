@@ -34,14 +34,14 @@
                 <label
                         class="col-2 alert"
                         id="riskLevel"
-                        th:classappend="${riskLevel == T(com.mediscreen.commons.constants.RiskLevel).EARLY_ONSET.description}
+                        th:classappend="${riskLevel == T(com.mediscreen.commons.constants.RiskLevel).EARLY_ONSET}
                                             ? 'alert-danger'
-                                            : (${riskLevel == T(com.mediscreen.commons.constants.RiskLevel).IN_DANGER.description}
+                                            : (${riskLevel == T(com.mediscreen.commons.constants.RiskLevel).IN_DANGER}
                                                 ? 'alert-warning'
-                                                : (${riskLevel == T(com.mediscreen.commons.constants.RiskLevel).BORDERLINE.description}
+                                                : (${riskLevel == T(com.mediscreen.commons.constants.RiskLevel).BORDERLINE}
                                                     ? 'alert-info'
                                                     : 'alert-success'))"
-                        th:text="${riskLevel}"></label>
+                        th:text="${riskLevel.getDescription()}"></label>
             </div>
 
         </div>

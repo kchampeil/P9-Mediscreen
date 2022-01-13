@@ -1,5 +1,6 @@
 package com.mediscreen.riskAssessment.controller;
 
+import com.mediscreen.commons.constants.RiskLevel;
 import com.mediscreen.commons.dto.RiskAssessmentDTO;
 import com.mediscreen.riskAssessment.constants.LogConstants;
 import com.mediscreen.riskAssessment.service.contracts.IRiskAssessmentService;
@@ -35,13 +36,13 @@ public class RiskAssessmentController {
         @ApiResponse(code = 200, message = "Diabetes risk evaluated")
     })
     @PostMapping(value = "/diabetes") //TOASK : post et pas get dans l'énoncé
-    public ResponseEntity<String> getDiabetesRiskForPatient(
+    public ResponseEntity<RiskLevel> getDiabetesRiskForPatient(
         @ApiParam(value = "information and medical notes about patient")
         @RequestBody RiskAssessmentDTO riskAssessmentDTO) {
 
         log.debug(LogConstants.GET_RISK_FOR_PATIENT_REQUEST_RECEIVED);
 
-        return new ResponseEntity<>(riskAssessmentService.evaluateRisk(riskAssessmentDTO).getDescription(),
+        return new ResponseEntity<>(riskAssessmentService.evaluateRisk(riskAssessmentDTO),
                                     HttpStatus.OK);
     }
 }

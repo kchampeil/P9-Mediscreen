@@ -1,5 +1,6 @@
 package com.mediscreen.clientUi.proxies;
 
+import com.mediscreen.commons.constants.RiskLevel;
 import com.mediscreen.commons.dto.RiskAssessmentDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,5 +10,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface IRiskAssessmentProxy {
 
     @PostMapping(value = "/assess/diabetes")
-    String getDiabetesRiskForPatient(@RequestBody RiskAssessmentDTO riskAssessmentDTO);
+    RiskLevel getDiabetesRiskForPatient(@RequestBody RiskAssessmentDTO riskAssessmentDTO);
 }
