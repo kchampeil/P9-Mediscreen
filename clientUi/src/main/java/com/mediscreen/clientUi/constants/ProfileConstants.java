@@ -13,4 +13,5 @@ public class ProfileConstants {
     public static final String DEFAULT_SORT_FIELD = "id";
     public static final String DEFAULT_SORT_DIRECTION = "asc";
     public final static String DEFAULT_ITEMS_PER_PAGE = "5";
+    public static final String DEFAULT_PROFILE = "organizer";
 }

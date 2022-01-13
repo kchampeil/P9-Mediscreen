@@ -47,7 +47,8 @@ public class PatientController {
         log.debug(LogConstants.HOME_ORGANIZER_REQUEST_RECEIVED);
         model.addAttribute("profile", ProfileConstants.ORGANIZER_PROFILE);
         return showAllPatientsByPage(model, 1, ProfileConstants.ORGANIZER_DEFAULT_SORT_FIELD,
-                                     ProfileConstants.ORGANIZER_DEFAULT_SORT_DIRECTION, 5);
+                                     ProfileConstants.ORGANIZER_DEFAULT_SORT_DIRECTION, 5,
+                                     ProfileConstants.ORGANIZER_PROFILE);
     }
 
     @GetMapping("/doctor")
@@ -56,7 +57,8 @@ public class PatientController {
         log.debug(LogConstants.HOME_DOCTOR_REQUEST_RECEIVED);
         model.addAttribute("profile", ProfileConstants.DOCTOR_PROFILE);
         return showAllPatientsByPage(model, 1, ProfileConstants.DOCTOR_DEFAULT_SORT_FIELD_FOR_PATIENTS,
-                                     ProfileConstants.DOCTOR_DEFAULT_SORT_DIRECTION, 5);
+                                     ProfileConstants.DOCTOR_DEFAULT_SORT_DIRECTION, 5,
+                                     ProfileConstants.DOCTOR_PROFILE);
     }
 
     @GetMapping("/patient/list/{page}")
@@ -67,7 +69,9 @@ public class PatientController {
                                         @RequestParam(value = "sortDir",
                                                       defaultValue = ProfileConstants.DEFAULT_SORT_DIRECTION) String sortDir,
                                         @RequestParam(value = "itemsPerPage",
-                                                      defaultValue = ProfileConstants.DEFAULT_ITEMS_PER_PAGE) int itemsPerPage) {
+                                                      defaultValue = ProfileConstants.DEFAULT_ITEMS_PER_PAGE) int itemsPerPage,
+                                        @RequestParam(value = "profile",
+                                                      defaultValue = ProfileConstants.DEFAULT_PROFILE) String profile) {
 
         log.debug(LogConstants.SHOW_PATIENTS_PER_PAGE_REQUEST_RECEIVED, currentPage, sortField, sortDir);
 
@@ -79,6 +83,7 @@ public class PatientController {
         model.addAttribute("totalPages", patientDTOPage.getTotalPages());
         model.addAttribute("totalItems", patientDTOPage.getTotalElements());
         model.addAttribute("itemsPerPage", itemsPerPage);
+        model.addAttribute("profile", profile);
 
         model.addAttribute("sortField", sortField);
         model.addAttribute("sortDir", sortDir);
