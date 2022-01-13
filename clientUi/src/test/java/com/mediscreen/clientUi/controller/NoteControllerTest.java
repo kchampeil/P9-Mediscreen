@@ -133,9 +133,9 @@ public class NoteControllerTest {
                             .param("sortField", "id")
                             .param("sortDir", "asc")
                             .param("itemsPerPage", "10"))
-               .andExpect(status().isFound())
-               .andExpect(flash().attributeExists("infoMessage"))
-               .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+               .andExpect(status().isOk())
+               .andExpect(model().attributeExists("infoMessage"))
+               .andExpect(view().name(ViewNameConstants.SHOW_ALL_NOTES_FOR_PATIENT));
 
         verify(patientProxyMock, Mockito.times(1))
             .getPatientById(anyInt());

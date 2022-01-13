@@ -73,9 +73,8 @@ public class NoteController {
                                                                           sortField, sortDir);
 
         if (noteDTOPage.isEmpty()) {
-            redirectAttributes.addFlashAttribute("infoMessage",
-                                                 formatOutputMessage("note.list.not.found", patientId.toString()));
-            return "redirect:" + ViewNameConstants.HOME_DOCTOR;
+            model.addAttribute("infoMessage",
+                               formatOutputMessage("note.list.not.found", patientId.toString()));
         }
 
         model.addAttribute("noteDtoList", noteDTOPage.getContent());
