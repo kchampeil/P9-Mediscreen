@@ -44,8 +44,8 @@
             <span th:text="'Lastname: '+${patient.lastname}"></span>
         </div>
         <div class="col col-4 text-center">
-            <span th:text="'Date of birth: '+${patient.birthDate}"></span><br>
-            <!--<span th:text="'Date of birth: '+${patient.birthDate}+'('+${age}+' yold)'"></span><br>-->
+            <!--TODEL ? <span th:text="'Date of birth: '+${patient.birthDate}"></span><br> -->
+            <span th:text="'Date of birth: '+${patient.birthDate}+' ('+${age}+' years old)'"></span><br>
             <!--TODO plus tard ajouter l'âge entre parenthèses -->
             <span th:text="'Gender: '+${patient.gender}"></span>
         </div>

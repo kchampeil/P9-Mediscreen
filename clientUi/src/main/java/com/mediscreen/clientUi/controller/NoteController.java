@@ -2,6 +2,8 @@ package com.mediscreen.clientUi.controller;
 
 import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
 
+import java.time.LocalDate;
+import java.time.Period;
 import javax.validation.Valid;
 
 import com.mediscreen.clientUi.constants.LogConstants;
@@ -55,7 +57,9 @@ public class NoteController {
         log.debug(LogConstants.SHOW_NOTES_PER_PAGE_REQUEST_RECEIVED, patientId, currentPage, sortField, sortDir);
 
         try {
-            model.addAttribute("patient", patientProxy.getPatientById(patientId));
+            PatientDTO patientDTO = patientProxy.getPatientById(patientId);
+            model.addAttribute("patient", patientDTO);
+            model.addAttribute("age", Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());
 
         } catch (PatientDoesNotExistException patientDoesNotExistException) {
             log.error(patientDoesNotExistException.getMessage());
@@ -93,7 +97,10 @@ public class NoteController {
         log.debug(LogConstants.SHOW_ADD_NOTE_FORM_RECEIVED);
 
         try {
-            model.addAttribute("patient", patientProxy.getPatientById(patientId));
+            PatientDTO patientDTO = patientProxy.getPatientById(patientId);
+            model.addAttribute("patient", patientDTO);
+            model.addAttribute("age", Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());
+
             model.addAttribute("note", new NoteDTO());
             return ViewNameConstants.ADD_NOTE;
 
@@ -118,6 +125,7 @@ public class NoteController {
             if (result.hasErrors()) {
                 log.error(LogConstants.ADD_NOTE_REQUEST_NOT_VALID);
                 model.addAttribute("patient", patientDTO);
+                model.addAttribute("age", Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());
                 return ViewNameConstants.ADD_NOTE;
             }
 
@@ -147,7 +155,11 @@ public class NoteController {
         try {
             NoteDTO noteDTO = noteProxy.getNoteById(noteId);
             model.addAttribute("note", noteDTO);
-            model.addAttribute("patient", patientProxy.getPatientById(noteDTO.getPatientId()));
+
+            PatientDTO patientDTO = patientProxy.getPatientById(noteDTO.getPatientId());
+            model.addAttribute("patient", patientDTO);
+            model.addAttribute("age", Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());
+
             return ViewNameConstants.UPDATE_NOTE;
 
         } catch (NoteDoesNotExistException noteDoesNotExistException) {
@@ -174,6 +186,8 @@ public class NoteController {
         try {
             PatientDTO patientDTO = patientProxy.getPatientById(noteDTO.getPatientId());
             model.addAttribute("patient", patientDTO);
+            model.addAttribute("age", Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());
+
 
             if (result.hasErrors()) {
                 log.error(LogConstants.UPDATE_NOTE_REQUEST_NOT_VALID + noteId + "\n");
