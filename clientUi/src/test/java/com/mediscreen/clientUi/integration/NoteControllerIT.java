@@ -48,7 +48,7 @@ public class NoteControllerIT {
     @Test
     void showAddForm_WithSuccess() throws Exception {
 
-        mockMvc.perform(get("/note/" + TestConstants.NOTE1_PATIENT_ID + "/add"))
+        mockMvc.perform(get("/note/" + TestConstants.PATIENT1_ID + "/add"))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patient"))
                .andExpect(model().attributeExists("note"))
@@ -58,11 +58,11 @@ public class NoteControllerIT {
     @Test
     void addNote_withSuccess_returnsNoteListView() throws Exception {
 
-        mockMvc.perform(post("/note/" + TestConstants.NOTE1_PATIENT_ID + "/add")
+        mockMvc.perform(post("/note/" + TestConstants.PATIENT1_ID + "/add")
                             .param("note", TestConstants.NOTE1_NOTE))
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
-               .andExpect(redirectedUrl("/note/" + TestConstants.NOTE1_PATIENT_ID + "/list/1"));
+               .andExpect(redirectedUrl("/note/" + TestConstants.PATIENT1_ID + "/list/1"));
     }
 
     @Test
@@ -79,10 +79,10 @@ public class NoteControllerIT {
     void updateNote_withSuccess_returnsNoteListView() throws Exception {
 
         mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
-                            .param("patientId", TestConstants.NOTE1_PATIENT_ID.toString())
+                            .param("patientId", TestConstants.PATIENT1_ID.toString())
                             .param("note", TestConstants.NOTE1_NOTE_UPDATED))
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
-               .andExpect(redirectedUrl("/note/" + TestConstants.NOTE1_PATIENT_ID + "/list/1"));
+               .andExpect(redirectedUrl("/note/" + TestConstants.PATIENT1_ID + "/list/1"));
     }
 }

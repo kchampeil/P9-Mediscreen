@@ -4,8 +4,6 @@ import java.time.LocalDate;
 
 public class TestConstants {
 
-    public static final int TOTAL_LINES_IN_DB = 6;
-    
     public static final Integer PATIENT1_ID = 1;
     public static final String PATIENT1_FIRSTNAME = "Emma";
     public static final String PATIENT1_LASTNAME = "Stone";
@@ -21,9 +19,6 @@ public class TestConstants {
     public static final String PATIENT2_FIRSTNAME = "Elliot";
     public static final String PATIENT2_LASTNAME = "Page";
     public static final LocalDate PATIENT2_BIRTHDATE = LocalDate.of(1987, 02, 21);
-    public static final String PATIENT2_GENDER = "F";
-    public static final String PATIENT2_ADDRESS = "2 rue de Bretagne 75000 PARIS";
-    public static final String PATIENT2_PHONE = "0202020202";
 
     public static final String NEW_PATIENT_FIRSTNAME = "Firstname new";
     public static final String NEW_PATIENT_LASTNAME = "Lastname new";

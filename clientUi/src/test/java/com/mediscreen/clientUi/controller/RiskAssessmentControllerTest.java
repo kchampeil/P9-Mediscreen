@@ -6,22 +6,24 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mediscreen.clientUi.constants.TestConstants;
 import com.mediscreen.clientUi.constants.ViewNameConstants;
 import com.mediscreen.clientUi.proxies.INoteProxy;
 import com.mediscreen.clientUi.proxies.IPatientProxy;
 import com.mediscreen.clientUi.proxies.IRiskAssessmentProxy;
+import com.mediscreen.commons.constants.ExceptionConstants;
 import com.mediscreen.commons.constants.RiskLevel;
 import com.mediscreen.commons.dto.NoteDTO;
 import com.mediscreen.commons.dto.PatientDTO;
 import com.mediscreen.commons.dto.RiskAssessmentDTO;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,10 +35,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(controllers = RiskAssessmentController.class)
 class RiskAssessmentControllerTest {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
     private static PatientDTO patientDTO;
     private static List<NoteDTO> noteDTOList;
-    private static RiskAssessmentDTO riskAssessmentDTO;
 
     @Autowired
     private MockMvc mockMvc;
@@ -69,8 +69,6 @@ class RiskAssessmentControllerTest {
         NoteDTO noteDTO2 = new NoteDTO(TestConstants.NOTE2_ID, TestConstants.PATIENT1_ID, TestConstants.NOTE2_NOTE,
                                        TestConstants.NOTE2_CREATION_DATE, TestConstants.NOTE2_LAST_UPDATE_DATE);
         noteDTOList.add(noteDTO2);
-
-        riskAssessmentDTO = new RiskAssessmentDTO(patientDTO, noteDTOList);
     }
 
     @Test
@@ -91,5 +89,18 @@ class RiskAssessmentControllerTest {
         verify(noteProxyMock, Mockito.times(1)).getAllNotesForPatient(anyInt());
         verify(riskAssessmentProxyMock, Mockito.times(1))
             .getDiabetesRiskForPatient(any(RiskAssessmentDTO.class));
+    }
+
+    @Test
+    void showRiskAssessmentResult_forUnknownPatient_returnsPatientListView() throws Exception {
+
+        when(patientProxyMock.getPatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
+            ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
+
+        mockMvc.perform(get("/assess/{id}", TestConstants.UNKNOWN_PATIENT_ID))
+               .andExpect(status().isFound())
+               .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
+
+        verify(patientProxyMock, Mockito.times(1)).getPatientById(anyInt());
     }
 }

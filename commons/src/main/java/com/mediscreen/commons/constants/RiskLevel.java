@@ -5,7 +5,9 @@ public enum RiskLevel {
     BORDERLINE("Risque limité"),
     IN_DANGER("Danger"),
     EARLY_ONSET("Apparition précoce"),
-    NOT_APPLICABLE("Non applicable");
+    NOT_APPLICABLE("Non applicable (plus de 30 ans et un seul facteur" +
+                   " OU homme de moins de 30 ans et 1 ou 2 facteurs" +
+                   " OU femme de moins de 30 ans et 1 à 3 facteurs");
 
     private final String description;
 
