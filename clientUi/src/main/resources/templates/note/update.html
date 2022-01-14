@@ -31,6 +31,8 @@
                               row="50" th:field="*{note}"></textarea>
                     <p class="text-danger" th:errors="*{note}" th:if="${#fields.hasErrors('note')}"></p>
                 </div>
+                <input class="form-control" id="noteId" name="noteId" readonly th:field="*{id}"
+                       th:type="hidden" th:value="*{id}">
                 <input class="form-control" id="patientId" name="patientId" readonly th:field="*{patientId}"
                        th:type="hidden" th:value="*{patientId}">
                 <input class="form-control" id="creationDate" name="creationDate" readonly th:field="*{creationDate}"

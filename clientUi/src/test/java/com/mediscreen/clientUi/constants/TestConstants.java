@@ -27,6 +27,7 @@ public class TestConstants {
     public static final String NOTE1_ID = "61b85fe5fa8e508d4860c7e9";
     public static final String NOTE1_NOTE = "notes de janvier sur Emma Stone  (NE PAS SUPPRIMER)";
     public static final String NOTE1_NOTE_UPDATED = "notes MODIFIÉES de janvier sur Emma Stone (NE PAS SUPPRIMER)";
+    public static final String NOTE1_NOTE_ADDED_IT = "notes de janvier sur Emma Stone  (AJOUTÉES IT)";
     public static final LocalDate NOTE1_CREATION_DATE = LocalDate.of(2021, 1, 1);
     public static final LocalDate NOTE1_LAST_UPDATE_DATE = LocalDate.of(2021, 12, 1);
 

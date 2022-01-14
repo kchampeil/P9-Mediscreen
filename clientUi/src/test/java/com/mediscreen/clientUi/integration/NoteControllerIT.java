@@ -48,7 +48,7 @@ public class NoteControllerIT {
     @Test
     void showAddForm_WithSuccess() throws Exception {
 
-        mockMvc.perform(get("/note/" + TestConstants.PATIENT1_ID + "/add"))
+        mockMvc.perform(get("/note/add/{patientId}", TestConstants.PATIENT1_ID))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patient"))
                .andExpect(model().attributeExists("note"))
@@ -58,8 +58,8 @@ public class NoteControllerIT {
     @Test
     void addNote_withSuccess_returnsNoteListView() throws Exception {
 
-        mockMvc.perform(post("/note/" + TestConstants.PATIENT1_ID + "/add")
-                            .param("note", TestConstants.NOTE1_NOTE))
+        mockMvc.perform(post("/note/add/{patientId}", TestConstants.PATIENT1_ID)
+                            .param("note", TestConstants.NOTE1_NOTE_ADDED_IT))
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
                .andExpect(redirectedUrl("/note/" + TestConstants.PATIENT1_ID + "/list/1"));
@@ -68,7 +68,7 @@ public class NoteControllerIT {
     @Test
     void showUpdateForm_forExistingNote_returnsNoteUpdateFormInitialized() throws Exception {
 
-        mockMvc.perform(get("/note/update/{id}", TestConstants.NOTE1_ID))
+        mockMvc.perform(get("/note/update/{noteId}", TestConstants.NOTE1_ID))
                .andExpect(status().isOk())
                .andExpect(model().attributeExists("patient"))
                .andExpect(model().attributeExists("note"))
@@ -78,7 +78,7 @@ public class NoteControllerIT {
     @Test
     void updateNote_withSuccess_returnsNoteListView() throws Exception {
 
-        mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+        mockMvc.perform(post("/note/update/{noteId}", TestConstants.NOTE1_ID)
                             .param("patientId", TestConstants.PATIENT1_ID.toString())
                             .param("note", TestConstants.NOTE1_NOTE_UPDATED))
                .andExpect(model().hasNoErrors())

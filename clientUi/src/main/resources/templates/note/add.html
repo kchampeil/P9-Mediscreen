@@ -25,7 +25,7 @@
                   th:text="${infoMessage}"> info Message</span>
 
             <form action="#" class="form-horizontal" method="post" style="width: 100%"
-                  th:action="@{'/note/'+ ${patient.id} +'/add'}" th:object="${note}">
+                  th:action="@{'/note/add/'+ ${patient.id}}" th:object="${note}">
                 <div class="form-group">
                     <textarea class="form-control col-12" id="note" placeholder="Medical note" required
                               row="50" th:field="*{note}"></textarea>

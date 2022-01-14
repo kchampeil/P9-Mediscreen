@@ -172,7 +172,7 @@ public class NoteControllerTest {
 
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
-            mockMvc.perform(get("/note/" + noteDTO.getPatientId() + "/add"))
+            mockMvc.perform(get("/note/add/" + noteDTO.getPatientId()))
                    .andExpect(status().isOk())
                    .andExpect(model().attributeExists("patient"))
                    .andExpect(model().attributeExists("note"))
@@ -186,7 +186,7 @@ public class NoteControllerTest {
             when(patientProxyMock.getPatientById(anyInt()))
                 .thenThrow(new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND));
 
-            mockMvc.perform(get("/note/" + noteDTO.getPatientId() + "/add"))
+            mockMvc.perform(get("/note/add/" + noteDTO.getPatientId()))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("errorMessage"))
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
@@ -205,7 +205,7 @@ public class NoteControllerTest {
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
             when(noteProxyMock.addNote(any(NoteDTO.class))).thenReturn(noteDTO);
 
-            mockMvc.perform(post("/note/" + noteDTO.getPatientId() + "/add")
+            mockMvc.perform(post("/note/add/" + noteDTO.getPatientId())
                                 .param("note", TestConstants.NOTE1_NOTE))
                    .andExpect(model().hasNoErrors())
                    .andExpect(status().isFound())
@@ -220,7 +220,7 @@ public class NoteControllerTest {
 
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
-            mockMvc.perform(post("/note/" + noteDTO.getPatientId() + "/add")
+            mockMvc.perform(post("/note/add/" + noteDTO.getPatientId())
                                 .param("note", ""))
                    .andExpect(status().isOk())
                    .andExpect(model().attributeExists("note"))
@@ -237,7 +237,7 @@ public class NoteControllerTest {
             when(patientProxyMock.getPatientById(anyInt()))
                 .thenThrow(new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND));
 
-            mockMvc.perform(post("/note/" + noteDTO.getPatientId() + "/add")
+            mockMvc.perform(post("/note/add/" + noteDTO.getPatientId())
                                 .param("note", noteDTO.getNote()))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("errorMessage"))
@@ -258,7 +258,7 @@ public class NoteControllerTest {
             when(noteProxyMock.getNoteById(anyString())).thenReturn(noteDTO);
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
-            mockMvc.perform(get("/note/update/{id}", TestConstants.NOTE1_ID))
+            mockMvc.perform(get("/note/update/{noteId}", TestConstants.NOTE1_ID))
                    .andExpect(status().isOk())
                    .andExpect(model().attributeExists("patient"))
                    .andExpect(model().attributeExists("note"))
@@ -274,7 +274,7 @@ public class NoteControllerTest {
             when(noteProxyMock.getNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
                 ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
 
-            mockMvc.perform(get("/note/update/{id}", TestConstants.UNKNOWN_NOTE_ID))
+            mockMvc.perform(get("/note/update/{noteId}", TestConstants.UNKNOWN_NOTE_ID))
                    .andExpect(status().isFound())
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
 
@@ -289,7 +289,7 @@ public class NoteControllerTest {
             when(patientProxyMock.getPatientById(anyInt())).thenThrow(new PatientDoesNotExistException(
                 ExceptionConstants.PATIENT_NOT_FOUND + TestConstants.UNKNOWN_PATIENT_ID));
 
-            mockMvc.perform(get("/note/update/{id}", TestConstants.NOTE1_ID))
+            mockMvc.perform(get("/note/update/{noteId}", TestConstants.NOTE1_ID))
                    .andExpect(status().isFound())
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));
 
@@ -307,7 +307,7 @@ public class NoteControllerTest {
             when(noteProxyMock.updateNote(any(NoteDTO.class))).thenReturn(noteDTO);
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
-            mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+            mockMvc.perform(post("/note/update/{noteId}", TestConstants.NOTE1_ID)
                                 .param("patientId", TestConstants.PATIENT1_ID.toString())
                                 .param("note", TestConstants.NOTE1_NOTE))
                    .andExpect(model().hasNoErrors())
@@ -323,7 +323,7 @@ public class NoteControllerTest {
 
             when(patientProxyMock.getPatientById(anyInt())).thenReturn(patientDTO);
 
-            mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+            mockMvc.perform(post("/note/update/{noteId}", TestConstants.NOTE1_ID)
                                 .param("patientId", TestConstants.PATIENT1_ID.toString())
                                 .param("note", ""))
                    .andExpect(status().isOk())
@@ -342,7 +342,7 @@ public class NoteControllerTest {
             when(noteProxyMock.updateNote(any(NoteDTO.class))).thenThrow(new NoteDoesNotExistException(
                 ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
 
-            mockMvc.perform(post("/note/update/{id}", TestConstants.UNKNOWN_NOTE_ID)
+            mockMvc.perform(post("/note/update/{noteId}", TestConstants.UNKNOWN_NOTE_ID)
                                 .param("patientId", TestConstants.PATIENT1_ID.toString())
                                 .param("note", TestConstants.NOTE1_NOTE))
                    .andExpect(status().isOk())
@@ -361,7 +361,7 @@ public class NoteControllerTest {
             when(noteProxyMock.updateNote(any(NoteDTO.class))).thenThrow(new NoteDoesNotExistException(
                 ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
 
-            mockMvc.perform(post("/note/update/{id}", TestConstants.NOTE1_ID)
+            mockMvc.perform(post("/note/update/{noteId}", TestConstants.NOTE1_ID)
                                 .param("patientId", TestConstants.UNKNOWN_PATIENT_ID.toString())
                                 .param("note", TestConstants.NOTE1_NOTE))
                    .andExpect(status().isFound())
@@ -383,7 +383,7 @@ public class NoteControllerTest {
             when(noteProxyMock.getNoteById(anyString())).thenReturn(noteDTO);
             when(noteProxyMock.deleteNoteById(anyString())).thenReturn(HttpStatus.OK.value());
 
-            mockMvc.perform(get("/note/delete/{id}", TestConstants.NOTE1_ID))
+            mockMvc.perform(get("/note/delete/{noteId}", TestConstants.NOTE1_ID))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("infoMessage"))
                    .andExpect(redirectedUrl("/note/" + TestConstants.PATIENT1_ID + "/list/1"));
@@ -400,7 +400,7 @@ public class NoteControllerTest {
             when(noteProxyMock.deleteNoteById(anyString())).thenThrow(new NoteDoesNotExistException(
                 ExceptionConstants.NOTE_NOT_FOUND + TestConstants.UNKNOWN_NOTE_ID));
 
-            mockMvc.perform(get("/note/delete/{id}", TestConstants.UNKNOWN_NOTE_ID))
+            mockMvc.perform(get("/note/delete/{noteId}", TestConstants.UNKNOWN_NOTE_ID))
                    .andExpect(status().isFound())
                    .andExpect(flash().attributeExists("errorMessage"))
                    .andExpect(redirectedUrl(ViewNameConstants.HOME_DOCTOR));

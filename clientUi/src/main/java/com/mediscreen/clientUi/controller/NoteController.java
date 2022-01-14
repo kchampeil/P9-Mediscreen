@@ -89,7 +89,7 @@ public class NoteController {
         return ViewNameConstants.SHOW_ALL_NOTES_FOR_PATIENT;
     }
 
-    @GetMapping("/note/{patientId}/add")
+    @GetMapping("/note/add/{patientId}")
     public String showAddForm(Model model, RedirectAttributes redirectAttributes,
                               @PathVariable("patientId") Integer patientId) {
 
@@ -112,7 +112,7 @@ public class NoteController {
         }
     }
 
-    @PostMapping("/note/{patientId}/add")
+    @PostMapping("/note/add/{patientId}")
     public String addNote(@PathVariable("patientId") Integer patientId,
                           @ModelAttribute("note") @Valid NoteDTO noteDTO,
                           BindingResult result, Model model, RedirectAttributes redirectAttributes) {
@@ -145,8 +145,8 @@ public class NoteController {
         }
     }
 
-    @GetMapping("/note/update/{id}")
-    public String showUpdateForm(@PathVariable("id") String noteId, Model model,
+    @GetMapping("/note/update/{noteId}")
+    public String showUpdateForm(@PathVariable("noteId") String noteId, Model model,
                                  RedirectAttributes redirectAttributes) {
 
         log.debug(LogConstants.SHOW_UPDATE_NOTE_FORM_RECEIVED, noteId);
@@ -176,8 +176,8 @@ public class NoteController {
         }
     }
 
-    @PostMapping("/note/update/{id}")
-    public String updateNote(@PathVariable("id") String noteId,
+    @PostMapping("/note/update/{noteId}")
+    public String updateNote(@PathVariable("noteId") String noteId,
                              @ModelAttribute("note") @Valid NoteDTO noteDTO,
                              BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         log.debug(LogConstants.UPDATE_NOTE_RECEIVED, noteId);
@@ -222,8 +222,8 @@ public class NoteController {
         }
     }
 
-    @GetMapping("/note/delete/{id}")
-    public String deleteNote(@PathVariable("id") String noteId, RedirectAttributes redirectAttributes) {
+    @GetMapping("/note/delete/{noteId}")
+    public String deleteNote(@PathVariable("noteId") String noteId, RedirectAttributes redirectAttributes) {
 
         log.debug(LogConstants.DELETE_NOTE_REQUEST_RECEIVED, noteId);
 

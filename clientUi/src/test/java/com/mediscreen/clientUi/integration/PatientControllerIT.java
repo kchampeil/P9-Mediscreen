@@ -81,9 +81,5 @@ public class PatientControllerIT {
                .andExpect(model().hasNoErrors())
                .andExpect(status().isFound())
                .andExpect(redirectedUrl(ViewNameConstants.HOME_ORGANIZER));
-
-        /* TOASK :delete patient after test à faire avec le @DeleteMapping sur id retour du modèle
-            une fois qu'il sera implémenté         */
-
     }
 }
