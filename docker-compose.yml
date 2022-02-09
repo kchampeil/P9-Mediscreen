@@ -1,42 +1,19 @@
 version: '3.8'
 
 services:
-  patient-db:
-    image: mysql
-    volumes:
-      - patient_db:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: rootPassword
-      MYSQL_DATABASE: patientprod
-      MYSQL_USER: mediscreen
-      MYSQL_PASSWORD: Med!scr€en
-    # TODEL <Port exposed> : < MySQL Port running inside container> // pas nécessaire car dans le même network ?
-    ports:
-      - "6033:3306"
-
   patient-api:
-    depends_on:
-      - patient-db
     image: patient-api
     ports:
       - "8085:8085"
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
 
-  note-db:
-    image: mongo
-    #volumes:
-    #  - note_db: /data/db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: rootUser
-      MONGO_INITDB_ROOT_PASSWORD: rootPassword
-    ports:
-      - "27017:27017"
-
   note-api:
     image: note-api
     ports:
       - "8086:8086"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
 
   risk-api:
     image: risk-api
@@ -53,7 +30,3 @@ services:
       - patient-api
       - note-api
       - risk-api
-
-volumes:
-  patient_db:
-  note_db:
