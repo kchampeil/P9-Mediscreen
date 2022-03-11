@@ -109,6 +109,7 @@
         <configuration>
           <excludes>
             <exclude>com/mediscreen/clientUi/constants/**/*</exclude>
+            <exclude>com/mediscreen/clientUi/utils/**/*</exclude>
           </excludes>
         </configuration>
         <executions>
