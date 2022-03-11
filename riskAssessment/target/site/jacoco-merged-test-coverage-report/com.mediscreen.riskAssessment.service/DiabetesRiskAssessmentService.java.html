@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiabetesRiskAssessmentService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">riskAssessment</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.riskAssessment.service</a> &gt; <span class="el_source">DiabetesRiskAssessmentService.java</span></div><h1>DiabetesRiskAssessmentService.java</h1><pre class="source lang-java linenums">package com.mediscreen.riskAssessment.service;
+
+import static com.mediscreen.riskAssessment.constants.RiskConstants.FEMALE;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MALE;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_BORDERLINE_ABOVE_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_EARLY_ONSET_ABOVE_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_EARLY_ONSET_FEMALE_UNDER_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_EARLY_ONSET_MALE_UNDER_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_IN_DANGER_ABOVE_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_IN_DANGER_FEMALE_UNDER_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.MIN_RISK_FACTORS_FOR_IN_DANGER_MALE_UNDER_AGE_LIMIT;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.NUMBER_RISK_FACTORS_FOR_NONE;
+import static com.mediscreen.riskAssessment.constants.RiskConstants.RISK_AGE_LIMIT;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+import java.util.Locale;
+
+import com.mediscreen.commons.constants.RiskLevel;
+import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.dto.RiskAssessmentDTO;
+import com.mediscreen.riskAssessment.constants.DiabetesRiskFactors;
+import com.mediscreen.riskAssessment.service.contracts.IRiskAssessmentService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ * Risk assessment for diabetes
+ */
+
+<span class="fc" id="L33">@Slf4j</span>
+@Service
+public class DiabetesRiskAssessmentService implements IRiskAssessmentService {
+
+    @Autowired
+<span class="fc" id="L38">    public DiabetesRiskAssessmentService() {</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * evaluate diabetes risk for one given patient and his medical notes
+     *
+     * @param riskAssessmentDTO information and medical notes about patient
+     * @return risk level
+     */
+    @Override
+
+    public RiskLevel evaluateRisk(RiskAssessmentDTO riskAssessmentDTO) {
+
+<span class="fc" id="L51">        int age = Period.between(riskAssessmentDTO.getPatientDTO().getBirthDate(), LocalDate.now()).getYears();</span>
+
+<span class="fc" id="L53">        int numberOfRiskFactors = countRiskFactors(riskAssessmentDTO.getNoteDTOList());</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (numberOfRiskFactors == NUMBER_RISK_FACTORS_FOR_NONE) {</span>
+<span class="fc" id="L56">            return RiskLevel.NONE;</span>
+        }
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (age &gt; RISK_AGE_LIMIT) {</span>
+<span class="fc" id="L60">            return calculateRiskForPatientAboveRiskAgeLimit(numberOfRiskFactors);</span>
+        }
+
+<span class="fc" id="L63">        return calculateRiskForPatientUnderRiskAgeLimit(numberOfRiskFactors, riskAssessmentDTO.getPatientDTO()</span>
+<span class="fc" id="L64">                                                                                              .getGender());</span>
+    }
+
+    /**
+     * count risk factors in patient's medical notes
+     *
+     * @param noteDTOList medical notes for the patient
+     * @return the number of risk factors
+     */
+    private int countRiskFactors(List&lt;NoteDTO&gt; noteDTOList) {
+
+<span class="fc" id="L75">        int numberOfRiskFactors = 0;</span>
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        for (DiabetesRiskFactors riskFactor : DiabetesRiskFactors.values()) {</span>
+<span class="fc" id="L78">            numberOfRiskFactors += noteDTOList.stream()</span>
+<span class="fc" id="L79">                                              .filter(noteDTO -&gt; noteDTO.getNote()</span>
+<span class="fc" id="L80">                                                                        .toUpperCase(Locale.ROOT)</span>
+<span class="fc" id="L81">                                                                        .contains(riskFactor.getDescription()</span>
+<span class="fc" id="L82">                                                                                            .toUpperCase(Locale.ROOT)))</span>
+<span class="fc" id="L83">                                              .count();</span>
+        }
+
+<span class="fc" id="L86">        return numberOfRiskFactors;</span>
+    }
+
+    /**
+     * calculate diabetes risk for patient above thirty years old
+     *
+     * @param numberOfRiskFactors found in patient's medical notes
+     * @return risk level for diabetes
+     */
+    private RiskLevel calculateRiskForPatientAboveRiskAgeLimit(int numberOfRiskFactors) {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_EARLY_ONSET_ABOVE_AGE_LIMIT) { //8</span>
+<span class="fc" id="L97">            return RiskLevel.EARLY_ONSET;</span>
+        }
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_IN_DANGER_ABOVE_AGE_LIMIT) { //6</span>
+<span class="fc" id="L100">            return RiskLevel.IN_DANGER;</span>
+        }
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_BORDERLINE_ABOVE_AGE_LIMIT) { //2</span>
+<span class="fc" id="L103">            return RiskLevel.BORDERLINE;</span>
+        }
+<span class="fc" id="L105">        return RiskLevel.NOT_APPLICABLE;</span>
+    }
+
+    /**
+     * calculate diabetes risk for patient under thirty years old (included)
+     *
+     * @param numberOfRiskFactors found in patient's medical notes
+     * @param gender              of the patient
+     * @return risk level for diabetes
+     */
+    private RiskLevel calculateRiskForPatientUnderRiskAgeLimit(int numberOfRiskFactors, String gender) {
+<span class="pc bpc" id="L116" title="1 of 3 branches missed.">        switch (gender) {</span>
+            case MALE:
+<span class="fc bfc" id="L118" title="All 2 branches covered.">                if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_EARLY_ONSET_MALE_UNDER_AGE_LIMIT) { //5</span>
+<span class="fc" id="L119">                    return RiskLevel.EARLY_ONSET;</span>
+                }
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_IN_DANGER_MALE_UNDER_AGE_LIMIT) { //3</span>
+<span class="fc" id="L122">                    return RiskLevel.IN_DANGER;</span>
+                }
+
+            case FEMALE:
+<span class="fc bfc" id="L126" title="All 2 branches covered.">                if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_EARLY_ONSET_FEMALE_UNDER_AGE_LIMIT) { //7</span>
+<span class="fc" id="L127">                    return RiskLevel.EARLY_ONSET;</span>
+                }
+<span class="fc bfc" id="L129" title="All 2 branches covered.">                if (numberOfRiskFactors &gt;= MIN_RISK_FACTORS_FOR_IN_DANGER_FEMALE_UNDER_AGE_LIMIT) { //4</span>
+<span class="fc" id="L130">                    return RiskLevel.IN_DANGER;</span>
+                }
+
+            default:
+<span class="fc" id="L134">                return RiskLevel.NOT_APPLICABLE;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

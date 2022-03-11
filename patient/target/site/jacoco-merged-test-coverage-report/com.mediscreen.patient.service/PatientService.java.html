@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PatientService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">patient</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.patient.service</a> &gt; <span class="el_source">PatientService.java</span></div><h1>PatientService.java</h1><pre class="source lang-java linenums">package com.mediscreen.patient.service;
+
+import java.util.Optional;
+
+import com.mediscreen.commons.constants.ExceptionConstants;
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
+import com.mediscreen.patient.constants.LogConstants;
+import com.mediscreen.patient.model.Patient;
+import com.mediscreen.patient.repository.PatientRepository;
+import com.mediscreen.patient.service.contracts.IPatientService;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+<span class="fc" id="L23">@Slf4j</span>
+@Service
+@Transactional
+public class PatientService implements IPatientService {
+
+<span class="fc" id="L28">    private static final ModelMapper modelMapper = new ModelMapper();</span>
+    public final PatientRepository patientRepository;
+
+    @Autowired
+<span class="fc" id="L32">    public PatientService(PatientRepository patientRepository) {</span>
+<span class="fc" id="L33">        this.patientRepository = patientRepository;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * get all registered patients (DTO) for a given page number, items per page
+     * sorted on one given field with one direction
+     *
+     * @param pageNumber   page we want to retrieve the list of patients
+     * @param itemsPerPage number of items per page
+     * @param sortField    sorted field
+     * @param sortDir      sorted direction
+     * @return Page of PatientDTO
+     */
+    @Override
+    public Page&lt;PatientDTO&gt; getAllPatientsPageable(int pageNumber, int itemsPerPage, String sortField,
+                                                   String sortDir) {
+<span class="fc" id="L49">        log.debug(LogConstants.GET_ALL_PATIENTS_PER_PAGE_SERVICE_CALL);</span>
+
+<span class="fc" id="L51">        Sort sort = Sort.by(sortField);</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">        sort = sortDir.equals(&quot;asc&quot;) ? sort.ascending() : sort.descending();</span>
+<span class="fc" id="L53">        Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);</span>
+
+<span class="fc" id="L55">        Page&lt;PatientDTO&gt; patientDTOPage = patientRepository.findAll(pageable)</span>
+<span class="fc" id="L56">                                                           .map(patient -&gt; modelMapper.map(patient, PatientDTO.class));</span>
+
+<span class="fc" id="L58">        log.debug(LogConstants.GET_ALL_PATIENTS_PER_PAGE_SERVICE_OK, pageNumber);</span>
+
+<span class="fc" id="L60">        return patientDTOPage;</span>
+    }
+
+    /**
+     * get all patient's information  from his id
+     *
+     * @param patientId id of the patient
+     * @return patient information (DTO)
+     * @throws PatientDoesNotExistException if no patient found for the id
+     */
+    @Override
+    public PatientDTO getPatientById(Integer patientId) throws PatientDoesNotExistException {
+<span class="fc" id="L72">        log.debug(LogConstants.GET_PATIENT_BY_ID_SERVICE_CALL);</span>
+
+<span class="fc" id="L74">        Optional&lt;Patient&gt; patient = patientRepository.findById(patientId);</span>
+
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (patient.isPresent()) {</span>
+<span class="fc" id="L77">            log.debug(LogConstants.GET_PATIENT_BY_ID_SERVICE_OK, patientId);</span>
+<span class="fc" id="L78">            return modelMapper.map(patient.get(), PatientDTO.class);</span>
+
+        } else {
+<span class="fc" id="L81">            log.error(LogConstants.PATIENT_SERVICE_NOT_FOUND, patientId);</span>
+<span class="fc" id="L82">            throw new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId);</span>
+        }
+
+    }
+
+    /**
+     * update a patient
+     *
+     * @param patientDtoToUpdate new information for the patient
+     * @return updated patient (DTO)
+     * @throws PatientDoesNotExistException if no patient found to update
+     * @throws PatientAlreadyExistException if one patient already exists with the same firstname, lastname and
+     *                                      birthdate
+     */
+    @Override
+    public PatientDTO updatePatient(PatientDTO patientDtoToUpdate)
+        throws PatientDoesNotExistException, PatientAlreadyExistException {
+
+<span class="fc" id="L100">        log.debug(LogConstants.UPDATE_PATIENT_SERVICE_CALL);</span>
+
+        try {
+            /* check if patient exists for the id */
+<span class="fc" id="L104">            this.getPatientById(patientDtoToUpdate.getId());</span>
+
+            /* check if a patient with same firstname+lastname+birthdate already exists with another patient id */
+<span class="fc" id="L107">            Optional&lt;Patient&gt; existingPatient =</span>
+<span class="fc" id="L108">                patientRepository.findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(</span>
+<span class="fc" id="L109">                    patientDtoToUpdate.getFirstname(), patientDtoToUpdate.getLastname(),</span>
+<span class="fc" id="L110">                    patientDtoToUpdate.getBirthDate());</span>
+
+<span class="pc bpc" id="L112" title="1 of 4 branches missed.">            if (existingPatient.isPresent() &amp;&amp; !patientDtoToUpdate.getId().equals(existingPatient.get().getId())) {</span>
+<span class="fc" id="L113">                log.error(LogConstants.PATIENT_SERVICE_ALREADY_EXISTS);</span>
+<span class="fc" id="L114">                throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);</span>
+
+            } else {
+
+<span class="fc" id="L118">                Patient updatedPatient = patientRepository.save(modelMapper.map(patientDtoToUpdate, Patient.class));</span>
+
+<span class="fc" id="L120">                log.debug(LogConstants.UPDATE_PATIENT_SERVICE_OK, updatedPatient.getId());</span>
+<span class="fc" id="L121">                return modelMapper.map(updatedPatient, PatientDTO.class);</span>
+            }
+
+<span class="fc" id="L124">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L125">            log.error(LogConstants.UPDATE_PATIENT_SERVICE_NOT_FOUND, patientDtoToUpdate.getId());</span>
+<span class="fc" id="L126">            throw patientDoesNotExistException;</span>
+        }
+    }
+
+    /**
+     * add a patient
+     *
+     * @param patientDtoToAdd information for the patient to add
+     * @return added patient (DTO)
+     * @throws PatientAlreadyExistException if one patient already exists with the same firstname, lastname and
+     *                                      birthdate
+     */
+    @Override
+    public PatientDTO addPatient(PatientDTO patientDtoToAdd) throws PatientAlreadyExistException {
+
+<span class="fc" id="L141">        log.debug(LogConstants.ADD_PATIENT_SERVICE_CALL);</span>
+
+        /* check if a patient with same firstname+lastname+birthdate already exists */
+<span class="fc" id="L144">        Optional&lt;Patient&gt; existingPatient =</span>
+<span class="fc" id="L145">            patientRepository.findPatientByFirstnameAndLastnameAndBirthDateAllIgnoreCase(</span>
+<span class="fc" id="L146">                patientDtoToAdd.getFirstname(), patientDtoToAdd.getLastname(),</span>
+<span class="fc" id="L147">                patientDtoToAdd.getBirthDate());</span>
+
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        if (existingPatient.isPresent()) {</span>
+<span class="fc" id="L150">            log.error(LogConstants.PATIENT_SERVICE_ALREADY_EXISTS);</span>
+<span class="fc" id="L151">            throw new PatientAlreadyExistException(ExceptionConstants.PATIENT_ALREADY_EXISTS);</span>
+
+        } else {
+<span class="fc" id="L154">            Patient addedPatient = patientRepository.save(modelMapper.map(patientDtoToAdd, Patient.class));</span>
+
+<span class="fc" id="L156">            log.debug(LogConstants.ADD_PATIENT_SERVICE_OK, addedPatient.getId());</span>
+<span class="fc" id="L157">            return modelMapper.map(addedPatient, PatientDTO.class);</span>
+        }
+    }
+
+    /**
+     * delete a patient
+     *
+     * @param patientId of the patient to delete
+     * @throws PatientDoesNotExistException if no patient found to delete
+     */
+    @Override
+    public void deletePatientById(Integer patientId) throws PatientDoesNotExistException {
+
+<span class="fc" id="L170">        log.debug(LogConstants.DELETE_PATIENT_BY_ID_SERVICE_CALL);</span>
+
+<span class="fc" id="L172">        patientRepository.findById(patientId)</span>
+<span class="fc" id="L173">                         .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L174">                             log.error(LogConstants.PATIENT_SERVICE_NOT_FOUND, patientId);</span>
+<span class="fc" id="L175">                             return new PatientDoesNotExistException(ExceptionConstants.PATIENT_NOT_FOUND + patientId);</span>
+                         });
+
+<span class="fc" id="L178">        patientRepository.deleteById(patientId);</span>
+<span class="fc" id="L179">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

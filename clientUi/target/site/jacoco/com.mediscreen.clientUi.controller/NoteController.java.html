@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NoteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">clientUi</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.clientUi.controller</a> &gt; <span class="el_source">NoteController.java</span></div><h1>NoteController.java</h1><pre class="source lang-java linenums">package com.mediscreen.clientUi.controller;
+
+import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
+
+import java.time.LocalDate;
+import java.time.Period;
+import javax.validation.Valid;
+
+import com.mediscreen.clientUi.constants.LogConstants;
+import com.mediscreen.clientUi.constants.ProfileConstants;
+import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.clientUi.proxies.INoteProxy;
+import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+<span class="fc" id="L31">@Slf4j</span>
+@Controller
+public class NoteController {
+
+    private final INoteProxy noteProxy;
+    private final IPatientProxy patientProxy;
+
+    @Autowired
+<span class="fc" id="L39">    public NoteController(INoteProxy noteProxy, IPatientProxy patientProxy) {</span>
+<span class="fc" id="L40">        this.noteProxy = noteProxy;</span>
+<span class="fc" id="L41">        this.patientProxy = patientProxy;</span>
+<span class="fc" id="L42">    }</span>
+
+    @GetMapping(&quot;/note/{patientId}/list/{page}&quot;)
+    public String showAllNotesForPatientByPage(Model model, RedirectAttributes redirectAttributes,
+                                               @PathVariable(&quot;patientId&quot;) Integer patientId,
+                                               @PathVariable(&quot;page&quot;) int currentPage,
+                                               @RequestParam(value = &quot;sortField&quot;,
+                                                             defaultValue =
+                                                                 ProfileConstants.DOCTOR_DEFAULT_SORT_FIELD_FOR_NOTES) String sortField,
+                                               @RequestParam(value = &quot;sortDir&quot;,
+                                                             defaultValue =
+                                                                 ProfileConstants.DOCTOR_DEFAULT_SORT_DIRECTION) String sortDir,
+                                               @RequestParam(value = &quot;itemsPerPage&quot;,
+                                                             defaultValue = ProfileConstants.DEFAULT_ITEMS_PER_PAGE) int itemsPerPage) {
+
+<span class="fc" id="L57">        log.debug(LogConstants.SHOW_NOTES_PER_PAGE_REQUEST_RECEIVED, patientId, currentPage, sortField, sortDir);</span>
+
+        try {
+<span class="fc" id="L60">            PatientDTO patientDTO = patientProxy.getPatientById(patientId);</span>
+<span class="fc" id="L61">            model.addAttribute(&quot;patient&quot;, patientDTO);</span>
+<span class="fc" id="L62">            model.addAttribute(&quot;age&quot;, Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());</span>
+
+<span class="fc" id="L64">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L65">            log.error(patientDoesNotExistException.getMessage());</span>
+<span class="fc" id="L66">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L67">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+<span class="fc" id="L68">                                                                     patientId.toString()));</span>
+<span class="fc" id="L69">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+<span class="fc" id="L70">        }</span>
+
+<span class="fc" id="L72">        Page&lt;NoteDTO&gt; noteDTOPage = noteProxy.getAllNotesForPatientByPage(patientId, currentPage, itemsPerPage,</span>
+                                                                          sortField, sortDir);
+
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (noteDTOPage.isEmpty()) {</span>
+<span class="fc" id="L76">            model.addAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L77">                               formatOutputMessage(&quot;note.list.not.found&quot;, patientId.toString()));</span>
+        }
+
+<span class="fc" id="L80">        model.addAttribute(&quot;noteDtoList&quot;, noteDTOPage.getContent());</span>
+<span class="fc" id="L81">        model.addAttribute(&quot;currentPage&quot;, currentPage);</span>
+<span class="fc" id="L82">        model.addAttribute(&quot;totalPages&quot;, noteDTOPage.getTotalPages());</span>
+<span class="fc" id="L83">        model.addAttribute(&quot;totalItems&quot;, noteDTOPage.getTotalElements());</span>
+<span class="fc" id="L84">        model.addAttribute(&quot;itemsPerPage&quot;, itemsPerPage);</span>
+<span class="fc" id="L85">        model.addAttribute(&quot;sortField&quot;, sortField);</span>
+<span class="fc" id="L86">        model.addAttribute(&quot;sortDir&quot;, sortDir);</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        model.addAttribute(&quot;reverseSortDir&quot;, sortDir.equals(&quot;asc&quot;) ? &quot;desc&quot; : &quot;asc&quot;);</span>
+
+<span class="fc" id="L89">        return ViewNameConstants.SHOW_ALL_NOTES_FOR_PATIENT;</span>
+    }
+
+    @GetMapping(&quot;/note/add/{patientId}&quot;)
+    public String showAddForm(Model model, RedirectAttributes redirectAttributes,
+                              @PathVariable(&quot;patientId&quot;) Integer patientId) {
+
+<span class="fc" id="L96">        log.debug(LogConstants.SHOW_ADD_NOTE_FORM_RECEIVED);</span>
+
+        try {
+<span class="fc" id="L99">            PatientDTO patientDTO = patientProxy.getPatientById(patientId);</span>
+<span class="fc" id="L100">            model.addAttribute(&quot;patient&quot;, patientDTO);</span>
+<span class="fc" id="L101">            model.addAttribute(&quot;age&quot;, Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());</span>
+
+<span class="fc" id="L103">            model.addAttribute(&quot;note&quot;, new NoteDTO());</span>
+<span class="fc" id="L104">            return ViewNameConstants.ADD_NOTE;</span>
+
+<span class="fc" id="L106">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L107">            log.error(patientDoesNotExistException.getMessage());</span>
+<span class="fc" id="L108">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L109">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+<span class="fc" id="L110">                                                                     patientId.toString()));</span>
+<span class="fc" id="L111">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+        }
+    }
+
+    @PostMapping(&quot;/note/add/{patientId}&quot;)
+    public String addNote(@PathVariable(&quot;patientId&quot;) Integer patientId,
+                          @ModelAttribute(&quot;note&quot;) @Valid NoteDTO noteDTO,
+                          BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+<span class="fc" id="L119">        log.debug(LogConstants.ADD_NOTE_RECEIVED, patientId);</span>
+
+        try {
+<span class="fc" id="L122">            PatientDTO patientDTO = patientProxy.getPatientById(patientId);</span>
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            if (result.hasErrors()) {</span>
+<span class="fc" id="L125">                log.error(LogConstants.ADD_NOTE_REQUEST_NOT_VALID);</span>
+<span class="fc" id="L126">                model.addAttribute(&quot;patient&quot;, patientDTO);</span>
+<span class="fc" id="L127">                model.addAttribute(&quot;age&quot;, Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());</span>
+<span class="fc" id="L128">                return ViewNameConstants.ADD_NOTE;</span>
+            }
+
+<span class="fc" id="L131">            noteDTO.setPatientId(patientId);</span>
+<span class="fc" id="L132">            noteDTO = noteProxy.addNote(noteDTO);</span>
+<span class="fc" id="L133">            log.info(LogConstants.ADD_NOTE_REQUEST_OK, noteDTO.getId());</span>
+
+<span class="fc" id="L135">            redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L136">                                                 formatOutputMessage(&quot;note.add.ok&quot;,</span>
+<span class="fc" id="L137">                                                                     noteDTO.getCreationDate().toString()));</span>
+<span class="fc" id="L138">            return &quot;redirect:/note/&quot; + patientId + &quot;/list/1&quot;;</span>
+<span class="fc" id="L139">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L140">            log.error(patientDoesNotExistException.getMessage());</span>
+<span class="fc" id="L141">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L142">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+<span class="fc" id="L143">                                                                     patientId.toString()));</span>
+<span class="fc" id="L144">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+        }
+    }
+
+    @GetMapping(&quot;/note/update/{noteId}&quot;)
+    public String showUpdateForm(@PathVariable(&quot;noteId&quot;) String noteId, Model model,
+                                 RedirectAttributes redirectAttributes) {
+
+<span class="fc" id="L152">        log.debug(LogConstants.SHOW_UPDATE_NOTE_FORM_RECEIVED, noteId);</span>
+
+        try {
+<span class="fc" id="L155">            NoteDTO noteDTO = noteProxy.getNoteById(noteId);</span>
+<span class="fc" id="L156">            model.addAttribute(&quot;note&quot;, noteDTO);</span>
+
+<span class="fc" id="L158">            PatientDTO patientDTO = patientProxy.getPatientById(noteDTO.getPatientId());</span>
+<span class="fc" id="L159">            model.addAttribute(&quot;patient&quot;, patientDTO);</span>
+<span class="fc" id="L160">            model.addAttribute(&quot;age&quot;, Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());</span>
+
+<span class="fc" id="L162">            return ViewNameConstants.UPDATE_NOTE;</span>
+
+<span class="fc" id="L164">        } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L165">            log.error(noteDoesNotExistException.getMessage() + noteId);</span>
+<span class="fc" id="L166">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L167">                                                 formatOutputMessage(&quot;note.not.found&quot;, noteId));</span>
+<span class="fc" id="L168">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+
+<span class="fc" id="L170">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L171">            log.error(patientDoesNotExistException.getMessage() + &quot;for note: &quot; + noteId);</span>
+<span class="fc" id="L172">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L173">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+                                                                     noteId));
+<span class="fc" id="L175">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+        }
+    }
+
+    @PostMapping(&quot;/note/update/{noteId}&quot;)
+    public String updateNote(@PathVariable(&quot;noteId&quot;) String noteId,
+                             @ModelAttribute(&quot;note&quot;) @Valid NoteDTO noteDTO,
+                             BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+<span class="fc" id="L183">        log.debug(LogConstants.UPDATE_NOTE_RECEIVED, noteId);</span>
+
+        try {
+<span class="fc" id="L186">            PatientDTO patientDTO = patientProxy.getPatientById(noteDTO.getPatientId());</span>
+<span class="fc" id="L187">            model.addAttribute(&quot;patient&quot;, patientDTO);</span>
+<span class="fc" id="L188">            model.addAttribute(&quot;age&quot;, Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());</span>
+
+
+<span class="fc bfc" id="L191" title="All 2 branches covered.">            if (result.hasErrors()) {</span>
+<span class="fc" id="L192">                log.error(LogConstants.UPDATE_NOTE_REQUEST_NOT_VALID + noteId + &quot;\n&quot;);</span>
+<span class="fc" id="L193">                return ViewNameConstants.UPDATE_NOTE;</span>
+            }
+
+            try {
+<span class="fc" id="L197">                NoteDTO noteDtoUpdated = noteProxy.updateNote(noteDTO);</span>
+
+<span class="fc" id="L199">                log.info(LogConstants.UPDATE_NOTE_REQUEST_OK, noteId);</span>
+
+<span class="fc" id="L201">                redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L202">                                                     formatOutputMessage(&quot;note.update.ok&quot;,</span>
+<span class="fc" id="L203">                                                                         noteDtoUpdated.getLastUpdateDate()</span>
+<span class="fc" id="L204">                                                                                       .toString()));</span>
+<span class="fc" id="L205">                return &quot;redirect:/note/&quot; + noteDTO.getPatientId() + &quot;/list/1&quot;;</span>
+
+<span class="fc" id="L207">            } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L208">                log.error(LogConstants.UPDATE_NOTE_REQUEST_KO, noteId, noteDoesNotExistException.getMessage());</span>
+<span class="fc" id="L209">                model.addAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L210">                                   formatOutputMessage(&quot;note.update.ko&quot;, noteId)</span>
+<span class="fc" id="L211">                                   + noteDoesNotExistException.getMessage());</span>
+
+<span class="fc" id="L213">                return ViewNameConstants.UPDATE_NOTE;</span>
+            }
+
+<span class="fc" id="L216">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L217">            log.error(patientDoesNotExistException.getMessage());</span>
+<span class="fc" id="L218">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L219">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+<span class="fc" id="L220">                                                                     noteDTO.getPatientId().toString()));</span>
+<span class="fc" id="L221">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+        }
+    }
+
+    @GetMapping(&quot;/note/delete/{noteId}&quot;)
+    public String deleteNote(@PathVariable(&quot;noteId&quot;) String noteId, RedirectAttributes redirectAttributes) {
+
+<span class="fc" id="L228">        log.debug(LogConstants.DELETE_NOTE_REQUEST_RECEIVED, noteId);</span>
+
+        try {
+<span class="fc" id="L231">            String noteListForPatientUrl = &quot;/note/&quot; + noteProxy.getNoteById(noteId).getPatientId() + &quot;/list/1&quot;;</span>
+
+            try {
+<span class="fc" id="L234">                noteProxy.deleteNoteById(noteId);</span>
+<span class="fc" id="L235">                log.info(LogConstants.DELETE_NOTE_REQUEST_OK, noteId);</span>
+<span class="fc" id="L236">                redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L237">                                                     formatOutputMessage(&quot;note.delete.ok&quot;,</span>
+<span class="fc" id="L238">                                                                         noteId.toString()));</span>
+<span class="fc" id="L239">                return &quot;redirect:&quot; + noteListForPatientUrl;</span>
+<span class="nc" id="L240">            } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="nc" id="L241">                log.error(noteDoesNotExistException.getMessage() + noteId);</span>
+<span class="nc" id="L242">                redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="nc" id="L243">                                                     formatOutputMessage(&quot;note.delete.ko&quot;,</span>
+<span class="nc" id="L244">                                                                         noteDoesNotExistException.getMessage() + noteId.toString()));</span>
+<span class="nc" id="L245">                return &quot;redirect:&quot; + noteListForPatientUrl;</span>
+            }
+
+<span class="fc" id="L248">        } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L249">            log.error(noteDoesNotExistException.getMessage() + noteId);</span>
+<span class="fc" id="L250">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L251">                                                 formatOutputMessage(&quot;note.delete.ko&quot;,</span>
+<span class="fc" id="L252">                                                                     noteDoesNotExistException.getMessage() + noteId.toString()));</span>
+<span class="fc" id="L253">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

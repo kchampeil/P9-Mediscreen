@@ -1,0 +1,4 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+riskAssessment,com.mediscreen.riskAssessment,RiskAssessmentApplication,5,3,0,0,2,1,1,1,1,1
+riskAssessment,com.mediscreen.riskAssessment.controller,RiskAssessmentController,0,22,0,0,0,6,0,3,0,3
+riskAssessment,com.mediscreen.riskAssessment.service,DiabetesRiskAssessmentService,0,125,1,22,0,37,1,18,0,7

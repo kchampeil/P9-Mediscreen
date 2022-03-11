@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RiskAssessmentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">clientUi</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.clientUi.controller</a> &gt; <span class="el_source">RiskAssessmentController.java</span></div><h1>RiskAssessmentController.java</h1><pre class="source lang-java linenums">package com.mediscreen.clientUi.controller;
+
+import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+
+import com.mediscreen.clientUi.constants.LogConstants;
+import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.clientUi.proxies.INoteProxy;
+import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.clientUi.proxies.IRiskAssessmentProxy;
+import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.dto.RiskAssessmentDTO;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+<span class="fc" id="L26">@Slf4j</span>
+@Controller
+public class RiskAssessmentController {
+
+    private final IRiskAssessmentProxy riskAssessmentProxy;
+    private final IPatientProxy patientProxy;
+    private final INoteProxy noteProxy;
+
+    @Autowired
+    public RiskAssessmentController(IRiskAssessmentProxy riskAssessmentProxy,
+<span class="fc" id="L36">                                    IPatientProxy patientProxy, INoteProxy noteProxy) {</span>
+<span class="fc" id="L37">        this.riskAssessmentProxy = riskAssessmentProxy;</span>
+<span class="fc" id="L38">        this.patientProxy = patientProxy;</span>
+<span class="fc" id="L39">        this.noteProxy = noteProxy;</span>
+<span class="fc" id="L40">    }</span>
+
+    @GetMapping(&quot;/assess/{id}&quot;)
+    public String showRiskAssessmentResult(@PathVariable(&quot;id&quot;) Integer patientId, Model model,
+                                           RedirectAttributes redirectAttributes) {
+
+<span class="fc" id="L46">        log.debug(LogConstants.SHOW_RISK_ASSESSMENT_RESULT_RECEIVED, patientId);</span>
+
+        try {
+<span class="fc" id="L49">            PatientDTO patientDTO = patientProxy.getPatientById(patientId);</span>
+<span class="fc" id="L50">            model.addAttribute(&quot;patient&quot;, patientDTO);</span>
+<span class="fc" id="L51">            model.addAttribute(&quot;age&quot;, Period.between(patientDTO.getBirthDate(), LocalDate.now()).getYears());</span>
+
+<span class="fc" id="L53">            List&lt;NoteDTO&gt; noteDTOList = noteProxy.getAllNotesForPatient(patientId);</span>
+
+<span class="fc" id="L55">            model.addAttribute(&quot;riskLevel&quot;,</span>
+<span class="fc" id="L56">                               riskAssessmentProxy.getDiabetesRiskForPatient(</span>
+                                   new RiskAssessmentDTO(patientDTO, noteDTOList)));
+<span class="fc" id="L58">            return ViewNameConstants.RISK_ASSESSMENT_RESULT;</span>
+
+<span class="fc" id="L60">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L61">            log.error(patientDoesNotExistException.getMessage() + patientId);</span>
+<span class="fc" id="L62">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L63">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+<span class="fc" id="L64">                                                                     patientId.toString()));</span>
+<span class="fc" id="L65">            return &quot;redirect:&quot; + ViewNameConstants.HOME_DOCTOR;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

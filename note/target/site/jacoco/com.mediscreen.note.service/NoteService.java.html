@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NoteService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">note</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.note.service</a> &gt; <span class="el_source">NoteService.java</span></div><h1>NoteService.java</h1><pre class="source lang-java linenums">package com.mediscreen.note.service;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import com.mediscreen.commons.constants.ExceptionConstants;
+import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
+import com.mediscreen.note.constants.LogConstants;
+import com.mediscreen.note.model.Note;
+import com.mediscreen.note.repository.NoteRepository;
+import com.mediscreen.note.service.contracts.INoteService;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+<span class="fc" id="L24">@Slf4j</span>
+@Service
+public class NoteService implements INoteService {
+
+<span class="fc" id="L28">    private static final ModelMapper modelMapper = new ModelMapper();</span>
+    public final NoteRepository noteRepository;
+
+    @Autowired
+<span class="fc" id="L32">    public NoteService(NoteRepository noteRepository) {</span>
+<span class="fc" id="L33">        this.noteRepository = noteRepository;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * get all medical notes (DTO) for a given patient, page number, items per page
+     * sorted on one given field with one direction
+     *
+     * @param patientId    id of the patient we want to retrieve the medical notes
+     * @param pageNumber   page we want to retrieve the list of medical notes
+     * @param itemsPerPage number of items per page
+     * @param sortField    sorted field
+     * @param sortDir      sorted direction
+     * @return Page of NoteDTO
+     */
+    @Override
+    public Page&lt;NoteDTO&gt; getAllNotesForPatientPageable(Integer patientId, int pageNumber, int itemsPerPage,
+                                                       String sortField, String sortDir) {
+<span class="fc" id="L50">        log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_PER_PAGE_SERVICE_CALL);</span>
+
+<span class="fc" id="L52">        Sort sort = Sort.by(sortField);</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">        sort = sortDir.equals(&quot;asc&quot;) ? sort.ascending() : sort.descending();</span>
+<span class="fc" id="L54">        Pageable pageable = PageRequest.of(pageNumber - 1, itemsPerPage, sort);</span>
+
+<span class="fc" id="L56">        Page&lt;NoteDTO&gt; noteDTOPage = noteRepository.findAllByPatientId(patientId, pageable)</span>
+<span class="fc" id="L57">                                                  .map(note -&gt; modelMapper.map(note, NoteDTO.class));</span>
+
+<span class="fc" id="L59">        log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_PER_PAGE_OK, pageNumber);</span>
+
+<span class="fc" id="L61">        return noteDTOPage;</span>
+    }
+
+    /**
+     * get all medical notes (DTO) for a given patient
+     *
+     * @param patientId id of the patient we want to retrieve the medical notes
+     * @return List of NoteDTO
+     */
+    @Override
+    public List&lt;NoteDTO&gt; getAllNotesForPatient(Integer patientId) {
+<span class="fc" id="L72">        log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_SERVICE_CALL);</span>
+
+<span class="fc" id="L74">        List&lt;Note&gt; noteList = noteRepository.findAllByPatientId(patientId);</span>
+<span class="fc" id="L75">        List&lt;NoteDTO&gt; noteDTOList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L76">        noteList.forEach(note -&gt; noteDTOList.add(modelMapper.map(note, NoteDTO.class)));</span>
+
+<span class="fc" id="L78">        log.debug(LogConstants.GET_ALL_NOTES_FOR_PATIENT_OK);</span>
+
+<span class="fc" id="L80">        return noteDTOList;</span>
+    }
+
+    /**
+     * add a note for a patient
+     *
+     * @param noteDtoToAdd information for the note to add
+     * @return added note (DTO)
+     */
+    @Override
+    public NoteDTO addNote(NoteDTO noteDtoToAdd) {
+
+<span class="fc" id="L92">        log.debug(LogConstants.ADD_NOTE_SERVICE_CALL);</span>
+
+<span class="fc" id="L94">        Note noteToAdd = modelMapper.map(noteDtoToAdd, Note.class);</span>
+<span class="fc" id="L95">        noteToAdd.setCreationDate(LocalDate.now());</span>
+
+<span class="fc" id="L97">        Note addedNote = noteRepository.save(noteToAdd);</span>
+
+<span class="fc" id="L99">        log.debug(LogConstants.ADD_NOTE_SERVICE_OK, noteToAdd.getId());</span>
+<span class="fc" id="L100">        return modelMapper.map(addedNote, NoteDTO.class);</span>
+    }
+
+    /**
+     * get note  from his id
+     *
+     * @param noteId id of the note
+     * @return note(DTO)
+     * @throws NoteDoesNotExistException if no note found for the id
+     */
+    @Override
+    public NoteDTO getNoteById(String noteId) throws NoteDoesNotExistException {
+<span class="fc" id="L112">        log.debug(LogConstants.GET_NOTE_BY_ID_SERVICE_CALL);</span>
+
+<span class="fc" id="L114">        Optional&lt;Note&gt; note = noteRepository.findById(noteId);</span>
+
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        if (note.isPresent()) {</span>
+<span class="fc" id="L117">            log.debug(LogConstants.GET_NOTE_BY_ID_SERVICE_OK, noteId);</span>
+<span class="fc" id="L118">            return modelMapper.map(note.get(), NoteDTO.class);</span>
+
+        } else {
+<span class="fc" id="L121">            log.error(LogConstants.NOTE_SERVICE_NOT_FOUND, noteId);</span>
+<span class="fc" id="L122">            throw new NoteDoesNotExistException(ExceptionConstants.NOTE_NOT_FOUND + noteId);</span>
+        }
+    }
+
+    /**
+     * update a note
+     *
+     * @param noteDtoToUpdate new information for the note
+     * @return updated note (DTO)
+     */
+    @Override
+    public NoteDTO updateNote(NoteDTO noteDtoToUpdate) throws NoteDoesNotExistException {
+
+<span class="fc" id="L135">        log.debug(LogConstants.UPDATE_NOTE_SERVICE_CALL);</span>
+
+        try {
+            /* check if note exists for the id */
+<span class="fc" id="L139">            this.getNoteById(noteDtoToUpdate.getId());</span>
+
+<span class="fc" id="L141">            Note noteToUpdate = modelMapper.map(noteDtoToUpdate, Note.class);</span>
+<span class="fc" id="L142">            noteToUpdate.setLastUpdateDate(LocalDate.now());</span>
+
+<span class="fc" id="L144">            Note updatedNote = noteRepository.save(noteToUpdate);</span>
+
+<span class="fc" id="L146">            log.debug(LogConstants.UPDATE_NOTE_SERVICE_OK, noteToUpdate.getId());</span>
+<span class="fc" id="L147">            return modelMapper.map(updatedNote, NoteDTO.class);</span>
+
+<span class="fc" id="L149">        } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L150">            log.error(LogConstants.UPDATE_NOTE_SERVICE_NOT_FOUND, noteDtoToUpdate.getId());</span>
+<span class="fc" id="L151">            throw noteDoesNotExistException;</span>
+        }
+    }
+
+    /**
+     * delete a note
+     *
+     * @param noteId of the note to delete
+     * @throws NoteDoesNotExistException if no note found to delete
+     */
+    @Override
+    public void deleteNoteById(String noteId) throws NoteDoesNotExistException {
+
+<span class="fc" id="L164">        log.debug(LogConstants.DELETE_NOTE_BY_ID_SERVICE_CALL);</span>
+
+<span class="fc" id="L166">        noteRepository.findById(noteId)</span>
+<span class="fc" id="L167">                      .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L168">                          log.error(LogConstants.NOTE_SERVICE_NOT_FOUND, noteId);</span>
+<span class="fc" id="L169">                          return new NoteDoesNotExistException(ExceptionConstants.NOTE_NOT_FOUND + noteId);</span>
+                      });
+
+<span class="fc" id="L172">        noteRepository.deleteById(noteId);</span>
+<span class="fc" id="L173">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

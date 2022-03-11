@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NoteController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">note</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.note.controller</a> &gt; <span class="el_source">NoteController.java</span></div><h1>NoteController.java</h1><pre class="source lang-java linenums">package com.mediscreen.note.controller;
+
+import java.util.List;
+
+import com.mediscreen.commons.constants.ExceptionConstants;
+import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
+import com.mediscreen.note.constants.LogConstants;
+import com.mediscreen.note.service.contracts.INoteService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+<span class="fc" id="L34">@Slf4j</span>
+@Api(value = &quot;API for CRUD operations on medical notes&quot;)
+@RestController
+@RequestMapping(&quot;/note&quot;)
+public class NoteController {
+    private static final String NOTE_DTO_EXAMPLE = &quot;{\n&quot; +
+                                                   &quot;    \&quot;_id\&quot; : \&quot;61b85fe5fa8e508d4860c7e9\&quot;,\n&quot; +
+                                                   &quot;    \&quot;patientId\&quot; : 1,\n&quot; +
+                                                   &quot;    \&quot;note\&quot; : \&quot;notes de janvier sur Emma Stone\&quot;,\n&quot; +
+                                                   &quot;    \&quot;creationDate\&quot; : \&quot;2021-01-01\&quot;\n&quot; +
+                                                   &quot;}&quot;;
+    private final INoteService noteService;
+
+    @Autowired
+<span class="fc" id="L48">    public NoteController(INoteService noteService) {</span>
+<span class="fc" id="L49">        this.noteService = noteService;</span>
+<span class="fc" id="L50">    }</span>
+
+    @ApiOperation(
+        value = &quot;Get all registered notes for one patient by page for a given number of items per page, &quot; +
+                &quot;sorted by one field in one direction&quot;)
+    @GetMapping(value = &quot;/list&quot;)
+    public Page&lt;NoteDTO&gt; getAllNotesForPatientByPage(@RequestParam Integer patientId,
+                                                     @RequestParam int pageNumber, @RequestParam int itemsPerPage,
+                                                     @RequestParam String sortField, @RequestParam String sortDir) {
+<span class="fc" id="L59">        log.debug(LogConstants.GET_ALL_NOTES_BY_PAGE_REQUEST_RECEIVED);</span>
+
+<span class="fc" id="L61">        return noteService.getAllNotesForPatientPageable(patientId, pageNumber, itemsPerPage, sortField, sortDir);</span>
+    }
+
+    @ApiOperation(
+        value = &quot;Get all registered notes for one patient&quot;)
+    @GetMapping(value = &quot;/all&quot;)
+    public List&lt;NoteDTO&gt; getAllNotesForPatient(@RequestParam Integer patientId) {
+<span class="fc" id="L68">        log.debug(LogConstants.GET_ALL_NOTES_REQUEST_RECEIVED);</span>
+
+<span class="fc" id="L70">        return noteService.getAllNotesForPatient(patientId);</span>
+    }
+
+    @ApiOperation(value = &quot;Get note by id&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Note found&quot;),
+        @ApiResponse(code = 404, message = ExceptionConstants.NOTE_NOT_FOUND)
+    })
+    @GetMapping(value = &quot;/&quot;)
+    public ResponseEntity&lt;NoteDTO&gt; getNoteById(
+        @ApiParam(name = &quot;id&quot;, type = &quot;String&quot;, value = &quot;id of note&quot;,
+                  example = &quot;61b85fe5fa8e508d4860c7e9&quot;, required = true)
+        @RequestParam String noteId) {
+
+<span class="fc" id="L84">        log.debug(LogConstants.GET_NOTE_BY_ID_REQUEST_RECEIVED, noteId);</span>
+
+        try {
+<span class="fc" id="L87">            NoteDTO noteDTO = noteService.getNoteById(noteId);</span>
+
+<span class="fc" id="L89">            log.debug(LogConstants.GET_NOTE_BY_ID_REQUEST_OK, noteId);</span>
+<span class="fc" id="L90">            return new ResponseEntity&lt;&gt;(noteDTO, HttpStatus.OK);</span>
+
+<span class="fc" id="L92">        } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L93">            log.error(noteDoesNotExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L94">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage(),</span>
+                                              noteDoesNotExistException);
+        }
+    }
+
+    @ApiOperation(value = &quot;Add medical note to the patient&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 201, message = &quot;Note created&quot;, examples = @Example(value =
+            {@ExampleProperty(mediaType = &quot;application/json&quot;,
+                              value = NOTE_DTO_EXAMPLE)})),
+    })
+    @PostMapping(value = &quot;/&quot;, consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity&lt;NoteDTO&gt; addNote(@ApiParam(value = &quot;Medical note to create&quot;)
+                                           @RequestBody NoteDTO noteDtoToAdd) {
+
+<span class="fc" id="L111">        log.debug(LogConstants.ADD_NOTE_REQUEST_RECEIVED, noteDtoToAdd.getPatientId());</span>
+
+<span class="fc" id="L113">        NoteDTO noteDtoAdded = noteService.addNote(noteDtoToAdd);</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        return noteDtoAdded != null ? new ResponseEntity&lt;&gt;(noteDtoAdded, HttpStatus.CREATED)</span>
+                                    : new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);
+    }
+
+    @ApiOperation(value = &quot;Update medical note of the patient&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Note updated&quot;, examples = @Example(value =
+            {@ExampleProperty(mediaType = &quot;application/json&quot;,
+                              value = NOTE_DTO_EXAMPLE)})),
+    })
+    @PutMapping(value = &quot;/&quot;, consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity&lt;NoteDTO&gt; updateNote(@ApiParam(value = &quot;Medical note to update&quot;)
+                                              @RequestBody NoteDTO noteDtoToUpdate) {
+
+<span class="fc" id="L130">        log.debug(LogConstants.UPDATE_NOTE_REQUEST_RECEIVED, noteDtoToUpdate.getPatientId());</span>
+
+        try {
+<span class="fc" id="L133">            NoteDTO noteDtoUpdated = noteService.updateNote(noteDtoToUpdate);</span>
+
+<span class="fc bfc" id="L135" title="All 2 branches covered.">            return noteDtoUpdated != null ? new ResponseEntity&lt;&gt;(noteDtoUpdated, HttpStatus.OK)</span>
+                                          : new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);
+
+<span class="fc" id="L138">        } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L139">            log.error(noteDoesNotExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L140">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage());</span>
+        }
+    }
+
+    @ApiOperation(value = &quot;Delete note by id&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Note deleted&quot;),
+        @ApiResponse(code = 404, message = ExceptionConstants.NOTE_NOT_FOUND)
+    })
+    @DeleteMapping(value = &quot;/&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity&lt;Integer&gt; deleteNoteById(
+        @ApiParam(name = &quot;id&quot;, type = &quot;String&quot;, value = &quot;id of note&quot;, example = &quot;61b85fe5fa8e508d4860c7e9&quot;,
+                  required = true)
+        @RequestParam String noteId) {
+
+<span class="fc" id="L156">        log.debug(LogConstants.DELETE_NOTE_BY_ID_REQUEST_RECEIVED, noteId);</span>
+
+        try {
+<span class="fc" id="L159">            noteService.deleteNoteById(noteId);</span>
+
+<span class="fc" id="L161">            log.debug(LogConstants.DELETE_NOTE_BY_ID_REQUEST_OK, noteId);</span>
+<span class="fc" id="L162">            return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+
+<span class="fc" id="L164">        } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L165">            log.error(noteDoesNotExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L166">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, noteDoesNotExistException.getMessage(),</span>
+                                              noteDoesNotExistException);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

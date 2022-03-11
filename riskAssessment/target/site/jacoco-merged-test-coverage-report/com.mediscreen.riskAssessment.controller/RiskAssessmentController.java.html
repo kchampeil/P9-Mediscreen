@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RiskAssessmentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">riskAssessment</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.riskAssessment.controller</a> &gt; <span class="el_source">RiskAssessmentController.java</span></div><h1>RiskAssessmentController.java</h1><pre class="source lang-java linenums">package com.mediscreen.riskAssessment.controller;
+
+import com.mediscreen.commons.constants.RiskLevel;
+import com.mediscreen.commons.dto.RiskAssessmentDTO;
+import com.mediscreen.riskAssessment.constants.LogConstants;
+import com.mediscreen.riskAssessment.service.contracts.IRiskAssessmentService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+<span class="fc" id="L21">@Slf4j</span>
+@Api(value = &quot;API for calculation fo risk disease for patients&quot;)
+@Controller
+@RequestMapping(&quot;/assess&quot;)
+public class RiskAssessmentController {
+
+    private final IRiskAssessmentService riskAssessmentService;
+
+    @Autowired
+<span class="fc" id="L30">    public RiskAssessmentController(IRiskAssessmentService riskAssessmentService) {</span>
+<span class="fc" id="L31">        this.riskAssessmentService = riskAssessmentService;</span>
+<span class="fc" id="L32">    }</span>
+
+    @ApiOperation(value = &quot;Assess diabetes risk for patient&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Diabetes risk evaluated&quot;)
+    })
+    @PostMapping(value = &quot;/diabetes&quot;)
+    public ResponseEntity&lt;RiskLevel&gt; getDiabetesRiskForPatient(
+        @ApiParam(value = &quot;information and medical notes about patient&quot;)
+        @RequestBody RiskAssessmentDTO riskAssessmentDTO) {
+
+<span class="fc" id="L43">        log.debug(LogConstants.GET_RISK_FOR_PATIENT_REQUEST_RECEIVED);</span>
+
+<span class="fc" id="L45">        return new ResponseEntity&lt;&gt;(riskAssessmentService.evaluateRisk(riskAssessmentDTO),</span>
+                                    HttpStatus.OK);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

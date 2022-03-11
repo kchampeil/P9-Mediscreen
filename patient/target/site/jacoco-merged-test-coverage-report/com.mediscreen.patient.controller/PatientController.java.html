@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PatientController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">patient</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.patient.controller</a> &gt; <span class="el_source">PatientController.java</span></div><h1>PatientController.java</h1><pre class="source lang-java linenums">package com.mediscreen.patient.controller;
+
+import static com.mediscreen.commons.dto.PatientDTO.PATIENT_DTO_EXAMPLE;
+
+import com.mediscreen.commons.constants.ExceptionConstants;
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
+import com.mediscreen.patient.constants.LogConstants;
+import com.mediscreen.patient.service.contracts.IPatientService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Example;
+import io.swagger.annotations.ExampleProperty;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+<span class="fc" id="L35">@Slf4j</span>
+@Api(value = &quot;API for CRUD operations on patients&quot;)
+@RestController
+@RequestMapping(&quot;/patient&quot;)
+public class PatientController {
+
+    private final IPatientService patientService;
+
+    @Autowired
+<span class="fc" id="L44">    public PatientController(IPatientService patientService) {</span>
+<span class="fc" id="L45">        this.patientService = patientService;</span>
+<span class="fc" id="L46">    }</span>
+
+    @ApiOperation(
+        value = &quot;Get all registered patients by page for a given number of items per page, &quot; +
+                &quot;sorted by one field in one direction&quot;)
+    @GetMapping(value = &quot;/list&quot;)
+    public Page&lt;PatientDTO&gt; getAllPatientsByPage(@RequestParam int pageNumber, @RequestParam int itemsPerPage,
+                                                 @RequestParam String sortField, @RequestParam String sortDir) {
+<span class="fc" id="L54">        log.debug(LogConstants.GET_ALL_PATIENTS_REQUEST_RECEIVED);</span>
+
+<span class="fc" id="L56">        return patientService.getAllPatientsPageable(pageNumber, itemsPerPage, sortField, sortDir);</span>
+    }
+
+    @ApiOperation(value = &quot;Get patient by id&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Patient found&quot;),
+        @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
+    })
+    @GetMapping(value = &quot;/&quot;)
+    public ResponseEntity&lt;PatientDTO&gt; getPatientById(
+        @ApiParam(name = &quot;id&quot;, type = &quot;Integer&quot;, value = &quot;id of patient&quot;, example = &quot;1&quot;, required = true)
+        @RequestParam Integer patientId) {
+
+<span class="fc" id="L69">        log.debug(LogConstants.GET_PATIENT_BY_ID_REQUEST_RECEIVED, patientId);</span>
+
+        try {
+<span class="fc" id="L72">            PatientDTO patientDTO = patientService.getPatientById(patientId);</span>
+
+<span class="fc" id="L74">            log.debug(LogConstants.GET_PATIENT_BY_ID_REQUEST_OK, patientId);</span>
+<span class="fc" id="L75">            return new ResponseEntity&lt;&gt;(patientDTO, HttpStatus.OK);</span>
+
+<span class="fc" id="L77">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L78">            log.error(patientDoesNotExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L79">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage(),</span>
+                                              patientDoesNotExistException);
+        }
+    }
+
+    @ApiOperation(value = &quot;Update patient&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Patient updated&quot;,
+                     examples = @Example(value = {@ExampleProperty(mediaType = &quot;application/json&quot;,
+                                                                   value = PATIENT_DTO_EXAMPLE)})),
+        @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND),
+        @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
+    })
+    @PutMapping(value = &quot;/&quot;, consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity&lt;PatientDTO&gt; updatePatient(@ApiParam(value = &quot;Patient information to update&quot;)
+                                                    @RequestBody PatientDTO patientDtoToUpdate) {
+
+<span class="fc" id="L97">        log.debug(LogConstants.UPDATE_PATIENT_REQUEST_RECEIVED, patientDtoToUpdate.getId());</span>
+
+        try {
+<span class="fc" id="L100">            PatientDTO patientDtoUpdated = patientService.updatePatient(patientDtoToUpdate);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            return patientDtoUpdated != null ? new ResponseEntity&lt;&gt;(patientDtoUpdated, HttpStatus.OK)</span>
+                                             : new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);
+
+<span class="fc" id="L104">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L105">            log.error(patientDoesNotExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L106">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage());</span>
+
+<span class="fc" id="L108">        } catch (PatientAlreadyExistException patientAlreadyExistException) {</span>
+<span class="fc" id="L109">            log.error(patientAlreadyExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L110">            throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());</span>
+        }
+    }
+
+    @ApiOperation(value = &quot;Add patient&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 201, message = &quot;Patient created&quot;, examples = @Example(value =
+            {@ExampleProperty(mediaType = &quot;application/json&quot;,
+                              value = PATIENT_DTO_EXAMPLE)})),
+        @ApiResponse(code = 409, message = ExceptionConstants.PATIENT_ALREADY_EXISTS)
+    })
+    @PostMapping(value = &quot;/&quot;, consumes = MediaType.APPLICATION_JSON_VALUE,
+                 produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity&lt;PatientDTO&gt; addPatient(@ApiParam(value = &quot;Information about the patient to create&quot;)
+                                                 @RequestBody PatientDTO patientDtoToAdd) {
+
+<span class="fc" id="L127">        log.debug(LogConstants.ADD_PATIENT_REQUEST_RECEIVED,</span>
+<span class="fc" id="L128">                  patientDtoToAdd.getFirstname() + &quot; &quot; + patientDtoToAdd.getLastname());</span>
+
+        try {
+<span class="fc" id="L131">            PatientDTO patientDtoAdded = patientService.addPatient(patientDtoToAdd);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            return patientDtoAdded != null ? new ResponseEntity&lt;&gt;(patientDtoAdded, HttpStatus.CREATED)</span>
+                                           : new ResponseEntity&lt;&gt;(HttpStatus.BAD_REQUEST);
+
+<span class="fc" id="L135">        } catch (PatientAlreadyExistException patientAlreadyExistException) {</span>
+<span class="fc" id="L136">            log.error(patientAlreadyExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L137">            throw new ResponseStatusException(HttpStatus.CONFLICT, patientAlreadyExistException.getMessage());</span>
+        }
+    }
+
+    @ApiOperation(value = &quot;Delete patient by id&quot;)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = &quot;Patient deleted&quot;),
+        @ApiResponse(code = 404, message = ExceptionConstants.PATIENT_NOT_FOUND)
+    })
+    @DeleteMapping(value = &quot;/&quot;)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity&lt;Integer&gt; deletePatientById(
+        @ApiParam(name = &quot;id&quot;, type = &quot;Integer&quot;, value = &quot;id of patient&quot;, example = &quot;1&quot;, required = true)
+        @RequestParam Integer patientId) {
+
+<span class="fc" id="L152">        log.debug(LogConstants.DELETE_PATIENT_BY_ID_REQUEST_RECEIVED, patientId);</span>
+
+        try {
+<span class="fc" id="L155">            patientService.deletePatientById(patientId);</span>
+
+<span class="fc" id="L157">            log.debug(LogConstants.DELETE_PATIENT_BY_ID_REQUEST_OK, patientId);</span>
+<span class="fc" id="L158">            return new ResponseEntity&lt;&gt;(HttpStatus.NO_CONTENT);</span>
+
+<span class="fc" id="L160">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L161">            log.error(patientDoesNotExistException.getMessage() + &quot; \n&quot;);</span>
+<span class="fc" id="L162">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, patientDoesNotExistException.getMessage(),</span>
+                                              patientDoesNotExistException);
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

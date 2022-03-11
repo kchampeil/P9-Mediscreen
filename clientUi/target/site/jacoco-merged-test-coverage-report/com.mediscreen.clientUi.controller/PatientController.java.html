@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PatientController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">clientUi</a> &gt; <a href="index.source.html" class="el_package">com.mediscreen.clientUi.controller</a> &gt; <span class="el_source">PatientController.java</span></div><h1>PatientController.java</h1><pre class="source lang-java linenums">package com.mediscreen.clientUi.controller;
+
+import static com.mediscreen.clientUi.utils.MessageUtil.formatOutputMessage;
+
+import java.util.List;
+import javax.validation.Valid;
+
+import com.mediscreen.clientUi.constants.LogConstants;
+import com.mediscreen.clientUi.constants.ProfileConstants;
+import com.mediscreen.clientUi.constants.ViewNameConstants;
+import com.mediscreen.clientUi.proxies.INoteProxy;
+import com.mediscreen.clientUi.proxies.IPatientProxy;
+import com.mediscreen.commons.dto.NoteDTO;
+import com.mediscreen.commons.dto.PatientDTO;
+import com.mediscreen.commons.exceptions.NoteDoesNotExistException;
+import com.mediscreen.commons.exceptions.PatientAlreadyExistException;
+import com.mediscreen.commons.exceptions.PatientDoesNotExistException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+<span class="fc" id="L31">@Slf4j</span>
+@Controller
+public class PatientController {
+
+    private final IPatientProxy patientProxy;
+    private final INoteProxy noteProxy;
+
+    @Autowired
+<span class="fc" id="L39">    public PatientController(IPatientProxy patientProxy, INoteProxy noteProxy) {</span>
+<span class="fc" id="L40">        this.patientProxy = patientProxy;</span>
+<span class="fc" id="L41">        this.noteProxy = noteProxy;</span>
+<span class="fc" id="L42">    }</span>
+
+    @GetMapping(&quot;/organizer&quot;)
+    public String showHomePageOrganizer(Model model) {
+
+<span class="fc" id="L47">        log.debug(LogConstants.HOME_ORGANIZER_REQUEST_RECEIVED);</span>
+<span class="fc" id="L48">        model.addAttribute(&quot;profile&quot;, ProfileConstants.ORGANIZER_PROFILE);</span>
+<span class="fc" id="L49">        return showAllPatientsByPage(model, 1, ProfileConstants.ORGANIZER_DEFAULT_SORT_FIELD,</span>
+                                     ProfileConstants.ORGANIZER_DEFAULT_SORT_DIRECTION, 5,
+                                     ProfileConstants.ORGANIZER_PROFILE);
+    }
+
+    @GetMapping(&quot;/doctor&quot;)
+    public String showHomePageDoctor(Model model) {
+
+<span class="fc" id="L57">        log.debug(LogConstants.HOME_DOCTOR_REQUEST_RECEIVED);</span>
+<span class="fc" id="L58">        model.addAttribute(&quot;profile&quot;, ProfileConstants.DOCTOR_PROFILE);</span>
+<span class="fc" id="L59">        return showAllPatientsByPage(model, 1, ProfileConstants.DOCTOR_DEFAULT_SORT_FIELD_FOR_PATIENTS,</span>
+                                     ProfileConstants.DOCTOR_DEFAULT_SORT_DIRECTION, 5,
+                                     ProfileConstants.DOCTOR_PROFILE);
+    }
+
+    @GetMapping(&quot;/patient/list/{page}&quot;)
+    public String showAllPatientsByPage(Model model,
+                                        @PathVariable(&quot;page&quot;) int currentPage,
+                                        @RequestParam(value = &quot;sortField&quot;,
+                                                      defaultValue = ProfileConstants.DEFAULT_SORT_FIELD) String sortField,
+                                        @RequestParam(value = &quot;sortDir&quot;,
+                                                      defaultValue = ProfileConstants.DEFAULT_SORT_DIRECTION) String sortDir,
+                                        @RequestParam(value = &quot;itemsPerPage&quot;,
+                                                      defaultValue = ProfileConstants.DEFAULT_ITEMS_PER_PAGE) int itemsPerPage,
+                                        @RequestParam(value = &quot;profile&quot;,
+                                                      defaultValue = ProfileConstants.DEFAULT_PROFILE) String profile) {
+
+<span class="fc" id="L76">        log.debug(LogConstants.SHOW_PATIENTS_PER_PAGE_REQUEST_RECEIVED, currentPage, sortField, sortDir);</span>
+
+<span class="fc" id="L78">        Page&lt;PatientDTO&gt; patientDTOPage = patientProxy.getAllPatientsByPage(currentPage, itemsPerPage, sortField,</span>
+                                                                            sortDir);
+
+<span class="fc" id="L81">        model.addAttribute(&quot;patientDtoList&quot;, patientDTOPage.getContent());</span>
+<span class="fc" id="L82">        model.addAttribute(&quot;currentPage&quot;, currentPage);</span>
+<span class="fc" id="L83">        model.addAttribute(&quot;totalPages&quot;, patientDTOPage.getTotalPages());</span>
+<span class="fc" id="L84">        model.addAttribute(&quot;totalItems&quot;, patientDTOPage.getTotalElements());</span>
+<span class="fc" id="L85">        model.addAttribute(&quot;itemsPerPage&quot;, itemsPerPage);</span>
+<span class="fc" id="L86">        model.addAttribute(&quot;profile&quot;, profile);</span>
+
+<span class="fc" id="L88">        model.addAttribute(&quot;sortField&quot;, sortField);</span>
+<span class="fc" id="L89">        model.addAttribute(&quot;sortDir&quot;, sortDir);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        model.addAttribute(&quot;reverseSortDir&quot;, sortDir.equals(&quot;asc&quot;) ? &quot;desc&quot; : &quot;asc&quot;);</span>
+
+<span class="fc" id="L92">        return ViewNameConstants.SHOW_ALL_PATIENTS;</span>
+    }
+
+    @GetMapping(&quot;/patient/update/{id}&quot;)
+    public String showUpdateForm(@PathVariable(&quot;id&quot;) Integer patientId, Model model,
+                                 RedirectAttributes redirectAttributes) {
+
+<span class="fc" id="L99">        log.debug(LogConstants.SHOW_UPDATE_PATIENT_FORM_RECEIVED, patientId);</span>
+
+        try {
+<span class="fc" id="L102">            model.addAttribute(&quot;patient&quot;, patientProxy.getPatientById(patientId));</span>
+<span class="fc" id="L103">            return ViewNameConstants.UPDATE_PATIENT;</span>
+
+<span class="fc" id="L105">        } catch (PatientDoesNotExistException patientDoesNotExistException) {</span>
+<span class="fc" id="L106">            log.error(patientDoesNotExistException.getMessage() + patientId);</span>
+<span class="fc" id="L107">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L108">                                                 formatOutputMessage(&quot;patient.not.found&quot;,</span>
+<span class="fc" id="L109">                                                                     patientId.toString()));</span>
+<span class="fc" id="L110">            return &quot;redirect:&quot; + ViewNameConstants.HOME_ORGANIZER;</span>
+        }
+    }
+
+    @PostMapping(&quot;/patient/update/{id}&quot;)
+    public String updatePatient(@PathVariable(&quot;id&quot;) Integer patientId,
+                                @ModelAttribute(&quot;patient&quot;) @Valid PatientDTO patientDTO,
+                                BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+<span class="fc" id="L118">        log.debug(LogConstants.UPDATE_PATIENT_RECEIVED, patientId);</span>
+
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (result.hasErrors()) {</span>
+<span class="fc" id="L121">            log.error(LogConstants.UPDATE_PATIENT_REQUEST_NOT_VALID + patientId + &quot;\n&quot;);</span>
+<span class="fc" id="L122">            return ViewNameConstants.UPDATE_PATIENT;</span>
+        }
+
+        try {
+<span class="fc" id="L126">            patientProxy.updatePatient(patientDTO);</span>
+
+<span class="fc" id="L128">            log.info(LogConstants.UPDATE_PATIENT_REQUEST_OK, patientId);</span>
+
+<span class="fc" id="L130">            redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L131">                                                 formatOutputMessage(&quot;patient.update.ok&quot;,</span>
+<span class="fc" id="L132">                                                                     patientId.toString()));</span>
+<span class="fc" id="L133">            return &quot;redirect:&quot; + ViewNameConstants.HOME_ORGANIZER;</span>
+
+<span class="fc" id="L135">        } catch (PatientDoesNotExistException | PatientAlreadyExistException patientException) {</span>
+<span class="fc" id="L136">            log.error(LogConstants.UPDATE_PATIENT_REQUEST_KO, patientId, patientException.getMessage());</span>
+<span class="fc" id="L137">            model.addAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L138">                               formatOutputMessage(&quot;patient.update.ko&quot;,</span>
+<span class="fc" id="L139">                                                   patientId.toString()) + patientException.getMessage());</span>
+<span class="fc" id="L140">            return ViewNameConstants.UPDATE_PATIENT;</span>
+
+        }
+    }
+
+    @GetMapping(&quot;/patient/add&quot;)
+    public String showAddForm(Model model) {
+
+<span class="fc" id="L148">        log.debug(LogConstants.SHOW_ADD_PATIENT_FORM_RECEIVED);</span>
+
+<span class="fc" id="L150">        model.addAttribute(&quot;patient&quot;, new PatientDTO());</span>
+<span class="fc" id="L151">        return ViewNameConstants.ADD_PATIENT;</span>
+    }
+
+    @PostMapping(&quot;/patient/add&quot;)
+    public String addPatient(@ModelAttribute(&quot;patient&quot;) @Valid PatientDTO patientDTO,
+                             BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+<span class="fc" id="L157">        log.debug(LogConstants.ADD_PATIENT_RECEIVED);</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">        if (result.hasErrors()) {</span>
+<span class="fc" id="L160">            log.error(LogConstants.ADD_PATIENT_REQUEST_NOT_VALID);</span>
+<span class="fc" id="L161">            return ViewNameConstants.ADD_PATIENT;</span>
+        }
+
+        try {
+<span class="fc" id="L165">            patientDTO = patientProxy.addPatient(patientDTO);</span>
+
+<span class="fc" id="L167">            log.info(LogConstants.ADD_PATIENT_REQUEST_OK, patientDTO.getId());</span>
+
+<span class="fc" id="L169">            redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L170">                                                 formatOutputMessage(&quot;patient.add.ok&quot;,</span>
+<span class="fc" id="L171">                                                                     patientDTO.getId().toString()));</span>
+<span class="fc" id="L172">            return &quot;redirect:&quot; + ViewNameConstants.HOME_ORGANIZER;</span>
+
+<span class="fc" id="L174">        } catch (PatientAlreadyExistException patientException) {</span>
+<span class="fc" id="L175">            log.error(LogConstants.ADD_PATIENT_REQUEST_KO, patientException.getMessage());</span>
+<span class="fc" id="L176">            model.addAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L177">                               formatOutputMessage(&quot;patient.add.ko&quot;, patientException.getMessage()));</span>
+<span class="fc" id="L178">            return ViewNameConstants.ADD_PATIENT;</span>
+
+        }
+    }
+
+    @GetMapping(&quot;/patient/delete/{id}&quot;)
+    public String deletePatient(@PathVariable(&quot;id&quot;) Integer patientId, RedirectAttributes redirectAttributes) {
+
+<span class="fc" id="L186">        log.debug(LogConstants.DELETE_PATIENT_REQUEST_RECEIVED, patientId);</span>
+
+        /* check that the patient exists */
+        try {
+<span class="fc" id="L190">            patientProxy.getPatientById(patientId);</span>
+
+            /* Deletion of all existing notes for the patient */
+<span class="fc" id="L193">            int numberOfNotesNotDeleted = deleteExistingNotesForPatient(patientId);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">            if (numberOfNotesNotDeleted &gt; 0) {</span>
+<span class="fc" id="L195">                redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L196">                                                     formatOutputMessage(&quot;note.delete.ko.when.delete.patient&quot;,</span>
+<span class="fc" id="L197">                                                                         String.valueOf(numberOfNotesNotDeleted)));</span>
+            }
+
+            /* Deletion of the patient */
+<span class="fc" id="L201">            patientProxy.deletePatientById(patientId);</span>
+<span class="fc" id="L202">            log.info(LogConstants.DELETE_PATIENT_REQUEST_OK, patientId);</span>
+<span class="fc" id="L203">            redirectAttributes.addFlashAttribute(&quot;infoMessage&quot;,</span>
+<span class="fc" id="L204">                                                 formatOutputMessage(&quot;patient.delete.ok&quot;,</span>
+<span class="fc" id="L205">                                                                     patientId.toString()));</span>
+<span class="fc" id="L206">            return &quot;redirect:&quot; + ViewNameConstants.HOME_ORGANIZER;</span>
+
+<span class="fc" id="L208">        } catch (</span>
+            PatientDoesNotExistException patientDoesNotExistException) {
+<span class="fc" id="L210">            log.error(patientDoesNotExistException.getMessage() + patientId);</span>
+<span class="fc" id="L211">            redirectAttributes.addFlashAttribute(&quot;errorMessage&quot;,</span>
+<span class="fc" id="L212">                                                 formatOutputMessage(&quot;patient.delete.ko&quot;,</span>
+<span class="fc" id="L213">                                                                     patientDoesNotExistException.getMessage() + patientId.toString()));</span>
+<span class="fc" id="L214">            return &quot;redirect:&quot; + ViewNameConstants.HOME_ORGANIZER;</span>
+        }
+
+    }
+
+    private int deleteExistingNotesForPatient(Integer patientId) {
+
+<span class="fc" id="L221">        int numberOfNotesNotDeleted = 0;</span>
+<span class="fc" id="L222">        List&lt;NoteDTO&gt; noteDTOList = noteProxy.getAllNotesForPatient(patientId);</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">        if (!noteDTOList.isEmpty()) {</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">            for (NoteDTO note : noteDTOList) {</span>
+                try {
+<span class="fc" id="L226">                    noteProxy.deleteNoteById(note.getId());</span>
+<span class="fc" id="L227">                } catch (NoteDoesNotExistException noteDoesNotExistException) {</span>
+<span class="fc" id="L228">                    log.info(noteDoesNotExistException.getMessage() + note.getId());</span>
+<span class="fc" id="L229">                    numberOfNotesNotDeleted++;</span>
+<span class="fc" id="L230">                }</span>
+<span class="fc" id="L231">            }</span>
+        }
+<span class="fc" id="L233">        return numberOfNotesNotDeleted;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
